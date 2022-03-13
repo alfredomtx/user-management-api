@@ -12,8 +12,7 @@ import org.springframework.context.annotation.Bean;
 import com.olx.controller.dto.UserDTO;
 import com.olx.model.User;
 import com.olx.repository.UserRepository;
-
-import io.restassured.module.mockmvc.RestAssuredMockMvc;
+import com.olx.service.impl.UserServiceImpl;
 
 class UserServiceTest {
 
@@ -21,14 +20,14 @@ class UserServiceTest {
 	static class UserServiceTestConfiguration {
 
 		@Bean
-		public UserService userService() {
-			return new UserService();
+		public UserServiceImpl userService() {
+			return new UserServiceImpl();
 		}
 
 	}
 
 	@Autowired
-	private UserService userService;
+	private UserServiceImpl userService;
 
 	@MockBean
 	private UserRepository userRepository;

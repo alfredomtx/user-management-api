@@ -1,16 +1,15 @@
 package com.olx.service;
 
-import java.util.List;
-import java.util.Optional;
-
-import javax.persistence.EntityNotFoundException;
-
 import com.olx.controller.dto.UserDTO;
 import com.olx.controller.dto.UserInsertDTO;
 import com.olx.controller.dto.UserPasswordDTO;
 import com.olx.exceptions.InvalidUserDataException;
 import com.olx.exceptions.UserAlreadyExistsException;
 import com.olx.model.User;
+
+import java.util.List;
+import java.util.Optional;
+
 
 public interface UserService {
 

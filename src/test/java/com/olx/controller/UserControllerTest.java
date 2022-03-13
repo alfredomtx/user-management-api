@@ -1,13 +1,11 @@
 package com.olx.controller;
 
-import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
-import static org.mockito.Mockito.when;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.persistence.EntityNotFoundException;
-
+import com.olx.controller.dto.UserDTO;
+import com.olx.repository.UserRepository;
+import com.olx.service.UserService;
+import com.olx.service.impl.UserDetailServiceImpl;
+import io.restassured.http.ContentType;
+import io.restassured.module.mockmvc.RestAssuredMockMvc;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,13 +13,12 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpStatus;
 
-import com.olx.controller.dto.UserDTO;
-import com.olx.repository.UserRepository;
-import com.olx.service.UserDetailServiceImpl;
-import com.olx.service.UserService;
+import javax.persistence.EntityNotFoundException;
+import java.util.ArrayList;
+import java.util.List;
 
-import io.restassured.http.ContentType;
-import io.restassured.module.mockmvc.RestAssuredMockMvc;
+import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
+import static org.mockito.Mockito.when;
 
 @WebMvcTest
 class UserControllerTest {
