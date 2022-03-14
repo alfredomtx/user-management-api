@@ -7,7 +7,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 public class OlxApplicationTests {
 
 	@Test
-	void contextLoads() {
+	void main() {
+		OlxApplication.main(new String[] {});
 	}
 
 }

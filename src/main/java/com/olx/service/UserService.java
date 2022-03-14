@@ -1,14 +1,12 @@
 package com.olx.service;
 
-import com.olx.controller.dto.UserDTO;
-import com.olx.controller.dto.UserInsertDTO;
-import com.olx.controller.dto.UserPasswordDTO;
-import com.olx.exceptions.InvalidUserDataException;
-import com.olx.exceptions.UserAlreadyExistsException;
+import com.olx.model.dto.UserDTO;
+import com.olx.model.dto.UserInsertDTO;
+import com.olx.model.dto.UserPasswordDTO;
+import com.olx.model.dto.UserUpdateDTO;
 import com.olx.model.User;
 
 import java.util.List;
-import java.util.Optional;
 
 
 public interface UserService {
@@ -19,11 +17,13 @@ public interface UserService {
 
 	List<UserDTO> getAll();
 
-	UserDTO add(User user) throws UserAlreadyExistsException;
+	UserDTO add(UserInsertDTO user);
 
-	void update(Long id, UserInsertDTO userRequest) throws InvalidUserDataException, UserAlreadyExistsException;
+	void update(Long id, UserUpdateDTO userRequest);
 
 	void changePassword(Long id, UserPasswordDTO password);
 
-	Boolean validateLogin(Optional<User> userRequest);
+	Boolean validateLogin(User userRequest);
+
+	void delete(Long id);
 }

@@ -9,7 +9,7 @@ import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Bean;
 
-import com.olx.controller.dto.UserDTO;
+import com.olx.model.dto.UserDTO;
 import com.olx.model.User;
 import com.olx.repository.UserRepository;
 import com.olx.service.impl.UserServiceImpl;
