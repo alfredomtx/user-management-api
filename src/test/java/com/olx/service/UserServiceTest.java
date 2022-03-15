@@ -1,30 +1,18 @@
 package com.olx.service;
 
+import com.olx.model.User;
+import com.olx.model.dto.UserDTO;
+import com.olx.repository.UserRepository;
+import com.olx.service.impl.UserServiceImpl;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.context.annotation.Bean;
-
-import com.olx.model.dto.UserDTO;
-import com.olx.model.User;
-import com.olx.repository.UserRepository;
-import com.olx.service.impl.UserServiceImpl;
 
 class UserServiceTest {
 
-	@TestConfiguration
-	static class UserServiceTestConfiguration {
-
-		@Bean
-		public UserServiceImpl userService() {
-			return new UserServiceImpl();
-		}
-
-	}
 
 	@Autowired
 	private UserServiceImpl userService;

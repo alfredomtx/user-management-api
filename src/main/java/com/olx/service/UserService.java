@@ -1,10 +1,9 @@
 package com.olx.service;
 
+import com.olx.model.User;
 import com.olx.model.dto.UserDTO;
 import com.olx.model.dto.UserInsertDTO;
-import com.olx.model.dto.UserPasswordDTO;
 import com.olx.model.dto.UserUpdateDTO;
-import com.olx.model.User;
 
 import java.util.List;
 
@@ -19,9 +18,9 @@ public interface UserService {
 
 	UserDTO add(UserInsertDTO user);
 
-	void update(Long id, UserUpdateDTO userRequest);
+	UserDTO update(Long id, UserUpdateDTO userRequest);
 
-	void changePassword(Long id, UserPasswordDTO password);
+	void changePassword(Long id, String password);
 
 	Boolean validateLogin(User userRequest);
 

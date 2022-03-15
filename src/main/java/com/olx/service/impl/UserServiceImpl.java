@@ -1,16 +1,15 @@
 package com.olx.service.impl;
 
+import com.olx.exceptions.InvalidUserDataException;
 import com.olx.exceptions.UserAlreadyExistsException;
 import com.olx.exceptions.UserNotFoundException;
 import com.olx.model.User;
 import com.olx.model.dto.UserDTO;
 import com.olx.model.dto.UserInsertDTO;
-import com.olx.model.dto.UserPasswordDTO;
 import com.olx.model.dto.UserUpdateDTO;
 import com.olx.repository.UserRepository;
 import com.olx.service.UserService;
 import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -21,13 +20,15 @@ import java.util.stream.Collectors;
 @Service
 public class UserServiceImpl implements UserService {
 
-	@Autowired
-	private PasswordEncoder passwordEncoder;
-	@Autowired
-	private UserRepository userRepo;
-	@Autowired
-	private ModelMapper mapper;
+	private final PasswordEncoder passwordEncoder;
+	private final UserRepository userRepo;
+	private final ModelMapper mapper;
 
+	public UserServiceImpl(PasswordEncoder passwordEncoder, UserRepository userRepo, ModelMapper mapper) {
+		this.passwordEncoder = passwordEncoder;
+		this.userRepo = userRepo;
+		this.mapper = mapper;
+	}
 
 	@Override
 	public List<UserDTO> getAll() {
@@ -39,13 +40,13 @@ public class UserServiceImpl implements UserService {
 
 	@Override
 	public UserDTO getById(Long id) {
-		User user = userRepo.findById(id).orElseThrow(() -> new UserNotFoundException(userNotFoundMessage(id)));
+		User user = userRepo.findById(id).orElseThrow(() -> new UserNotFoundException(id));
 		return mapper.map(user, UserDTO.class);
 	}
 
 	@Override
 	public UserDTO getByEmail(String email) {
-		User user = userRepo.findByEmail(email).orElseThrow(() -> new UserNotFoundException(userNotFoundMessage(email)));
+		User user = userRepo.findByEmail(email).orElseThrow(() -> new UserNotFoundException(email));
 		return mapper.map(user, UserDTO.class);
 	}
 
@@ -54,21 +55,19 @@ public class UserServiceImpl implements UserService {
 		// validate if user already exists by email
 		Optional<User> userExists = userRepo.findByEmail(user.getEmail());
 		if (userExists.isPresent())
-			throw new UserAlreadyExistsException(userAlreadyExistsMessage(userExists.get().getEmail()));
+			throw new UserAlreadyExistsException(userExists.get().getEmail());
 
 		// create new User object to add on database to avoid Web Parameter Tampering
 		User userAdd = mapper.map(user, User.class);
 
 		userAdd.setPassword(passwordEncoder.encode(userAdd.getPassword()));
 
-		userRepo.save(userAdd);
-
-		return mapper.map(user, UserDTO.class);
+		return mapper.map(userRepo.save(userAdd), UserDTO.class);
 	}
 
 	@Override
-	public void update(Long id, UserUpdateDTO userRequest) {
-		User user = userRepo.findById(id).orElseThrow(() -> new UserNotFoundException(userNotFoundMessage(id)));
+	public UserDTO update(Long id, UserUpdateDTO userRequest) {
+		User user = userRepo.findById(id).orElseThrow(() -> new UserNotFoundException(id));
 
 		/*
 		 if the "email" of userRequest is different of the current user email in db
@@ -77,56 +76,47 @@ public class UserServiceImpl implements UserService {
 		if (!user.getEmail().equals(userRequest.getEmail())) {
 			Optional<User> anotherUserExists = userRepo.findByEmail(userRequest.getEmail());
 			if (anotherUserExists.isPresent())
-				throw new UserAlreadyExistsException(userAlreadyExistsMessage(anotherUserExists.get().getEmail()));
+				throw new UserAlreadyExistsException(anotherUserExists.get().getEmail());
 		}
 
 		user.setEmail(userRequest.getEmail());
 		user.setFirstName(userRequest.getFirstName());
 		user.setLastName(userRequest.getLastName());
 
-		userRepo.save(user);
+		return mapper.map(userRepo.save(user), UserDTO.class);
 	}
 
 	@Override
-	public void changePassword(Long id, UserPasswordDTO password) {
-		User user = userRepo.findById(id).orElseThrow(() -> new UserNotFoundException(userNotFoundMessage(id)));
+	public void changePassword(Long id, String password) {
+		validatePassword(password);
 
-		user.setPassword(passwordEncoder.encode(password.getPassword()));
-
+		User user = userRepo.findById(id).orElseThrow(() -> new UserNotFoundException(id));
+		user.setPassword(passwordEncoder.encode(password));
 		userRepo.save(user);
 	}
 
-	@Override
-	public Boolean validateLogin(User userRequest) {
-
-		System.out.println(userRequest);
-		String requestEmail = userRequest.getEmail();
-		String requestPassword = userRequest.getPassword();
-
-		Optional<User> userExists = userRepo.findByEmail(requestEmail);
-		if (userExists.isEmpty())
-			return false;
-
-		return passwordEncoder.matches(requestPassword, userExists.get().getPassword());
+	private void validatePassword(String password) throws InvalidUserDataException {
+		if (password.trim().isEmpty())
+			throw new InvalidUserDataException("Password is blank.");
+		if (password.length() < 4)
+			throw new InvalidUserDataException("Password is too short, less than 4 characters.");
+		if (password.length() > 255)
+			throw new InvalidUserDataException("Password is too big, more than 255 characters.");
 	}
 
 	@Override
 	public void delete(Long id) {
-		userRepo.findById(id).orElseThrow(() -> new UserNotFoundException(userNotFoundMessage(id)));
-
+		userRepo.findById(id).orElseThrow(() -> new UserNotFoundException(id));
 		userRepo.deleteById(id);
 	}
 
-	public String userNotFoundMessage(Long id) {
-		return "User with id [" + id + "] not found.";
-	}
+	@Override
+	public Boolean validateLogin(User userRequest) {
+		Optional<User> userExists = userRepo.findByEmail(userRequest.getEmail());
+		if (userExists.isEmpty())
+			return false;
 
-	public String userNotFoundMessage(String email) {
-		return "User with email [" + email + "] not found.";
-	}
-
-	public String userAlreadyExistsMessage(String email) {
-		return "User with e-mail [" + email + "] already exists.";
+		return passwordEncoder.matches(userRequest.getPassword(), userExists.get().getPassword());
 	}
 
 }

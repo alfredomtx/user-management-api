@@ -1,10 +1,9 @@
 package com.olx.controller;
 
+import com.olx.model.User;
 import com.olx.model.dto.UserDTO;
 import com.olx.model.dto.UserInsertDTO;
-import com.olx.model.dto.UserPasswordDTO;
 import com.olx.model.dto.UserUpdateDTO;
-import com.olx.model.User;
 import com.olx.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -53,7 +52,7 @@ public class UserController {
 
 	@PutMapping(ID + "/changePassword")
 	public ResponseEntity<String> changePassword(@PathVariable("id") @NotBlank Long id,
-			@Valid @RequestBody UserPasswordDTO password) {
+			@Valid @RequestBody String password) {
 
 		userService.changePassword(id, password);
 		return ResponseEntity.ok().body("User password updated with success.");
