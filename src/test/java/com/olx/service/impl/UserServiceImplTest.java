@@ -9,7 +9,6 @@ import com.olx.model.dto.UserInsertDTO;
 import com.olx.model.dto.UserUpdateDTO;
 import com.olx.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockitoAnnotations;
 import org.modelmapper.ModelMapper;
@@ -66,7 +65,6 @@ class UserServiceImplTest {
 	@BeforeEach
 	void setUp() {
 		MockitoAnnotations.openMocks(this);
-
 		startUser();
 	}
 
@@ -141,8 +139,7 @@ class UserServiceImplTest {
 	}
 
 	@Test
-	@DisplayName("shouldReturnUser_WhenGetByEmail")
-	void getByEmail() {
+	void shouldReturnUser_WhenGetByEmail() {
 		when(repository.findByEmail(anyString())).thenReturn(Optional.of(user));
 
 		UserDTO response = service.getByEmail(EMAIL);
@@ -253,7 +250,6 @@ class UserServiceImplTest {
 			assertEquals(exceptionExpectedMessage, e.getMessage());
 			return;
 		}
-
 		failedExceptionNotThrown();
 	}
 
@@ -272,7 +268,6 @@ class UserServiceImplTest {
 			assertEquals(exceptionExpectedMessage, e.getMessage());
 			return;
 		}
-
 		failedExceptionNotThrown();
 	}
 
@@ -293,7 +288,6 @@ class UserServiceImplTest {
 			assertEquals(exceptionExpectedMessage, e.getMessage());
 			return;
 		}
-
 		failedExceptionNotThrown();
 	}
 
@@ -339,7 +333,15 @@ class UserServiceImplTest {
 		assertEquals(response, false);
 	}
 
-	// TODO validate login when user does not exist
+	@Test
+	void shouldReturnFalse_WhenValidateLogin_WhenUserDoesNotExist() {
+
+		when(repository.findByEmail(anyString())).thenReturn(Optional.empty());
+
+		boolean response = service.validateLogin(user);
+		assertEquals(response, false);
+	}
+
 
 	private void assertUserDtoResponse(UserDTO responseUser){
 		assertNotNull(responseUser);

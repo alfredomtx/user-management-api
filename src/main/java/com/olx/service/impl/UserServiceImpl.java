@@ -87,6 +87,12 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
+	public void delete(Long id) {
+		userRepo.findById(id).orElseThrow(() -> new UserNotFoundException(id));
+		userRepo.deleteById(id);
+	}
+
+	@Override
 	public void changePassword(Long id, String password) {
 		validatePassword(password);
 
@@ -102,12 +108,6 @@ public class UserServiceImpl implements UserService {
 			throw new InvalidUserDataException("Password is too short, less than 4 characters.");
 		if (password.length() > 255)
 			throw new InvalidUserDataException("Password is too big, more than 255 characters.");
-	}
-
-	@Override
-	public void delete(Long id) {
-		userRepo.findById(id).orElseThrow(() -> new UserNotFoundException(id));
-		userRepo.deleteById(id);
 	}
 
 	@Override

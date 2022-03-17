@@ -19,10 +19,11 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/user")
 public class UserController {
-
 	public static final String ID = "/{id}";
+
 	@Autowired
 	private UserService userService;
+
 
 	@GetMapping("/")
 	public ResponseEntity<List<UserDTO>> getAll() {
@@ -36,7 +37,7 @@ public class UserController {
 	}
 
 	@PostMapping("/")
-	public ResponseEntity<UserDTO> add(@RequestBody @Valid UserInsertDTO userRequest) {
+	public ResponseEntity<String> add(@RequestBody @Valid UserInsertDTO userRequest) {
 		UserDTO user = userService.add(userRequest);
 		URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(user.getId()).toUri();
 		return ResponseEntity.created(uri).build();
@@ -50,9 +51,15 @@ public class UserController {
 		return ResponseEntity.ok().build();
 	}
 
+	@DeleteMapping(ID)
+	public ResponseEntity<UserDTO> delete(@PathVariable("id") Long id) {
+		userService.delete(id);
+		return ResponseEntity.noContent().build();
+	}
+
 	@PutMapping(ID + "/changePassword")
 	public ResponseEntity<String> changePassword(@PathVariable("id") @NotBlank Long id,
-			@Valid @RequestBody String password) {
+			@RequestBody String password) {
 
 		userService.changePassword(id, password);
 		return ResponseEntity.ok().body("User password updated with success.");
@@ -64,12 +71,6 @@ public class UserController {
 			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(false);
 		}
 		return ResponseEntity.ok().body(true);
-	}
-
-	@DeleteMapping(ID)
-	public ResponseEntity<UserDTO> delete(@PathVariable("id") Long id) {
-		userService.delete(id);
-		return ResponseEntity.noContent().build();
 	}
 
 }

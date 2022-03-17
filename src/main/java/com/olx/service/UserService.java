@@ -10,19 +10,12 @@ import java.util.List;
 
 public interface UserService {
 
-	UserDTO getById(Long id);
-	
-	UserDTO getByEmail(String email);
-
 	List<UserDTO> getAll();
-
+	UserDTO getById(Long id);
+	UserDTO getByEmail(String email);
 	UserDTO add(UserInsertDTO user);
-
 	UserDTO update(Long id, UserUpdateDTO userRequest);
-
-	void changePassword(Long id, String password);
-
-	Boolean validateLogin(User userRequest);
-
 	void delete(Long id);
+	void changePassword(Long id, String password);
+	Boolean validateLogin(User userRequest);
 }
