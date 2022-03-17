@@ -1,5 +1,7 @@
 package com.olx.security;
 
+import com.olx.repository.UserRepository;
+import com.olx.service.impl.UserDetailServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.http.HttpMethod;
@@ -13,8 +15,6 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
-import com.olx.service.impl.UserDetailServiceImpl;
-
 
 @EnableWebSecurity
 public class JWTConfiguration extends WebSecurityConfigurerAdapter {
@@ -25,6 +25,9 @@ public class JWTConfiguration extends WebSecurityConfigurerAdapter {
 	@Autowired
 	private PasswordEncoder encoder;
 
+	@Autowired
+	private UserRepository userRepository;
+
 	// configure spring security to use the project's classes as base classes of implementation
 	@Override
 	protected void configure(AuthenticationManagerBuilder auth) throws Exception {
@@ -34,17 +37,14 @@ public class JWTConfiguration extends WebSecurityConfigurerAdapter {
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
 
-		// disable ONLY in development environment	
-		// TODO enable csrf if requests will come only from the same network 
 		http.csrf().disable().authorizeRequests()
-				.antMatchers(HttpMethod.POST, "/login").permitAll()
-				.antMatchers(HttpMethod.POST, "/ping").permitAll()
-				.antMatchers(HttpMethod.POST, "/api/user/ping").permitAll()
-				.anyRequest().authenticated()
-				.and()
-				.addFilter(new JWTAuthenticateFilter(authenticationManager()))
-				.addFilter(new JWTValidateFilter(authenticationManager()))
-				.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+			.antMatchers(HttpMethod.POST, "/login").permitAll()
+			.antMatchers(HttpMethod.POST, "/ping").permitAll()
+			.anyRequest().authenticated()
+			.and()
+			.addFilter(new JWTAuthenticateFilter(authenticationManager(), userRepository))
+			.addFilter(new JWTValidateFilter(authenticationManager()))
+			.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
 	}
 
 	@Bean

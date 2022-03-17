@@ -7,8 +7,10 @@ import com.fasterxml.jackson.databind.DatabindException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.olx.data.UserDetailData;
 import com.olx.model.User;
+import com.olx.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
@@ -21,12 +23,13 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Optional;
 
 public class JWTAuthenticateFilter extends UsernamePasswordAuthenticationFilter {
 	
 	// token expiration of 10 minutes
-	// private final static int TOKEN_EXPIRATION = 600_000;
-	private final static int TOKEN_EXPIRATION = 600_000_000;
+	private final static int TOKEN_EXPIRATION_MINUTES = 10;
+	private final static int TOKEN_EXPIRATION = (TOKEN_EXPIRATION_MINUTES * 60) * 1000;
 	
 	// token unique password, generate on  https://guidgenerator.com/
 	// TODO remove from source code and use a configuration file 
@@ -34,18 +37,19 @@ public class JWTAuthenticateFilter extends UsernamePasswordAuthenticationFilter 
 	
 	@Autowired
 	private AuthenticationManager authManager;
+
+	private UserRepository userRepository;
 	
-	public JWTAuthenticateFilter(AuthenticationManager authManager) {
-		this.authManager = authManager;		
+	public JWTAuthenticateFilter(AuthenticationManager authManager, UserRepository userRepository) {
+		this.authManager = authManager;
+		this.userRepository = userRepository;
 	}
 
 	@Override
 	public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response)
 			throws AuthenticationException {
-
 		try {
 			User user = new ObjectMapper().readValue(request.getInputStream(), User.class);
-			
 			return authManager.authenticate(new UsernamePasswordAuthenticationToken(
 					user.getEmail(),
 					user.getPassword(),
@@ -57,25 +61,37 @@ public class JWTAuthenticateFilter extends UsernamePasswordAuthenticationFilter 
 			throw new RuntimeException("Failed to authenticate user", e);
 		} catch (IOException e) {
 			throw new RuntimeException("Failed to authenticate user", e);
+		} catch (BadCredentialsException e) {
+			System.out.println("Invalid user credentials: " + e.getMessage());
+			throw new BadCredentialsException("Invalid user credentials", e);
+		} catch (Exception e) {
+			throw new RuntimeException("Failed to authenticate user", e);
 		}
-		
-
 	}
 
 	@Override
 	protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain,
 			Authentication authResult) throws IOException, ServletException {
 
-
 		UserDetailData userData = (UserDetailData) authResult.getPrincipal();
-		
+
+		// set token expiration with current time + TOKEN_EXPIRATION
+		Date tokenExpiration = new Date(System.currentTimeMillis() + TOKEN_EXPIRATION);
 		String token = JWT.create()
 				.withSubject(userData.getUsername())
-				// set token expiration with current time + TOKEN_EXPIRATION
-				.withExpiresAt(new Date(System.currentTimeMillis() + TOKEN_EXPIRATION))
+				.withExpiresAt(tokenExpiration)
 				.sign(Algorithm.HMAC512(TOKEN_PASSWORD));
-		
-		
+
+		/*
+		* Save token on database if user exists
+		* */
+		Optional<User> user = userRepository.findByEmail(userData.getUsername());
+		if (user.isPresent()){
+			user.get().setToken(token);
+			user.get().setTokenExpiration(tokenExpiration);
+			userRepository.save(user.get());
+		}
+
 		response.getWriter().write(token);
 		response.getWriter().flush();
 	}

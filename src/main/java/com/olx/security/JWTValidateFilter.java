@@ -2,6 +2,7 @@ package com.olx.security;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
+import com.auth0.jwt.exceptions.TokenExpiredException;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -27,7 +28,7 @@ public class JWTValidateFilter extends BasicAuthenticationFilter {
 	// override method to intercept request header
 	@Override
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
-			throws IOException, ServletException {
+			throws IOException, ServletException, TokenExpiredException {
 
 		String attribute = request.getHeader(HEADER_ATTRIBUTE);
 		
@@ -42,29 +43,25 @@ public class JWTValidateFilter extends BasicAuthenticationFilter {
 		}
 		
 		String token = attribute.replace(ATTRIBUTE_PREFIX, "");
-		
+
 		UsernamePasswordAuthenticationToken authToken = getAuthenticationToken(token);
-		
+
 		SecurityContextHolder.getContext().setAuthentication(authToken);
 		
 		chain.doFilter(request, response);
 	}
 	
-
 	// reads the token and return the user data to ensure it's a valid user
 	private UsernamePasswordAuthenticationToken getAuthenticationToken(String token) {
-
-        String user = JWT.require(Algorithm.HMAC512(JWTAuthenticateFilter.TOKEN_PASSWORD))
-                .build()
-                .verify(token)
-                .getSubject();
+		String user = JWT.require(Algorithm.HMAC512(JWTAuthenticateFilter.TOKEN_PASSWORD))
+					.build()
+					.verify(token)
+					.getSubject();
 
         if (user == null) {
             return null;
         }
-
         return new UsernamePasswordAuthenticationToken(user,null, new ArrayList<>());
-		
 	}
 	
 }

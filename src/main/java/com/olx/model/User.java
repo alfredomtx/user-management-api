@@ -48,4 +48,10 @@ public class User {
 	@UpdateTimestamp
 	private @Getter Date updateDate;
 
+	private @Getter @Setter String token;
+
+	@Temporal(TemporalType.TIMESTAMP)
+	private @Getter @Setter Date tokenExpiration;
+
+
 }
