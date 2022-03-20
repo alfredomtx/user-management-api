@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class IndexController {
 
 	@GetMapping("/ping")
-	public String pong(){
+	public String pong() {
 		return "pong";
 	}
 }

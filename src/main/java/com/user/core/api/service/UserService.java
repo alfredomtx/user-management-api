@@ -11,11 +11,18 @@ import java.util.List;
 public interface UserService {
 
 	List<UserResponse> getAll();
+
 	UserResponse getById(Long id);
+
 	UserResponse getByEmail(String email);
+
 	UserResponse add(UserInsertDTO user);
+
 	UserResponse update(Long id, UserUpdateDTO userRequest);
+
 	void delete(Long id);
+
 	void changePassword(Long id, String password);
+
 	Boolean validateLogin(User userRequest);
 }

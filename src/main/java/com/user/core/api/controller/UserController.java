@@ -45,7 +45,7 @@ public class UserController {
 
 	@PutMapping(ID)
 	public ResponseEntity<String> update(@PathVariable("id") @NotBlank Long id,
-			@Valid @RequestBody UserUpdateDTO userRequest) {
+										 @Valid @RequestBody UserUpdateDTO userRequest) {
 
 		userService.update(id, userRequest);
 		return ResponseEntity.ok().build();
@@ -59,7 +59,7 @@ public class UserController {
 
 	@PostMapping(ID + "/changePassword")
 	public ResponseEntity<String> changePassword(@PathVariable("id") @NotBlank Long id,
-			@RequestBody String password) {
+												 @RequestBody String password) {
 
 		userService.changePassword(id, password);
 		return ResponseEntity.ok().body("User password updated with success.");

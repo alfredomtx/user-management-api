@@ -26,20 +26,20 @@ import java.util.Date;
 import java.util.Optional;
 
 public class JWTAuthenticateFilter extends UsernamePasswordAuthenticationFilter {
-	
+
 	// token expiration of 10 minutes
-	private final static int TOKEN_EXPIRATION_MINUTES = 1;
+	private final static int TOKEN_EXPIRATION_MINUTES = 10;
 	private final static int TOKEN_EXPIRATION = (TOKEN_EXPIRATION_MINUTES * 60) * 1000;
-	
+
 	// token unique password, generate on  https://guidgenerator.com/
 	// TODO remove from source code and use a configuration file 
 	public final static String TOKEN_PASSWORD = "d2eb2c8d-bafe-4e81-8c1a-ac0e58c6c652";
-	
+
 	@Autowired
 	private AuthenticationManager authManager;
 
 	private UserRepository userRepository;
-	
+
 	public JWTAuthenticateFilter(AuthenticationManager authManager, UserRepository userRepository) {
 		this.authManager = authManager;
 		this.userRepository = userRepository;
@@ -47,14 +47,14 @@ public class JWTAuthenticateFilter extends UsernamePasswordAuthenticationFilter 
 
 	@Override
 	public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response)
-			throws AuthenticationException{
+			throws AuthenticationException {
 		try {
 			User user = new ObjectMapper().readValue(request.getInputStream(), User.class);
 			return authManager.authenticate(new UsernamePasswordAuthenticationToken(
 					user.getEmail(),
 					user.getPassword(),
 					new ArrayList<>() // user permissions
-				));
+			));
 		} catch (StreamReadException e) {
 			throw new RuntimeException("Failed to authenticate user", e);
 		} catch (DatabindException e) {
@@ -72,7 +72,7 @@ public class JWTAuthenticateFilter extends UsernamePasswordAuthenticationFilter 
 
 	@Override
 	protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain,
-			Authentication authResult) throws IOException, ServletException {
+											Authentication authResult) throws IOException, ServletException {
 
 		UserDetailData userData = (UserDetailData) authResult.getPrincipal();
 
@@ -84,10 +84,10 @@ public class JWTAuthenticateFilter extends UsernamePasswordAuthenticationFilter 
 				.sign(Algorithm.HMAC512(TOKEN_PASSWORD));
 
 		/*
-		* Save token on database if user exists
-		* */
+		 * Save token on database if user exists
+		 * */
 		Optional<User> user = userRepository.findByEmail(userData.getUsername());
-		if (user.isPresent()){
+		if (user.isPresent()) {
 			user.get().setToken(token);
 			user.get().setTokenExpiration(tokenExpiration);
 			userRepository.save(user.get());
@@ -96,9 +96,6 @@ public class JWTAuthenticateFilter extends UsernamePasswordAuthenticationFilter 
 		response.getWriter().write(token);
 		response.getWriter().flush();
 	}
-	
-	
-	
-	
+
 
 }

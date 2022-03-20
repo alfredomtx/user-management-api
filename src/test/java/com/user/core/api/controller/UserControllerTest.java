@@ -1,61 +1,76 @@
 package com.user.core.api.controller;
 
+import com.user.core.api.exceptions.InvalidUserDataException;
+import com.user.core.api.exceptions.UserAlreadyExistsException;
+import com.user.core.api.exceptions.UserNotFoundException;
 import com.user.core.api.model.User;
-import com.user.core.api.model.dto.UserInsertDTO;
 import com.user.core.api.model.dto.UserResponse;
-import com.user.core.api.model.dto.UserUpdateDTO;
+import com.user.core.api.repository.UserRepository;
+import com.user.core.api.service.UserService;
+import com.user.core.api.service.impl.UserDetailServiceImpl;
 import com.user.core.api.service.impl.UserServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
-import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.MediaType;
+import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
+import org.springframework.test.web.servlet.MockMvc;
 
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.hamcrest.Matchers.is;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@SpringBootTest
-class UserControllerTest {
+@AutoConfigureMockMvc
+@WebMvcTest(UserController.class)
+public class UserControllerTest {
 
-	@InjectMocks
-	private UserController controller;
+	@Autowired
+	private MockMvc mockMvc;
 
 	// need to use the real implementation of ModelMapper in UserServiceImpl
-	@Autowired
-	private final ModelMapper mapper = new ModelMapper();
+	// private final ModelMapper mapper = new ModelMapper();
 
+	@MockBean
+	private UserRepository repository;
 	@Mock
-	private UserServiceImpl service;
+	private UserServiceImpl servicesImpl;
+	@MockBean
+	private UserService service;
+	@MockBean
+	private UserDetailServiceImpl userDetailServiceImpl;
 
+	public static final String API_URL = "/api/user/";
+	// User with valid token to login for Spring Security
 	public static final Long ID = 1L;
 	public static final String EMAIL = "test@test.com";
 	public static final String PASSWORD = "test";
 	public static final String FIRST_NAME = "John";
 	public static final String LAST_NAME = "Snow";
 
+	// exception messages constants
+	public static final String USER_NOT_FOUND_BY_ID = "User with id [" + ID + "] not found.";
+	public static final String USER_ALREADY_EXISTS_BY_EMAIL = "User with e-mail [" + EMAIL + "] already exists.";
+
 	private User user;
 	private UserResponse userResponse;
 
 	@BeforeEach
 	void setUp() {
-		MockitoAnnotations.openMocks(this);
 		startUser();
 	}
 
-	private void startUser(){
+	private void startUser() {
 
 		user = new User();
 		user.setId(ID);
@@ -73,126 +88,161 @@ class UserControllerTest {
 	}
 
 	@Test
-	void shouldReturnListOfUser_WhenGetAll() {
+	public void shouldReturnListOfUser_WhenGetAll() throws Exception {
 		List<UserResponse> userList = new ArrayList<>();
 		userList.add(userResponse);
 
 		when(service.getAll()).thenReturn(userList);
 
-		ResponseEntity<List<UserResponse>> response = controller.getAll();
-
-		assertNotNull(response);
-		assertEquals(HttpStatus.OK, response.getStatusCode());
-		assertNotNull(response.getBody());
-		assertEquals(ArrayList.class, response.getBody().getClass());
-		// list should return only 1 user
-		assertEquals(1, response.getBody().size());
-		// do the rest of validations for the first user of the list
-		assertUserResponse(response.getBody().get(0));
+		this.mockMvc.perform(get(API_URL)
+						.with(SecurityMockMvcRequestPostProcessors.user(EMAIL))
+				)
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.size()", is(1)))
+				.andExpect(jsonPath("$[0].id", is(ID.intValue())))
+				.andExpect(jsonPath("$[0].email", is(EMAIL)))
+				.andExpect(jsonPath("$[0].firstName", is(FIRST_NAME)))
+				.andExpect(jsonPath("$[0].lastName", is(LAST_NAME)))
+				.andReturn();
 	}
 
 	@Test
-	void shouldReturnUser_WhenGetById() {
+	public void shouldReturnUser_WhenGetById() throws Exception {
 		when(service.getById(anyLong())).thenReturn(userResponse);
 
-		ResponseEntity<UserResponse> response = controller.getById(ID);
-
-		assertResponseEntity(response, 200);
-
-		assertNotNull(response.getBody());
-		assertUserResponse(response.getBody());
+		this.mockMvc.perform(get(API_URL + ID)
+						.with(SecurityMockMvcRequestPostProcessors.user(EMAIL))
+				)
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.id", is(ID.intValue())))
+				.andExpect(jsonPath("$.email", is(EMAIL)))
+				.andExpect(jsonPath("$.firstName", is(FIRST_NAME)))
+				.andExpect(jsonPath("$.lastName", is(LAST_NAME)));
 	}
 
 	@Test
-	void shouldReturnUri_WhenAddUser() {
-		UserInsertDTO userInsert = mapper.map(user, UserInsertDTO.class);
+	void shouldThrowUserNotFoundException_WhenGetById() throws Exception {
+		when(service.getById(anyLong())).thenThrow(new UserNotFoundException(ID));
 
+		String exceptionExpectedMessage = "User with id [" + ID + "] not found.";
+		this.mockMvc.perform(get(API_URL + ID)
+						.with(SecurityMockMvcRequestPostProcessors.user(EMAIL))
+				)
+				.andDo(print())
+				.andExpect(status().isNotFound())
+				.andExpect(jsonPath("$.error", is(exceptionExpectedMessage)));
+	}
+
+	@Test
+	void shouldReturnCreatedAndUri_WhenAddUser() throws Exception {
 		when(service.add(any())).thenReturn(userResponse);
 
-		ResponseEntity<String> response = controller.add(userInsert);
-
-		assertResponseEntity(response, 201);
-
-		URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/" + ID).buildAndExpand(ID).toUri();
-		assertEquals(response.getHeaders().getLocation(), uri);
+		String expectedRedirectUrl = "http://localhost" + API_URL + ID;
+		this.mockMvc.perform(post(API_URL)
+						.with(SecurityMockMvcRequestPostProcessors.user(EMAIL))
+						.contentType(MediaType.APPLICATION_JSON)
+						.content(getUserJsonBody())
+				)
+				.andExpect(status().isCreated())
+				.andExpect(redirectedUrl(expectedRedirectUrl))
+				.andExpect(header().string("location", expectedRedirectUrl));
 	}
 
 	@Test
-	void shouldReturnOk_WhenUpdateUser_WithSuccess() {
-		UserUpdateDTO userUpdate = mapper.map(user, UserUpdateDTO.class);
+	void shouldThrowUserAlreadyExistsException_WhenUpdateUser() throws Exception {
+		when(service.update(anyLong(), any())).thenThrow(new UserAlreadyExistsException(EMAIL));
 
-		when(service.update(anyLong(), any())).thenReturn(userResponse);
-
-		ResponseEntity<String> response = controller.update(ID, userUpdate);
-		assertResponseEntity(response, 200);
+		this.mockMvc.perform(put(API_URL + ID)
+						.with(SecurityMockMvcRequestPostProcessors.user(EMAIL))
+						.contentType(MediaType.APPLICATION_JSON)
+						.content(getUserJsonBody())
+				)
+				.andExpect(status().isConflict())
+				.andExpect(jsonPath("$.error", is(USER_ALREADY_EXISTS_BY_EMAIL)));
 	}
 
 	@Test
-	void shouldReturnOk_WhenChangePassword() {
-		doNothing().when(service).changePassword(anyLong(), anyString());
-
-		ResponseEntity<String> response = controller.changePassword(ID, "123test");
-
-		verify(service, times(1)).changePassword(anyLong(), anyString());
-		assertResponseEntity(response, 200);
-		assertEquals(response.getBody(), "User password updated with success.");
-	}
-
-	@Test
-	void shouldReturnVoid_WhenDeleteUser() {
+	void shouldReturnVoid_WhenDeleteUser_WithSuccess() throws Exception {
 		doNothing().when(service).delete(anyLong());
 
-		ResponseEntity<UserResponse> response = controller.delete(ID);
-
-		verify(service, times(1)).delete(anyLong());
-		assertResponseEntity(response, 204);
+		this.mockMvc.perform(delete(API_URL + ID)
+						.with(SecurityMockMvcRequestPostProcessors.user(EMAIL))
+				)
+				.andExpect(status().isNoContent());
 	}
 
 	@Test
-	void shouldReturnTrue_WhenValidateLogin() {
-		when(service.validateLogin(user)).thenReturn(true);
+	void shouldReturnVoid_WhenUpdatePassword_WithSuccess() throws Exception {
+		doNothing().when(service).changePassword(anyLong(), anyString());
 
-		ResponseEntity<Boolean> response = controller.validateLogin(user);
-
-		assertResponseEntity(response, 200);
-		assertNotNull(response.getBody());
-		assertEquals(response.getBody(), true);
+		this.mockMvc.perform(post(API_URL + ID + "/changePassword")
+						.with(SecurityMockMvcRequestPostProcessors.user(EMAIL))
+						.contentType(MediaType.APPLICATION_JSON)
+						.content("\"password\": \"123\"")
+				)
+				.andExpect(status().isOk())
+				.andExpect(content().string("User password updated with success."));
 	}
 
 	@Test
-	void shouldReturnFalse_WhenValidateLogin() {
-		when(service.validateLogin(user)).thenReturn(false);
+	void shouldThrowUserNotFoundException_WhenDeleteById() throws Exception {
+		doThrow(new UserNotFoundException(ID)).when(service).delete(anyLong());
 
-		ResponseEntity<Boolean> response = controller.validateLogin(user);
-
-		assertResponseEntity(response, 401);
-		assertNotNull(response.getBody());
-		assertEquals(response.getBody(), false);
+		this.mockMvc.perform(delete(API_URL + ID)
+						.with(SecurityMockMvcRequestPostProcessors.user(EMAIL))
+				)
+				.andExpect(status().isNotFound())
+				.andExpect(jsonPath("$.error", is(USER_NOT_FOUND_BY_ID)));
 	}
 
-	private void assertResponseEntity(ResponseEntity<?> response, int desiredHttpStatusCode){
-		assertNotNull(response);
+	@Test
+	void shouldThrowInvalidUserDataException_WhenUpdatePassword() throws Exception {
+		String exceptionExpectedMessage = "Invalid password.";
+		doThrow(new InvalidUserDataException(exceptionExpectedMessage)).when(service).changePassword(anyLong(), anyString());
 
-		switch (desiredHttpStatusCode){
-			case 200: assertEquals(HttpStatus.OK, response.getStatusCode());
-				break;
-			case 201: assertEquals(HttpStatus.CREATED, response.getStatusCode());
-				break;
-			case 204: assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
-				break;
-			case 500: assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
-				break;
-		}
-
-		assertEquals(ResponseEntity.class, response.getClass());
+		this.mockMvc.perform(post(API_URL + ID + "/changePassword")
+						.with(SecurityMockMvcRequestPostProcessors.user(EMAIL))
+						.contentType(MediaType.APPLICATION_JSON)
+						.content("\"password\": \"123\"")
+				)
+				.andExpect(status().isBadRequest())
+				.andExpect(jsonPath("$.error", is(exceptionExpectedMessage)));
 	}
 
-	private void assertUserResponse(UserResponse responseUser){
-		assertNotNull(responseUser);
-		assertEquals(UserResponse.class, responseUser.getClass());
-		assertEquals(ID, responseUser.getId());
-		assertEquals(EMAIL, responseUser.getEmail());
-		assertEquals(FIRST_NAME, responseUser.getFirstName());
-		assertEquals(LAST_NAME, responseUser.getLastName());
+	@Test
+	void shouldReturnTrueAndOk_WhenValidateLogin() throws Exception {
+		when(service.validateLogin(any())).thenReturn(true);
+
+		this.mockMvc.perform(post(API_URL + "/validateLogin")
+						.with(SecurityMockMvcRequestPostProcessors.user(EMAIL))
+						.contentType(MediaType.APPLICATION_JSON)
+						.content(getUserJsonBody())
+				)
+				.andExpect(status().isOk())
+				.andExpect(content().string("true"));
+	}
+
+	@Test
+	void shouldReturnFalseAndUnauthorized_WhenValidateLogin() throws Exception {
+		when(service.validateLogin(any())).thenReturn(false);
+
+		this.mockMvc.perform(post(API_URL + "/validateLogin")
+						.with(SecurityMockMvcRequestPostProcessors.user(EMAIL))
+						.contentType(MediaType.APPLICATION_JSON)
+						.content(getUserJsonBody())
+				)
+				.andExpect(status().isUnauthorized())
+				.andExpect(content().string("false"));
+	}
+
+	// TODO test send user with invalid fields
+
+	private String getUserJsonBody() {
+		return String.format("{" +
+				"\"email\": \"%s\"" +
+				", \"password\": \"%s\"" +
+				", \"firstName\": \"%s\"" +
+				", \"lastName\": \"%s\"" +
+				"}", EMAIL, PASSWORD, FIRST_NAME, LAST_NAME);
 	}
 }

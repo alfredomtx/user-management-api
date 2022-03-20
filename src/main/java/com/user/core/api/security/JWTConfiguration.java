@@ -40,13 +40,13 @@ public class JWTConfiguration extends WebSecurityConfigurerAdapter {
 		http.exceptionHandling().authenticationEntryPoint(new AuthFailureHandler());
 
 		http.csrf().disable().authorizeRequests()
-			.antMatchers(HttpMethod.POST, "/login").permitAll()
-			.antMatchers(HttpMethod.GET, "/ping").permitAll()
-			.anyRequest().authenticated()
-			.and()
-			.addFilter(new JWTAuthenticateFilter(authenticationManager(), userRepository))
-			.addFilter(new JWTValidateFilter(authenticationManager()))
-			.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+				.antMatchers(HttpMethod.POST, "/login").permitAll()
+				.antMatchers(HttpMethod.GET, "/ping").permitAll()
+				.anyRequest().authenticated()
+				.and()
+				.addFilter(new JWTAuthenticateFilter(authenticationManager(), userRepository))
+				.addFilter(new JWTValidateFilter(authenticationManager()))
+				.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
 	}
 
 	@Bean

@@ -17,18 +17,17 @@ public class StandardError {
 	private String error;
 	private String path;
 
-	public String toString(){
+	public String toString() {
 		return "{ "
 				+ "\"code\": " + status.value() + ","
 				+ "\"status\": " + status.name() + ","
 				+ "\"timestamp\": \"" + timestamp + "\","
 				+ "\"message\": \"" + error + "\","
-				+ "\"path\": \""+ path +"\""
+				+ "\"path\": \"" + path + "\""
 				+ "}";
 
 
 	}
-
 
 
 }

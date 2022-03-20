@@ -1,6 +1,5 @@
 package com.user.core.api;
 
-import com.user.core.api.OlxApplication;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
@@ -9,7 +8,7 @@ public class OlxApplicationTests {
 
 	@Test
 	void main() {
-		OlxApplication.main(new String[] {});
+		OlxApplication.main(new String[]{});
 	}
 
 }

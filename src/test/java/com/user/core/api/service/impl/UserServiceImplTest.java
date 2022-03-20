@@ -69,7 +69,7 @@ class UserServiceImplTest {
 		startUser();
 	}
 
-	private void startUser(){
+	private void startUser() {
 
 		user = new User();
 		user.setId(ID);
@@ -116,7 +116,7 @@ class UserServiceImplTest {
 		String exceptionExpectedMessage = "User with id [" + ID + "] not found.";
 		try {
 			service.getById(ID);
-		} catch(Exception e){
+		} catch (Exception e) {
 			assertEquals(UserNotFoundException.class, e.getClass());
 			assertEquals(exceptionExpectedMessage, e.getMessage());
 			return;
@@ -131,7 +131,7 @@ class UserServiceImplTest {
 		String exceptionExpectedMessage = "User with email [" + EMAIL + "] not found.";
 		try {
 			service.getByEmail(EMAIL);
-		} catch(Exception e){
+		} catch (Exception e) {
 			assertEquals(UserNotFoundException.class, e.getClass());
 			assertEquals(exceptionExpectedMessage, e.getMessage());
 			return;
@@ -168,7 +168,7 @@ class UserServiceImplTest {
 
 		try {
 			service.add(userInsert);
-		} catch(Exception e){
+		} catch (Exception e) {
 			assertEquals(UserAlreadyExistsException.class, e.getClass());
 			assertEquals(USER_ALREADY_EXISTS_BY_EMAIL, e.getMessage());
 			return;
@@ -198,7 +198,7 @@ class UserServiceImplTest {
 	}
 
 	@Test
-	void shouldThrowUserAlreadyExistsException_WhenUpdateUser_WithEmailAlreadyInUse(){
+	void shouldThrowUserAlreadyExistsException_WhenUpdateUser_WithEmailAlreadyInUse() {
 		UserUpdateDTO userUpdate = mapper.map(user, UserUpdateDTO.class);
 
 		String newEmail = "new_email@test.com";
@@ -221,7 +221,7 @@ class UserServiceImplTest {
 		String exceptionExpectedMessage = "User with e-mail [" + newEmail + "] already exists.";
 		try {
 			service.update(ID, userUpdate);
-		} catch(Exception e){
+		} catch (Exception e) {
 			assertEquals(UserAlreadyExistsException.class, e.getClass());
 			assertEquals(exceptionExpectedMessage, e.getMessage());
 			return;
@@ -243,7 +243,7 @@ class UserServiceImplTest {
 
 		try {
 			service.getById(ID);
-		} catch(Exception e){
+		} catch (Exception e) {
 			assertEquals(UserNotFoundException.class, e.getClass());
 			assertEquals(USER_NOT_FOUND_BY_ID, e.getMessage());
 			return;
@@ -268,7 +268,7 @@ class UserServiceImplTest {
 		String exceptionExpectedMessage = "Password is blank.";
 		try {
 			service.changePassword(ID, newPassword);
-		} catch(Exception e){
+		} catch (Exception e) {
 			assertEquals(InvalidUserDataException.class, e.getClass());
 			assertEquals(exceptionExpectedMessage, e.getMessage());
 			return;
@@ -286,7 +286,7 @@ class UserServiceImplTest {
 		String exceptionExpectedMessage = "Password is too short, less than 4 characters.";
 		try {
 			service.changePassword(ID, newPassword);
-		} catch(Exception e){
+		} catch (Exception e) {
 			assertEquals(InvalidUserDataException.class, e.getClass());
 			assertEquals(exceptionExpectedMessage, e.getMessage());
 			return;
@@ -306,7 +306,7 @@ class UserServiceImplTest {
 		String exceptionExpectedMessage = "Password is too big, more than 255 characters.";
 		try {
 			service.changePassword(ID, newPassword);
-		} catch(Exception e){
+		} catch (Exception e) {
 			assertEquals(InvalidUserDataException.class, e.getClass());
 			assertEquals(exceptionExpectedMessage, e.getMessage());
 			return;
@@ -336,7 +336,6 @@ class UserServiceImplTest {
 
 	@Test
 	void shouldReturnFalse_WhenValidateLogin_WhenUserDoesNotExist() {
-
 		when(repository.findByEmail(anyString())).thenReturn(Optional.empty());
 
 		boolean response = service.validateLogin(user);
@@ -344,7 +343,7 @@ class UserServiceImplTest {
 	}
 
 
-	private void assertDtoResponse(UserResponse responseUser){
+	private void assertDtoResponse(UserResponse responseUser) {
 		assertNotNull(responseUser);
 		assertEquals(UserResponse.class, responseUser.getClass());
 		assertEquals(ID, responseUser.getId());
@@ -353,7 +352,7 @@ class UserServiceImplTest {
 		assertEquals(LAST_NAME, responseUser.getLastName());
 	}
 
-	private void failedExceptionNotThrown(){
+	private void failedExceptionNotThrown() {
 		fail("Should reach this line, exception was not thrown");
 	}
 }

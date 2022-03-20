@@ -12,8 +12,8 @@ import java.io.IOException;
 import java.time.LocalDateTime;
 
 /*
-* Class to Override spring security exceptions and respond in the same format as Controller's exceptions
-* */
+ * Class to Override spring security exceptions and respond in the same format as Controller's exceptions
+ * */
 public class AuthFailureHandler implements AuthenticationEntryPoint {
 
 	@Override
