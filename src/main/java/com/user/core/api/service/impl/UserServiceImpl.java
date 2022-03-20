@@ -1,21 +1,30 @@
 package com.user.core.api.service.impl;
 
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.user.core.api.exceptions.InvalidUserDataException;
 import com.user.core.api.exceptions.UserAlreadyExistsException;
 import com.user.core.api.exceptions.UserNotFoundException;
 import com.user.core.api.model.User;
-import com.user.core.api.model.dto.UserResponse;
 import com.user.core.api.model.dto.UserInsertDTO;
-import com.user.core.api.model.dto.UserUpdateDTO;
+import com.user.core.api.model.dto.UserResponseDTO;
 import com.user.core.api.repository.UserRepository;
 import com.user.core.api.service.UserService;
 import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.validation.BeanPropertyBindingResult;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
+import org.springframework.validation.Validator;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
+
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -24,6 +33,13 @@ public class UserServiceImpl implements UserService {
 	private final UserRepository userRepo;
 	private final ModelMapper mapper;
 
+	@Autowired
+	private Validator validator;
+
+	@Autowired
+	private ObjectMapper objectMapper;
+
+
 	public UserServiceImpl(PasswordEncoder passwordEncoder, UserRepository userRepo, ModelMapper mapper) {
 		this.passwordEncoder = passwordEncoder;
 		this.userRepo = userRepo;
@@ -31,27 +47,27 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
-	public List<UserResponse> getAll() {
+	public List<UserResponseDTO> getAll() {
 		List<User> users = userRepo.findAll();
 
 		// convert each "User" to a "UserDTO" class
-		return users.stream().map((user -> mapper.map(user, UserResponse.class))).collect(Collectors.toList());
+		return users.stream().map((user -> mapper.map(user, UserResponseDTO.class))).collect(Collectors.toList());
 	}
 
 	@Override
-	public UserResponse getById(Long id) {
+	public UserResponseDTO getById(Long id) {
 		User user = userRepo.findById(id).orElseThrow(() -> new UserNotFoundException(id));
-		return mapper.map(user, UserResponse.class);
+		return mapper.map(user, UserResponseDTO.class);
 	}
 
 	@Override
-	public UserResponse getByEmail(String email) {
+	public UserResponseDTO getByEmail(String email) {
 		User user = userRepo.findByEmail(email).orElseThrow(() -> new UserNotFoundException(email));
-		return mapper.map(user, UserResponse.class);
+		return mapper.map(user, UserResponseDTO.class);
 	}
 
 	@Override
-	public UserResponse add(UserInsertDTO user) {
+	public UserResponseDTO add(UserInsertDTO user) {
 		// validate if user already exists by email
 		Optional<User> userExists = userRepo.findByEmail(user.getEmail());
 		if (userExists.isPresent())
@@ -62,17 +78,32 @@ public class UserServiceImpl implements UserService {
 
 		userAdd.setPassword(passwordEncoder.encode(userAdd.getPassword()));
 
-		return mapper.map(userRepo.save(userAdd), UserResponse.class);
+		return mapper.map(userRepo.save(userAdd), UserResponseDTO.class);
 	}
 
 	@Override
-	public UserResponse update(Long id, UserUpdateDTO userRequest) {
+	public UserResponseDTO update(Long id, Map<String, Object> fields) {
+
+
 		User user = userRepo.findById(id).orElseThrow(() -> new UserNotFoundException(id));
+
+
+		User userRequest = null;
+		try {
+			userRequest = objectMapper.updateValue(user , fields);
+		} catch (JsonMappingException e) {
+			e.printStackTrace();
+		}
+
+
+		updateUser(userRequest);
+		System.out.println(userRequest);
+		return mapper.map(user, UserResponseDTO.class);
 
 		/*
 		 if the "email" of userRequest is different of the current user email in db
 		 check if there is another user with the new e-mail before updating
-		*/
+		*//*
 		if (!user.getEmail().equals(userRequest.getEmail())) {
 			Optional<User> anotherUserExists = userRepo.findByEmail(userRequest.getEmail());
 			if (anotherUserExists.isPresent())
@@ -83,7 +114,29 @@ public class UserServiceImpl implements UserService {
 		user.setFirstName(userRequest.getFirstName());
 		user.setLastName(userRequest.getLastName());
 
-		return mapper.map(userRepo.save(user), UserResponse.class);
+		return mapper.map(userRepo.save(user), UserResponseDTO.class);*/
+	}
+
+	// TODO create field validation exception to send a json with fields and error messages
+	private void updateUser(User user){
+
+		BindingResult result = new BeanPropertyBindingResult(user, "user");
+
+		validator.validate(user, result);
+
+		if(result.hasErrors()){
+			List<FieldError> errors = result.getFieldErrors();
+			List<String> message = new ArrayList<>();
+			for (FieldError e : errors){
+				message.add("@" + e.getField() + ": " + e.getDefaultMessage());
+			}
+			throw new InvalidUserDataException(message.toString());
+		}
+
+
+		System.out.println(user);
+		userRepo.save(user);
+
 	}
 
 	@Override

@@ -10,8 +10,9 @@ import java.util.Date;
 @AllArgsConstructor
 @NoArgsConstructor
 @ToString
-@Getter @Setter
-public class UserResponse {
+@Getter
+@Setter
+public class UserResponseDTO {
 
 	private Long id;
 	private String email;

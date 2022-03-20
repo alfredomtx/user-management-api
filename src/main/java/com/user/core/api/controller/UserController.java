@@ -1,9 +1,8 @@
 package com.user.core.api.controller;
 
 import com.user.core.api.model.User;
-import com.user.core.api.model.dto.UserResponse;
 import com.user.core.api.model.dto.UserInsertDTO;
-import com.user.core.api.model.dto.UserUpdateDTO;
+import com.user.core.api.model.dto.UserResponseDTO;
 import com.user.core.api.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -15,6 +14,7 @@ import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
 import java.net.URI;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/user")
@@ -24,35 +24,33 @@ public class UserController {
 	@Autowired
 	private UserService userService;
 
-
 	@GetMapping("/")
-	public ResponseEntity<List<UserResponse>> getAll() {
+	public ResponseEntity<List<UserResponseDTO>> getAll() {
 		return ResponseEntity.ok(userService.getAll());
 	}
 
 	@GetMapping(ID)
-	public ResponseEntity<UserResponse> getById(@PathVariable("id") Long id) {
-		UserResponse user = userService.getById(id);
+	public ResponseEntity<UserResponseDTO> getById(@PathVariable("id") Long id) {
+		UserResponseDTO user = userService.getById(id);
 		return ResponseEntity.ok().body(user);
 	}
 
 	@PostMapping("/")
 	public ResponseEntity<String> add(@RequestBody @Valid UserInsertDTO userRequest) {
-		UserResponse user = userService.add(userRequest);
+		UserResponseDTO user = userService.add(userRequest);
 		URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(user.getId()).toUri();
 		return ResponseEntity.created(uri).build();
 	}
 
-	@PutMapping(ID)
+	@PatchMapping(path = ID)
 	public ResponseEntity<String> update(@PathVariable("id") @NotBlank Long id,
-										 @Valid @RequestBody UserUpdateDTO userRequest) {
-
-		userService.update(id, userRequest);
+										 @RequestBody Map<String, Object> fields) {
+		userService.update(id, fields);
 		return ResponseEntity.ok().build();
 	}
 
 	@DeleteMapping(ID)
-	public ResponseEntity<UserResponse> delete(@PathVariable("id") Long id) {
+	public ResponseEntity<UserResponseDTO> delete(@PathVariable("id") Long id) {
 		userService.delete(id);
 		return ResponseEntity.noContent().build();
 	}

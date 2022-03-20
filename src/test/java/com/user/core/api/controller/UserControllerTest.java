@@ -4,7 +4,7 @@ import com.user.core.api.exceptions.InvalidUserDataException;
 import com.user.core.api.exceptions.UserAlreadyExistsException;
 import com.user.core.api.exceptions.UserNotFoundException;
 import com.user.core.api.model.User;
-import com.user.core.api.model.dto.UserResponse;
+import com.user.core.api.model.dto.UserResponseDTO;
 import com.user.core.api.repository.UserRepository;
 import com.user.core.api.service.UserService;
 import com.user.core.api.service.impl.UserDetailServiceImpl;
@@ -63,7 +63,7 @@ public class UserControllerTest {
 	public static final String USER_ALREADY_EXISTS_BY_EMAIL = "User with e-mail [" + EMAIL + "] already exists.";
 
 	private User user;
-	private UserResponse userResponse;
+	private UserResponseDTO userResponseDTO;
 
 	@BeforeEach
 	void setUp() {
@@ -79,18 +79,18 @@ public class UserControllerTest {
 		user.setFirstName(FIRST_NAME);
 		user.setLastName(LAST_NAME);
 
-		userResponse = new UserResponse();
-		userResponse.setId(ID);
-		userResponse.setEmail(EMAIL);
-		userResponse.setPassword(PASSWORD);
-		userResponse.setFirstName(FIRST_NAME);
-		userResponse.setLastName(LAST_NAME);
+		userResponseDTO = new UserResponseDTO();
+		userResponseDTO.setId(ID);
+		userResponseDTO.setEmail(EMAIL);
+		userResponseDTO.setPassword(PASSWORD);
+		userResponseDTO.setFirstName(FIRST_NAME);
+		userResponseDTO.setLastName(LAST_NAME);
 	}
 
 	@Test
 	public void shouldReturnListOfUser_WhenGetAll() throws Exception {
-		List<UserResponse> userList = new ArrayList<>();
-		userList.add(userResponse);
+		List<UserResponseDTO> userList = new ArrayList<>();
+		userList.add(userResponseDTO);
 
 		when(service.getAll()).thenReturn(userList);
 
@@ -108,7 +108,7 @@ public class UserControllerTest {
 
 	@Test
 	public void shouldReturnUser_WhenGetById() throws Exception {
-		when(service.getById(anyLong())).thenReturn(userResponse);
+		when(service.getById(anyLong())).thenReturn(userResponseDTO);
 
 		this.mockMvc.perform(get(API_URL + ID)
 						.with(SecurityMockMvcRequestPostProcessors.user(EMAIL))
@@ -135,7 +135,7 @@ public class UserControllerTest {
 
 	@Test
 	void shouldReturnCreatedAndUri_WhenAddUser() throws Exception {
-		when(service.add(any())).thenReturn(userResponse);
+		when(service.add(any())).thenReturn(userResponseDTO);
 
 		String expectedRedirectUrl = "http://localhost" + API_URL + ID;
 		this.mockMvc.perform(post(API_URL)

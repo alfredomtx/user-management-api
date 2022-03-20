@@ -1,24 +1,24 @@
 package com.user.core.api.service;
 
 import com.user.core.api.model.User;
-import com.user.core.api.model.dto.UserResponse;
 import com.user.core.api.model.dto.UserInsertDTO;
-import com.user.core.api.model.dto.UserUpdateDTO;
+import com.user.core.api.model.dto.UserResponseDTO;
 
 import java.util.List;
+import java.util.Map;
 
 
 public interface UserService {
 
-	List<UserResponse> getAll();
+	List<UserResponseDTO> getAll();
 
-	UserResponse getById(Long id);
+	UserResponseDTO getById(Long id);
 
-	UserResponse getByEmail(String email);
+	UserResponseDTO getByEmail(String email);
 
-	UserResponse add(UserInsertDTO user);
+	UserResponseDTO add(UserInsertDTO user);
 
-	UserResponse update(Long id, UserUpdateDTO userRequest);
+	UserResponseDTO update(Long id, Map<String, Object> fields);
 
 	void delete(Long id);
 

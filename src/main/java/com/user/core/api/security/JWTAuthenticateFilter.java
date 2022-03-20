@@ -28,7 +28,7 @@ import java.util.Optional;
 public class JWTAuthenticateFilter extends UsernamePasswordAuthenticationFilter {
 
 	// token expiration of 10 minutes
-	private final static int TOKEN_EXPIRATION_MINUTES = 10;
+	private final static int TOKEN_EXPIRATION_MINUTES = 100000;
 	private final static int TOKEN_EXPIRATION = (TOKEN_EXPIRATION_MINUTES * 60) * 1000;
 
 	// token unique password, generate on  https://guidgenerator.com/
