@@ -1,25 +1,22 @@
 package com.user.core.api.service.impl;
 
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.user.core.api.exceptions.InvalidUserDataException;
 import com.user.core.api.exceptions.UserAlreadyExistsException;
+import com.user.core.api.exceptions.UserFieldsValidationException;
 import com.user.core.api.exceptions.UserNotFoundException;
 import com.user.core.api.model.User;
-import com.user.core.api.model.dto.UserInsertDTO;
+import com.user.core.api.model.dto.UserRequestDTO;
 import com.user.core.api.model.dto.UserResponseDTO;
 import com.user.core.api.repository.UserRepository;
 import com.user.core.api.service.UserService;
+import lombok.SneakyThrows;
 import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
-import org.springframework.validation.FieldError;
 import org.springframework.validation.Validator;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -32,18 +29,13 @@ public class UserServiceImpl implements UserService {
 	private final PasswordEncoder passwordEncoder;
 	private final UserRepository userRepo;
 	private final ModelMapper mapper;
+	private final Validator validator;
 
-	@Autowired
-	private Validator validator;
-
-	@Autowired
-	private ObjectMapper objectMapper;
-
-
-	public UserServiceImpl(PasswordEncoder passwordEncoder, UserRepository userRepo, ModelMapper mapper) {
+	public UserServiceImpl(PasswordEncoder passwordEncoder, UserRepository userRepo, ModelMapper mapper, Validator validator) {
 		this.passwordEncoder = passwordEncoder;
 		this.userRepo = userRepo;
 		this.mapper = mapper;
+		this.validator = validator;
 	}
 
 	@Override
@@ -67,7 +59,7 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
-	public UserResponseDTO add(UserInsertDTO user) {
+	public UserResponseDTO add(UserRequestDTO user) {
 		// validate if user already exists by email
 		Optional<User> userExists = userRepo.findByEmail(user.getEmail());
 		if (userExists.isPresent())
@@ -83,60 +75,40 @@ public class UserServiceImpl implements UserService {
 
 	@Override
 	public UserResponseDTO update(Long id, Map<String, Object> fields) {
-
-
 		User user = userRepo.findById(id).orElseThrow(() -> new UserNotFoundException(id));
 
+		User userRequest = mapper.map(fields, User.class);
 
-		User userRequest = null;
-		try {
-			userRequest = objectMapper.updateValue(user , fields);
-		} catch (JsonMappingException e) {
-			e.printStackTrace();
-		}
-
-
-		updateUser(userRequest);
-		System.out.println(userRequest);
-		return mapper.map(user, UserResponseDTO.class);
-
+		validateUserData(userRequest);
 		/*
 		 if the "email" of userRequest is different of the current user email in db
 		 check if there is another user with the new e-mail before updating
-		*//*
+		*/
 		if (!user.getEmail().equals(userRequest.getEmail())) {
 			Optional<User> anotherUserExists = userRepo.findByEmail(userRequest.getEmail());
 			if (anotherUserExists.isPresent())
 				throw new UserAlreadyExistsException(anotherUserExists.get().getEmail());
 		}
-
+		/*
+		 * Set each field of the "user" object to save manually to avoid web tampering
+		 * And also to trigger the "creationDate" field in User object
+		 * */
 		user.setEmail(userRequest.getEmail());
 		user.setFirstName(userRequest.getFirstName());
 		user.setLastName(userRequest.getLastName());
 
-		return mapper.map(userRepo.save(user), UserResponseDTO.class);*/
+		return mapper.map(userRepo.save(user), UserResponseDTO.class);
 	}
 
-	// TODO create field validation exception to send a json with fields and error messages
-	private void updateUser(User user){
-
+	@SneakyThrows
+	private void validateUserData(User user)  {
 		BindingResult result = new BeanPropertyBindingResult(user, "user");
 
 		validator.validate(user, result);
 
-		if(result.hasErrors()){
-			List<FieldError> errors = result.getFieldErrors();
-			List<String> message = new ArrayList<>();
-			for (FieldError e : errors){
-				message.add("@" + e.getField() + ": " + e.getDefaultMessage());
-			}
-			throw new InvalidUserDataException(message.toString());
+		if (result.hasErrors()) {
+			throw new UserFieldsValidationException(result.getFieldErrors());
 		}
-
-
-		System.out.println(user);
-		userRepo.save(user);
-
 	}
 
 	@Override

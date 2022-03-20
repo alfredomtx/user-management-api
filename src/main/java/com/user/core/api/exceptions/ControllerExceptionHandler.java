@@ -2,6 +2,7 @@ package com.user.core.api.exceptions;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -10,6 +11,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @ControllerAdvice
 public class ControllerExceptionHandler {
@@ -57,6 +59,13 @@ public class ControllerExceptionHandler {
 
 		StandardError error = new StandardError(HttpStatus.BAD_REQUEST, LocalDateTime.now(), errors.toString(), request.getRequestURI());
 		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+	}
+
+	@ExceptionHandler(UserFieldsValidationException.class)
+	public ResponseEntity<String> userFieldsValidationException(UserFieldsValidationException e, HttpServletRequest request) {
+		List<FieldError> errors = e.getErrors();
+		UserFieldsValidationError error = new UserFieldsValidationError(HttpStatus.BAD_REQUEST, errors, request);
+		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error.toString());
 	}
 
 

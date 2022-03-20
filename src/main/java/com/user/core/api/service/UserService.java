@@ -1,7 +1,7 @@
 package com.user.core.api.service;
 
 import com.user.core.api.model.User;
-import com.user.core.api.model.dto.UserInsertDTO;
+import com.user.core.api.model.dto.UserRequestDTO;
 import com.user.core.api.model.dto.UserResponseDTO;
 
 import java.util.List;
@@ -16,7 +16,7 @@ public interface UserService {
 
 	UserResponseDTO getByEmail(String email);
 
-	UserResponseDTO add(UserInsertDTO user);
+	UserResponseDTO add(UserRequestDTO user);
 
 	UserResponseDTO update(Long id, Map<String, Object> fields);
 

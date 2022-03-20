@@ -4,9 +4,8 @@ import com.user.core.api.exceptions.InvalidUserDataException;
 import com.user.core.api.exceptions.UserAlreadyExistsException;
 import com.user.core.api.exceptions.UserNotFoundException;
 import com.user.core.api.model.User;
+import com.user.core.api.model.dto.UserRequestDTO;
 import com.user.core.api.model.dto.UserResponseDTO;
-import com.user.core.api.model.dto.UserInsertDTO;
-import com.user.core.api.model.dto.UserUpdateDTO;
 import com.user.core.api.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -15,8 +14,11 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.validation.Validator;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -56,8 +58,10 @@ class UserServiceImplTest {
 	// need to use the real implementation of ModelMapper in UserServiceImpl
 	@Autowired
 	private final ModelMapper mapper = new ModelMapper();
+	@Autowired
+	private final Validator validator = mock(Validator.class);
 
-	private final UserServiceImpl service = new UserServiceImpl(passwordEncoder, repository, mapper);
+	private final UserServiceImpl service = new UserServiceImpl(passwordEncoder, repository, mapper, validator);
 
 	private User user;
 	private UserResponseDTO userResponseDTO;
@@ -150,7 +154,7 @@ class UserServiceImplTest {
 
 	@Test
 	void shouldReturnUser_WhenAddUser() {
-		UserInsertDTO userInsert = mapper.map(user, UserInsertDTO.class);
+		UserRequestDTO userInsert = mapper.map(user, UserRequestDTO.class);
 
 		when(repository.save(any())).thenReturn(user);
 
@@ -161,7 +165,7 @@ class UserServiceImplTest {
 
 	@Test
 	void shouldReturnUserAlreadyExistsException_WhenAddUser() {
-		UserInsertDTO userInsert = new UserInsertDTO();
+		UserRequestDTO userInsert = new UserRequestDTO();
 		userInsert.setEmail(EMAIL);
 
 		when(repository.findByEmail(anyString())).thenReturn(Optional.of(user));
@@ -178,16 +182,14 @@ class UserServiceImplTest {
 
 	@Test
 	void shouldReturnUser_WhenUpdateUser_WithSuccess() {
-		UserUpdateDTO userUpdate = mapper.map(user, UserUpdateDTO.class);
-
+		Map<String, Object> userUpdate = getUserRequestObject();
 		String newEmail = "testupdate@test.com";
-		userUpdate.setEmail(newEmail);
+		userUpdate.put("email", newEmail);
 
 		when(repository.findById(anyLong())).thenReturn(Optional.of(user));
 		when(repository.save(any())).thenReturn(user);
 
-		/*UserResponseDTO response = service.update(ID, userUpdate);*/
-		UserResponseDTO response = null;
+		UserResponseDTO response = service.update(ID, userUpdate);
 
 		assertNotNull(response);
 		assertEquals(UserResponseDTO.class, response.getClass());
@@ -200,20 +202,20 @@ class UserServiceImplTest {
 
 	@Test
 	void shouldThrowUserAlreadyExistsException_WhenUpdateUser_WithEmailAlreadyInUse() {
-		UserUpdateDTO userUpdate = mapper.map(user, UserUpdateDTO.class);
 
+		Map<String, Object> userRequest = getUserRequestObject();
 		String newEmail = "new_email@test.com";
-		userUpdate.setEmail(newEmail);
+		userRequest.put("email", newEmail);
 
 		// creating another user with the same e-mail the current user want to update
-		User anotherExistingUser = mapper.map(userUpdate, User.class);
+		User anotherExistingUser = mapper.map(userRequest, User.class);
 		anotherExistingUser.setEmail(newEmail);
 		anotherExistingUser.setId(ID + 1);
 
 		// new email must be different of the current one
-		assertNotEquals(userUpdate.getEmail(), user.getEmail());
+		assertNotEquals(userRequest.get("email"), user.getEmail());
 		// ensure the new email is the same email of another user
-		assertEquals(userUpdate.getEmail(), anotherExistingUser.getEmail());
+		assertEquals(userRequest.get("email"), anotherExistingUser.getEmail());
 
 		when(repository.findByEmail(EMAIL)).thenReturn(Optional.of(user));
 		when(repository.findByEmail(newEmail)).thenReturn(Optional.of(anotherExistingUser));
@@ -221,7 +223,7 @@ class UserServiceImplTest {
 
 		String exceptionExpectedMessage = "User with e-mail [" + newEmail + "] already exists.";
 		try {
-			// service.update(ID, userUpdate);
+			service.update(ID, userRequest);
 		} catch (Exception e) {
 			assertEquals(UserAlreadyExistsException.class, e.getClass());
 			assertEquals(exceptionExpectedMessage, e.getMessage());
@@ -343,7 +345,6 @@ class UserServiceImplTest {
 		assertFalse(response);
 	}
 
-
 	private void assertDtoResponse(UserResponseDTO responseUser) {
 		assertNotNull(responseUser);
 		assertEquals(UserResponseDTO.class, responseUser.getClass());
@@ -355,5 +356,14 @@ class UserServiceImplTest {
 
 	private void failedExceptionNotThrown() {
 		fail("Should reach this line, exception was not thrown");
+	}
+
+	private Map<String, Object> getUserRequestObject() {
+		Map<String, Object> userRequest = new HashMap<>();
+		userRequest.put("email", EMAIL);
+		userRequest.put("password", PASSWORD);
+		userRequest.put("firstName", FIRST_NAME);
+		userRequest.put("lastName", LAST_NAME);
+		return userRequest;
 	}
 }

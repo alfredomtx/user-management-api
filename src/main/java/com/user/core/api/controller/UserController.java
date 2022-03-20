@@ -1,7 +1,7 @@
 package com.user.core.api.controller;
 
 import com.user.core.api.model.User;
-import com.user.core.api.model.dto.UserInsertDTO;
+import com.user.core.api.model.dto.UserRequestDTO;
 import com.user.core.api.model.dto.UserResponseDTO;
 import com.user.core.api.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,7 +36,7 @@ public class UserController {
 	}
 
 	@PostMapping("/")
-	public ResponseEntity<String> add(@RequestBody @Valid UserInsertDTO userRequest) {
+	public ResponseEntity<String> add(@RequestBody @Valid UserRequestDTO userRequest) {
 		UserResponseDTO user = userService.add(userRequest);
 		URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(user.getId()).toUri();
 		return ResponseEntity.created(uri).build();

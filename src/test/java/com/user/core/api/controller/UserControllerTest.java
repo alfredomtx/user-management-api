@@ -2,6 +2,7 @@ package com.user.core.api.controller;
 
 import com.user.core.api.exceptions.InvalidUserDataException;
 import com.user.core.api.exceptions.UserAlreadyExistsException;
+import com.user.core.api.exceptions.UserFieldsValidationException;
 import com.user.core.api.exceptions.UserNotFoundException;
 import com.user.core.api.model.User;
 import com.user.core.api.model.dto.UserResponseDTO;
@@ -19,11 +20,12 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.validation.FieldError;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.*;
@@ -103,6 +105,7 @@ public class UserControllerTest {
 				.andExpect(jsonPath("$[0].email", is(EMAIL)))
 				.andExpect(jsonPath("$[0].firstName", is(FIRST_NAME)))
 				.andExpect(jsonPath("$[0].lastName", is(LAST_NAME)))
+				.andExpect(jsonPath("$[0].password").doesNotExist())
 				.andReturn();
 	}
 
@@ -117,7 +120,10 @@ public class UserControllerTest {
 				.andExpect(jsonPath("$.id", is(ID.intValue())))
 				.andExpect(jsonPath("$.email", is(EMAIL)))
 				.andExpect(jsonPath("$.firstName", is(FIRST_NAME)))
-				.andExpect(jsonPath("$.lastName", is(LAST_NAME)));
+				.andExpect(jsonPath("$.lastName", is(LAST_NAME)))
+				.andExpect(jsonPath("$.password").doesNotExist())
+				.andReturn();
+
 	}
 
 	@Test
@@ -152,13 +158,34 @@ public class UserControllerTest {
 	void shouldThrowUserAlreadyExistsException_WhenUpdateUser() throws Exception {
 		when(service.update(anyLong(), any())).thenThrow(new UserAlreadyExistsException(EMAIL));
 
-		this.mockMvc.perform(put(API_URL + ID)
+		this.mockMvc.perform(patch(API_URL + ID)
 						.with(SecurityMockMvcRequestPostProcessors.user(EMAIL))
 						.contentType(MediaType.APPLICATION_JSON)
 						.content(getUserJsonBody())
 				)
 				.andExpect(status().isConflict())
 				.andExpect(jsonPath("$.error", is(USER_ALREADY_EXISTS_BY_EMAIL)));
+	}
+
+	@Test
+	void shouldThrowUserFieldsValidationException_WhenUpdateUser() throws Exception {
+		List<FieldError> errors = new ArrayList<>();
+		String errorMessage = "invalid email";
+		FieldError error = new FieldError("user", "email", errorMessage);
+		errors.add(error);
+
+		when(service.update(anyLong(), any())).thenAnswer(invocation -> {
+			throw new UserFieldsValidationException(errors);
+		});
+
+		this.mockMvc.perform(patch(API_URL + ID)
+						.with(SecurityMockMvcRequestPostProcessors.user(EMAIL))
+						.contentType(MediaType.APPLICATION_JSON)
+						.content(getUserJsonBody())
+				)
+				.andExpect(status().isBadRequest())
+				.andExpect(jsonPath("$.message", hasSize(1)))
+				.andExpect(jsonPath("$.message[0].email", is(errorMessage)));
 	}
 
 	@Test
@@ -243,6 +270,7 @@ public class UserControllerTest {
 				", \"password\": \"%s\"" +
 				", \"firstName\": \"%s\"" +
 				", \"lastName\": \"%s\"" +
-				"}", EMAIL, PASSWORD, FIRST_NAME, LAST_NAME);
+				", \"anInvalidField\": \"%s\"" +
+				"}", EMAIL, PASSWORD, FIRST_NAME, LAST_NAME, "this is an invalid field");
 	}
 }

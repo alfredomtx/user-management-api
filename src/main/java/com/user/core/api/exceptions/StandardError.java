@@ -20,7 +20,7 @@ public class StandardError {
 	public String toString() {
 		return "{ "
 				+ "\"code\": " + status.value() + ","
-				+ "\"status\": " + status.name() + ","
+				+ "\"status\": \"" + status.name() + "\","
 				+ "\"timestamp\": \"" + timestamp + "\","
 				+ "\"message\": \"" + error + "\","
 				+ "\"path\": \"" + path + "\""
