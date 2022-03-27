@@ -24,11 +24,6 @@ public class EmailController {
 		return ResponseEntity.ok(emailService.getAll());
 	}
 
-	/*@GetMapping("/")
-	public ResponseEntity<Page<Email>> getAll(@PageableDefault(page = 0, size = 5, sort = "emailId", direction = Sort.Direction.DESC) Pageable pageable){
-		return new ResponseEntity<>(emailService.findAll(pageable), HttpStatus.OK);
-	}*/
-
 	@PostMapping("/send")
 	public ResponseEntity<EmailDTO> sendEmail(@RequestBody @Valid EmailDTO emailDTO) {
 		Email email = new Email();

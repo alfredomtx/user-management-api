@@ -1,6 +1,5 @@
 package com.user.core.api.service.impl;
 
-import com.user.core.api.config.EmailConfigSourceFactory;
 import com.user.core.api.enums.StatusEmail;
 import com.user.core.api.model.Email;
 import com.user.core.api.model.dto.EmailDTO;
@@ -9,7 +8,6 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Component;
 
 import javax.mail.Message;
@@ -26,7 +24,6 @@ import java.util.Properties;
 import java.util.stream.Collectors;
 
 @Component
-@PropertySource(factory = EmailConfigSourceFactory.class, value = "email_configuration.yml")
 public class EmailServiceImplNew {
 
 	@Autowired
@@ -35,10 +32,6 @@ public class EmailServiceImplNew {
 	@Autowired
 	private  ModelMapper mapper;
 
-	@Value("${mail.sender.email}")
-	private String senderEmail;
-	@Value("${mail.sender.name}")
-	private String senderName;
 	@Value("${spring.mail.protocol}")
 	private String protocol;
 	@Value("${spring.mail.host}")
@@ -50,6 +43,8 @@ public class EmailServiceImplNew {
 	@Value("${spring.mail.password}")
 	private String password;
 
+	private final String senderEmail = "support@oldbot.com.br";
+	private final String senderName = "No Reply OldBot";
 	private Properties props;
 
 

@@ -1,11 +1,12 @@
 package com.user.core.api.controller;
 
 import com.user.core.api.exceptions.InvalidUserDataException;
-import com.user.core.api.exceptions.UserAlreadyExistsException;
 import com.user.core.api.exceptions.ObjectFieldsValidationException;
+import com.user.core.api.exceptions.UserAlreadyExistsException;
 import com.user.core.api.exceptions.UserNotFoundException;
 import com.user.core.api.model.User;
 import com.user.core.api.model.dto.UserResponseDTO;
+import com.user.core.api.repository.EmailRepository;
 import com.user.core.api.repository.UserRepository;
 import com.user.core.api.service.UserService;
 import com.user.core.api.service.impl.UserDetailServiceImpl;
@@ -25,7 +26,8 @@ import org.springframework.validation.FieldError;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.*;
@@ -43,17 +45,18 @@ public class UserControllerTest {
 	// need to use the real implementation of ModelMapper in UserServiceImpl
 	// private final ModelMapper mapper = new ModelMapper();
 
-	@MockBean
-	private UserRepository repository;
 	@Mock
 	private UserServiceImpl servicesImpl;
 	@MockBean
+	private UserRepository repository;
+	@MockBean
+	private EmailRepository emailRepository;
+	@MockBean
 	private UserService service;
 	@MockBean
-	private UserDetailServiceImpl userDetailServiceImpl;
+	private UserDetailServiceImpl userDetailServiceImpl; // for Spring Security
 
 	public static final String API_URL = "/api/user/";
-	// User with valid token to login for Spring Security
 	public static final Long ID = 1L;
 	public static final String EMAIL = "test@test.com";
 	public static final String PASSWORD = "test";

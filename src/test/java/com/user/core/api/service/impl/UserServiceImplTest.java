@@ -27,6 +27,29 @@ import static org.mockito.Mockito.*;
 
 class UserServiceImplTest {
 
+	// use the real implementation of ModelMapper in UserServiceImpl
+	@Autowired
+	private final ModelMapper mapper = new ModelMapper();
+	@Autowired
+	private final Validator validator = mock(Validator.class);
+	@MockBean
+	private final UserRepository repository = mock(UserRepository.class);
+
+	// overriding PasswordEncoder methods to be able to use to validate login
+	@Autowired
+	private final PasswordEncoder passwordEncoder = new PasswordEncoder() {
+		@Override
+		public String encode(CharSequence rawPassword) {
+			return rawPassword.toString();
+		}
+		@Override
+		public boolean matches(CharSequence rawPassword, String encodedPassword) {
+			return rawPassword.equals(encodedPassword);
+		}
+	};
+
+	private final UserServiceImpl service = new UserServiceImpl(passwordEncoder, repository, mapper, validator);
+
 	public static final Long ID = 1L;
 	public static final String EMAIL = "test@test.com";
 	public static final String PASSWORD = "test";
@@ -37,35 +60,8 @@ class UserServiceImplTest {
 	public static final String USER_NOT_FOUND_BY_ID = "User with id [" + ID + "] not found.";
 	public static final String USER_ALREADY_EXISTS_BY_EMAIL = "User with e-mail [" + EMAIL + "] already exists.";
 
-
-	// overriding PasswordEncoder methods to be able to use to validate login
-	@Autowired
-	private final PasswordEncoder passwordEncoder = new PasswordEncoder() {
-		@Override
-		public String encode(CharSequence rawPassword) {
-			return rawPassword.toString();
-		}
-
-		@Override
-		public boolean matches(CharSequence rawPassword, String encodedPassword) {
-			return rawPassword.equals(encodedPassword);
-		}
-	};
-
-	@MockBean
-	private final UserRepository repository = mock(UserRepository.class);
-
-	// need to use the real implementation of ModelMapper in UserServiceImpl
-	@Autowired
-	private final ModelMapper mapper = new ModelMapper();
-	@Autowired
-	private final Validator validator = mock(Validator.class);
-
-	private final UserServiceImpl service = new UserServiceImpl(passwordEncoder, repository, mapper, validator);
-
 	private User user;
 	private UserResponseDTO userResponseDTO;
-
 
 	@BeforeEach
 	void setUp() {
@@ -74,7 +70,6 @@ class UserServiceImplTest {
 	}
 
 	private void startUser() {
-
 		user = new User();
 		user.setId(ID);
 		user.setEmail(EMAIL);
@@ -95,11 +90,9 @@ class UserServiceImplTest {
 		when(repository.findAll()).thenReturn(List.of(user));
 
 		List<UserResponseDTO> response = service.getAll();
-
 		assertNotNull(response);
 		// list should return only 1 user
 		assertEquals(1, response.size());
-
 		// do the rest of validations for the first user of the list
 		assertDtoResponse(response.get(0));
 	}
@@ -107,9 +100,7 @@ class UserServiceImplTest {
 	@Test
 	void shouldReturnUser_WhenGetById() {
 		when(repository.findById(anyLong())).thenReturn(Optional.of(user));
-
 		UserResponseDTO response = service.getById(ID);
-
 		assertDtoResponse(response);
 	}
 
@@ -146,20 +137,15 @@ class UserServiceImplTest {
 	@Test
 	void shouldReturnUser_WhenGetByEmail() {
 		when(repository.findByEmail(anyString())).thenReturn(Optional.of(user));
-
 		UserResponseDTO response = service.getByEmail(EMAIL);
-
 		assertDtoResponse(response);
 	}
 
 	@Test
 	void shouldReturnUser_WhenAddUser() {
 		UserRequestDTO userInsert = mapper.map(user, UserRequestDTO.class);
-
 		when(repository.save(any())).thenReturn(user);
-
 		UserResponseDTO response = service.add(userInsert);
-
 		assertDtoResponse(response);
 	}
 
@@ -169,7 +155,6 @@ class UserServiceImplTest {
 		userInsert.setEmail(EMAIL);
 
 		when(repository.findByEmail(anyString())).thenReturn(Optional.of(user));
-
 		try {
 			service.add(userInsert);
 		} catch (Exception e) {
@@ -202,7 +187,6 @@ class UserServiceImplTest {
 
 	@Test
 	void shouldThrowUserAlreadyExistsException_WhenUpdateUser_WithEmailAlreadyInUse() {
-
 		Map<String, Object> userRequest = getUserRequestObject();
 		String newEmail = "new_email@test.com";
 		userRequest.put("email", newEmail);
@@ -243,7 +227,6 @@ class UserServiceImplTest {
 	@Test
 	void shouldThrowUserNotFoundException_WhenDeleteById() {
 		when(repository.findById(anyLong())).thenThrow(new UserNotFoundException(ID));
-
 		try {
 			service.getById(ID);
 		} catch (Exception e) {
@@ -303,7 +286,6 @@ class UserServiceImplTest {
 				"_________________________________________________________________________________________" +
 				"___________________________________________________________________________________________";
 		user.setPassword(newPassword);
-
 		assertEquals(newPassword.length(), 256);
 
 		String exceptionExpectedMessage = "Password is too big, more than 255 characters.";
@@ -340,7 +322,6 @@ class UserServiceImplTest {
 	@Test
 	void shouldReturnFalse_WhenValidateLogin_WhenUserDoesNotExist() {
 		when(repository.findByEmail(anyString())).thenReturn(Optional.empty());
-
 		boolean response = service.validateLogin(user);
 		assertFalse(response);
 	}
