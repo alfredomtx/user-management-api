@@ -15,9 +15,10 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
+import javax.sql.DataSource;
 
 @EnableWebSecurity
-public class JWTConfiguration extends WebSecurityConfigurerAdapter {
+public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
 	@Autowired
 	private UserDetailServiceImpl userDetailService;
@@ -28,6 +29,9 @@ public class JWTConfiguration extends WebSecurityConfigurerAdapter {
 	@Autowired
 	private UserRepository userRepository;
 
+	@Autowired
+	private DataSource dataSource;
+
 	// configure spring security to use the project's classes as base classes of implementation
 	@Override
 	protected void configure(AuthenticationManagerBuilder auth) throws Exception {
@@ -36,12 +40,21 @@ public class JWTConfiguration extends WebSecurityConfigurerAdapter {
 
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
-
+		// override exception handling of spring security to handle with AuthFailureHandler
 		http.exceptionHandling().authenticationEntryPoint(new AuthFailureHandler());
 
-		http.csrf().disable().authorizeRequests()
+		http.csrf().disable();
+		// http.csrf().ignoringAntMatchers("/api/**");
+
+		http.authorizeRequests()
+				.antMatchers("/api/user/**").hasAnyRole("USER", "ADMIN")
+				.antMatchers("/api/**").hasRole("ADMIN")
+
+				//.antMatchers("/", "static/css", "static/js").permitAll()
 				.antMatchers(HttpMethod.POST, "/login").permitAll()
 				.antMatchers(HttpMethod.GET, "/ping").permitAll()
+				.antMatchers("/").permitAll()
+
 				.anyRequest().authenticated()
 				.and()
 				.addFilter(new JWTAuthenticateFilter(authenticationManager(), userRepository))
@@ -54,7 +67,6 @@ public class JWTConfiguration extends WebSecurityConfigurerAdapter {
 		final UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
 		CorsConfiguration corsConfiguration = new CorsConfiguration().applyPermitDefaultValues();
 		source.registerCorsConfiguration("/**", corsConfiguration);
-
 		return source;
 	}
 

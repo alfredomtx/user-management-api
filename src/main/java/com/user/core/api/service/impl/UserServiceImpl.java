@@ -2,7 +2,7 @@ package com.user.core.api.service.impl;
 
 import com.user.core.api.exceptions.InvalidUserDataException;
 import com.user.core.api.exceptions.UserAlreadyExistsException;
-import com.user.core.api.exceptions.UserFieldsValidationException;
+import com.user.core.api.exceptions.ObjectFieldsValidationException;
 import com.user.core.api.exceptions.UserNotFoundException;
 import com.user.core.api.model.User;
 import com.user.core.api.model.dto.UserRequestDTO;
@@ -107,7 +107,7 @@ public class UserServiceImpl implements UserService {
 		validator.validate(user, result);
 
 		if (result.hasErrors()) {
-			throw new UserFieldsValidationException(result.getFieldErrors());
+			throw new ObjectFieldsValidationException(result.getFieldErrors());
 		}
 	}
 

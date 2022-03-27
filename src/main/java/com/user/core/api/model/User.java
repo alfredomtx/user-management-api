@@ -15,45 +15,51 @@ import java.util.Date;
 
 @Entity
 @ToString
+@Getter
+@Setter
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class User {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.SEQUENCE)
-	private @Getter @Setter Long id;
+	private Long id;
 
 	@NotBlank(message = "Email is blank.")
 	@Email(message = "Not a valid email.")
 	@Size(min = 4, max = 255, message = "Field is too short(less than 4) or too big(more than 255).")
 	@Column(unique = true)
-	private @Getter @Setter String email;
+	private String email;
 
 	@NotBlank(message = "Password is blank.")
 	@Size(min = 4, max = 255, message = "Field is too short(less than 4) or too big(more than 255).")
-	private @Getter @Setter String password;
+	private String password;
 
 	@NotBlank(message = "First name is blank.")
 	@Size(min = 2, max = 255, message = "Field is too short(less than 2) or too big(more than 255).")
-	private @Getter @Setter String firstName;
+	private String firstName;
 
 	@NotBlank(message = "Last name is blank.")
 	@Size(min = 2, max = 255, message = "Field is too short(less than 2) or too big(more than 255).")
-	private @Getter @Setter String lastName;
+	private String lastName;
 
 	@Column(updatable = false)
 	@Temporal(TemporalType.TIMESTAMP)
 	@CreationTimestamp
-	private @Getter Date creationDate;
+	private Date creationDate;
 
 	@Column(insertable = false)
 	@Temporal(TemporalType.TIMESTAMP)
 	@UpdateTimestamp
-	private @Getter Date updateDate;
+	private Date updateDate;
 
-	private @Getter @Setter String token;
+	private String token;
 
 	@Temporal(TemporalType.TIMESTAMP)
-	private @Getter @Setter Date tokenExpiration;
+	private Date tokenExpiration;
+
+	private String role;
+
+	private boolean active;
 
 
 }

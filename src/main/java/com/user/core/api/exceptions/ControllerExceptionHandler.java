@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
-import java.time.LocalDateTime;
 import java.util.List;
 
 @ControllerAdvice
@@ -18,26 +17,33 @@ public class ControllerExceptionHandler {
 
 	@ExceptionHandler(UserNotFoundException.class)
 	public ResponseEntity<StandardError> userNotFoundException(UserNotFoundException e, HttpServletRequest request) {
-		StandardError error = new StandardError(HttpStatus.NOT_FOUND, LocalDateTime.now(), e.getMessage(), request.getRequestURI());
+		StandardError error = new StandardError(HttpStatus.NOT_FOUND, e.getMessage(), request.getRequestURI());
 		return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
 	}
 
 	@ExceptionHandler(InvalidUserDataException.class)
 	public ResponseEntity<StandardError> invalidUserDataException(InvalidUserDataException e, HttpServletRequest request) {
-		StandardError error = new StandardError(HttpStatus.BAD_REQUEST, LocalDateTime.now(), e.getMessage(), request.getRequestURI());
+		StandardError error = new StandardError(HttpStatus.BAD_REQUEST, e.getMessage(), request.getRequestURI());
 		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
 	}
 
 	@ExceptionHandler(UserAlreadyExistsException.class)
 	public ResponseEntity<StandardError> userAlreadyExistsException(UserAlreadyExistsException e, HttpServletRequest request) {
-		StandardError error = new StandardError(HttpStatus.CONFLICT, LocalDateTime.now(), e.getMessage(), request.getRequestURI());
+		StandardError error = new StandardError(HttpStatus.CONFLICT, e.getMessage(), request.getRequestURI());
 		return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
 	}
 
 	// override exception of JPA field validations when the @Valid notation is in the request param
 	@ExceptionHandler(MethodArgumentNotValidException.class)
-	public ResponseEntity<StandardError> fieldValidationException(MethodArgumentNotValidException e, HttpServletRequest request) {
-		StandardError error = new StandardError(HttpStatus.CONFLICT, LocalDateTime.now(), e.getBindingResult().getFieldError().getDefaultMessage(), request.getRequestURI());
+	public ResponseEntity<?> fieldValidationException(MethodArgumentNotValidException e, HttpServletRequest request) {
+		// if it has more than 1 field with error, return the custom ObjectFieldsValidationException
+		if (e.getBindingResult().getErrorCount() > 1){
+			List<FieldError> errors = e.getBindingResult().getFieldErrors();
+			ObjectFieldsValidationError error = new ObjectFieldsValidationError(HttpStatus.BAD_REQUEST, errors, request);
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error.toString());
+		}
+
+		StandardError error = new StandardError(HttpStatus.CONFLICT, e.getBindingResult().getFieldError().getDefaultMessage(), request.getRequestURI());
 		return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
 	}
 
@@ -57,14 +63,14 @@ public class ControllerExceptionHandler {
 		}
 		errors.append("]");
 
-		StandardError error = new StandardError(HttpStatus.BAD_REQUEST, LocalDateTime.now(), errors.toString(), request.getRequestURI());
+		StandardError error = new StandardError(HttpStatus.BAD_REQUEST, errors.toString(), request.getRequestURI());
 		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
 	}
 
-	@ExceptionHandler(UserFieldsValidationException.class)
-	public ResponseEntity<String> userFieldsValidationException(UserFieldsValidationException e, HttpServletRequest request) {
+	@ExceptionHandler(ObjectFieldsValidationException.class)
+	public ResponseEntity<String> objectFieldsValidationException(ObjectFieldsValidationException e, HttpServletRequest request) {
 		List<FieldError> errors = e.getErrors();
-		UserFieldsValidationError error = new UserFieldsValidationError(HttpStatus.BAD_REQUEST, errors, request);
+		ObjectFieldsValidationError error = new ObjectFieldsValidationError(HttpStatus.BAD_REQUEST, errors, request);
 		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error.toString());
 	}
 

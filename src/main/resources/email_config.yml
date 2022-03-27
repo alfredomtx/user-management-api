@@ -1,0 +1,24 @@
+
+
+
+mail:
+  sender:
+    email: support@oldbot.com.br
+    name: NoReply OldBot
+
+spring:
+  mail:
+    protocol: smtp
+    host: smtp.titan.email
+    port: 587
+    username: support@oldbot.com.br
+    password: fWicKmtKuk
+    properties:
+      mail:
+        smtp:
+          auth: true
+          ssl:
+            trust: smtp.titan.email
+          starttls:
+            enable: true
+            required: true

@@ -2,7 +2,7 @@ package com.user.core.api.controller;
 
 import com.user.core.api.exceptions.InvalidUserDataException;
 import com.user.core.api.exceptions.UserAlreadyExistsException;
-import com.user.core.api.exceptions.UserFieldsValidationException;
+import com.user.core.api.exceptions.ObjectFieldsValidationException;
 import com.user.core.api.exceptions.UserNotFoundException;
 import com.user.core.api.model.User;
 import com.user.core.api.model.dto.UserResponseDTO;
@@ -175,7 +175,7 @@ public class UserControllerTest {
 		errors.add(error);
 
 		when(service.update(anyLong(), any())).thenAnswer(invocation -> {
-			throw new UserFieldsValidationException(errors);
+			throw new ObjectFieldsValidationException(errors);
 		});
 
 		this.mockMvc.perform(patch(API_URL + ID)

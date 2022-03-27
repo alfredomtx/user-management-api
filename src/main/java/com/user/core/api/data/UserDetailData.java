@@ -2,36 +2,43 @@ package com.user.core.api.data;
 
 import com.user.core.api.model.User;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Optional;
+import java.util.List;
 
 public class UserDetailData implements UserDetails {
 
-	private final Optional<User> user;
+	private final User user;
 
-	public UserDetailData(Optional<User> user) {
+	public UserDetailData(User user) {
 		this.user = user;
 	}
 
 	@Override
 	public Collection<? extends GrantedAuthority> getAuthorities() {
-		// TODO Auto-generated method stub
-		return new ArrayList<>();
+		List<GrantedAuthority> listRole = new ArrayList<GrantedAuthority>();
+
+		String role = user.getRole();
+		// assign default role in case it's empty, otherwise exception will be thrown
+		// by spring security for
+		if (role.trim().isEmpty())
+			role = "ROLE_USER";
+
+		listRole.add(new SimpleGrantedAuthority(role));
+		return listRole;
 	}
 
 	@Override
 	public String getPassword() {
-		// if the user is empty return a new user
-		return user.orElse(new User()).getPassword();
+		return user.getPassword();
 	}
 
 	@Override
 	public String getUsername() {
-		// if the user is empty return a new user
-		return user.orElse(new User()).getEmail();
+		return user.getEmail();
 	}
 
 	@Override
@@ -54,8 +61,7 @@ public class UserDetailData implements UserDetails {
 
 	@Override
 	public boolean isEnabled() {
-		// TODO Auto-generated method stub
-		return true;
+		return user.isActive();
 	}
 
 }

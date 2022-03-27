@@ -13,20 +13,17 @@ import java.time.LocalDateTime;
 public class StandardError {
 
 	private HttpStatus status;
-	private LocalDateTime timestamp;
 	private String error;
 	private String path;
 
 	public String toString() {
-		return "{ "
+		return "{"
 				+ "\"code\": " + status.value() + ","
 				+ "\"status\": \"" + status.name() + "\","
-				+ "\"timestamp\": \"" + timestamp + "\","
+				+ "\"timestamp\": \"" + LocalDateTime.now() + "\","
 				+ "\"message\": \"" + error + "\","
 				+ "\"path\": \"" + path + "\""
 				+ "}";
-
-
 	}
 
 

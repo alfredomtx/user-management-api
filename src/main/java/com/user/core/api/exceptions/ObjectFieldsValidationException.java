@@ -9,13 +9,13 @@ import java.util.List;
  * Exception class used to collect the list of errors
  * to be used in UserFieldsValidationError on ControllerExceptionHandler
  * */
-public class UserFieldsValidationException extends Exception {
+public class ObjectFieldsValidationException extends Exception {
 	private static final long serialVersionUID = 1L;
 
 	private @Getter
 	List<FieldError> errors;
 
-	public UserFieldsValidationException(List<FieldError> errors) {
+	public ObjectFieldsValidationException(List<FieldError> errors) {
 		this.errors = errors;
 	}
 

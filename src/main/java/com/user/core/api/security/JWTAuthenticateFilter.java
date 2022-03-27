@@ -5,9 +5,9 @@ import com.auth0.jwt.algorithms.Algorithm;
 import com.fasterxml.jackson.core.exc.StreamReadException;
 import com.fasterxml.jackson.databind.DatabindException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.user.core.api.repository.UserRepository;
 import com.user.core.api.data.UserDetailData;
 import com.user.core.api.model.User;
+import com.user.core.api.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -23,6 +23,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.Optional;
 
 public class JWTAuthenticateFilter extends UsernamePasswordAuthenticationFilter {
@@ -53,7 +54,7 @@ public class JWTAuthenticateFilter extends UsernamePasswordAuthenticationFilter 
 			return authManager.authenticate(new UsernamePasswordAuthenticationToken(
 					user.getEmail(),
 					user.getPassword(),
-					new ArrayList<>() // user permissions
+					new ArrayList<>()
 			));
 		} catch (StreamReadException e) {
 			throw new RuntimeException("Failed to authenticate user", e);
@@ -78,8 +79,13 @@ public class JWTAuthenticateFilter extends UsernamePasswordAuthenticationFilter 
 
 		// set token expiration with current time + TOKEN_EXPIRATION
 		Date tokenExpiration = new Date(System.currentTimeMillis() + TOKEN_EXPIRATION);
+
+		// get the role of the user (first item of the list)
+		Iterator i = userData.getAuthorities().iterator();
+		Object role = i.next();
+
 		String token = JWT.create()
-				.withSubject(userData.getUsername())
+				.withSubject(userData.getUsername() + "," + role.toString())
 				.withExpiresAt(tokenExpiration)
 				.sign(Algorithm.HMAC512(TOKEN_PASSWORD));
 

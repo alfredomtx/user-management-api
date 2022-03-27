@@ -9,7 +9,6 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.time.LocalDateTime;
 
 /*
  * Class to Override spring security exceptions and respond in the same format as Controller's exceptions
@@ -24,19 +23,21 @@ public class AuthFailureHandler implements AuthenticationEntryPoint {
 
 		final String expired = (String) httpServletRequest.getAttribute("expired");
 		if (expired != null) {
-			StandardError error = new StandardError(HttpStatus.UNAUTHORIZED, LocalDateTime.now(), expired, httpServletRequest.getRequestURI());
+			StandardError error = new StandardError(HttpStatus.UNAUTHORIZED, expired, httpServletRequest.getRequestURI());
 			httpServletResponse.getOutputStream().println(error.toString());
 			return;
 		}
 
 		final String badCredentials = (String) httpServletRequest.getAttribute("badCredentials");
 		if (badCredentials != null) {
-			StandardError error = new StandardError(HttpStatus.UNAUTHORIZED, LocalDateTime.now(), badCredentials, httpServletRequest.getRequestURI());
+			StandardError error = new StandardError(HttpStatus.UNAUTHORIZED, badCredentials, httpServletRequest.getRequestURI());
 			httpServletResponse.getOutputStream().println(error.toString());
 			return;
 		}
 
-		StandardError error = new StandardError(HttpStatus.UNAUTHORIZED, LocalDateTime.now(), e.getMessage(), httpServletRequest.getRequestURI());
+		System.out.println(e);
+
+		StandardError error = new StandardError(HttpStatus.UNAUTHORIZED, e.getMessage(), httpServletRequest.getRequestURI());
 		httpServletResponse.getOutputStream().println(error.toString());
 	}
 }

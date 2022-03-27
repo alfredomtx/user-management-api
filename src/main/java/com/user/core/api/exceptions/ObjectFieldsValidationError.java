@@ -13,14 +13,14 @@ import java.util.List;
 @AllArgsConstructor
 @Getter
 @Setter
-public class UserFieldsValidationError {
+public class ObjectFieldsValidationError {
 
 	private HttpStatus status;
 	private List<FieldError> errors;
 	private HttpServletRequest request;
 
 	public String toString() {
-		return "{ "
+		return "{"
 				+ "\"code\": " + status.value() + ","
 				+ "\"status\": \"" + status.name() + "\","
 				+ "\"timestamp\": \"" + LocalDateTime.now() + "\","

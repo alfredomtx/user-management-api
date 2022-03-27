@@ -58,7 +58,6 @@ public class UserController {
 	@PostMapping(ID + "/changePassword")
 	public ResponseEntity<String> changePassword(@PathVariable("id") @NotBlank Long id,
 												 @RequestBody String password) {
-
 		userService.changePassword(id, password);
 		return ResponseEntity.ok().body("User password updated with success.");
 	}
