@@ -1,6 +1,7 @@
 package com.user.core.api.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.user.core.api.enums.Role;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -52,12 +53,14 @@ public class User {
 	@UpdateTimestamp
 	private Date updateDate;
 
+	@Column(columnDefinition = "TEXT")
 	private String token;
 
 	@Temporal(TemporalType.TIMESTAMP)
 	private Date tokenExpiration;
 
-	private String role;
+	@Enumerated(EnumType.STRING)
+	private Role role;
 
 	private boolean active;
 

@@ -6,6 +6,7 @@ import com.fasterxml.jackson.core.exc.StreamReadException;
 import com.fasterxml.jackson.databind.DatabindException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.user.core.api.data.UserDetailData;
+import com.user.core.api.enums.Role;
 import com.user.core.api.model.User;
 import com.user.core.api.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -82,10 +83,11 @@ public class JWTAuthenticateFilter extends UsernamePasswordAuthenticationFilter 
 
 		// get the role of the user (first item of the list)
 		Iterator i = userData.getAuthorities().iterator();
-		Object role = i.next();
+		String role = i.next().toString();
+		Role roleName = Role.valueOf(role);
 
 		String token = JWT.create()
-				.withSubject(userData.getUsername() + "," + role.toString())
+				.withSubject(userData.getUsername() + "," + roleName)
 				.withExpiresAt(tokenExpiration)
 				.sign(Algorithm.HMAC512(TOKEN_PASSWORD));
 

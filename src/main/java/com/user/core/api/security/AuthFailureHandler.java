@@ -27,15 +27,24 @@ public class AuthFailureHandler implements AuthenticationEntryPoint {
 			httpServletResponse.getOutputStream().println(error.toString());
 			return;
 		}
-
 		final String badCredentials = (String) httpServletRequest.getAttribute("badCredentials");
 		if (badCredentials != null) {
 			StandardError error = new StandardError(HttpStatus.UNAUTHORIZED, badCredentials, httpServletRequest.getRequestURI());
 			httpServletResponse.getOutputStream().println(error.toString());
 			return;
 		}
-
-		System.out.println(e);
+		final String noAuthorizationHeader = (String) httpServletRequest.getAttribute("noAuthorizationHeader");
+		if (noAuthorizationHeader != null) {
+			StandardError error = new StandardError(HttpStatus.UNAUTHORIZED, noAuthorizationHeader, httpServletRequest.getRequestURI());
+			httpServletResponse.getOutputStream().println(error.toString());
+			return;
+		}
+		final String noBearerTokenHeader = (String) httpServletRequest.getAttribute("noBearerTokenHeader");
+		if (noBearerTokenHeader != null) {
+			StandardError error = new StandardError(HttpStatus.UNAUTHORIZED, noBearerTokenHeader, httpServletRequest.getRequestURI());
+			httpServletResponse.getOutputStream().println(error.toString());
+			return;
+		}
 
 		StandardError error = new StandardError(HttpStatus.UNAUTHORIZED, e.getMessage(), httpServletRequest.getRequestURI());
 		httpServletResponse.getOutputStream().println(error.toString());

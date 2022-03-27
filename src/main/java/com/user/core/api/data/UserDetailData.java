@@ -1,5 +1,6 @@
 package com.user.core.api.data;
 
+import com.user.core.api.enums.Role;
 import com.user.core.api.model.User;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -21,11 +22,10 @@ public class UserDetailData implements UserDetails {
 	public Collection<? extends GrantedAuthority> getAuthorities() {
 		List<GrantedAuthority> listRole = new ArrayList<GrantedAuthority>();
 
-		String role = user.getRole();
-		// assign default role in case it's empty, otherwise exception will be thrown
-		// by spring security for
+		String role = user.getRole().name();
+		// assign default role in case it's empty, otherwise exception will be thrown by spring
 		if (role.trim().isEmpty())
-			role = "ROLE_USER";
+			role = Role.ROLE_USER.name();
 
 		listRole.add(new SimpleGrantedAuthority(role));
 		return listRole;

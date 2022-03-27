@@ -25,9 +25,8 @@ import java.util.List;
 import java.util.Properties;
 import java.util.stream.Collectors;
 
-
 @Component
-@PropertySource(factory = EmailConfigSourceFactory.class, value = "email_config.yml")
+@PropertySource(factory = EmailConfigSourceFactory.class, value = "email_configuration.yml")
 public class EmailServiceImplNew {
 
 	@Autowired
@@ -40,7 +39,6 @@ public class EmailServiceImplNew {
 	private String senderEmail;
 	@Value("${mail.sender.name}")
 	private String senderName;
-
 	@Value("${spring.mail.protocol}")
 	private String protocol;
 	@Value("${spring.mail.host}")
@@ -54,19 +52,6 @@ public class EmailServiceImplNew {
 
 	private Properties props;
 
-	/*static {
-		System.out.println("aaaaaaaaaaaaaaa");
-		if (protocol == null)
-			throw new RuntimeException("Parameter \"protocol\" from " + EMAIL_YML_FILE + " is null.");
-		if (host == null)
-			throw new RuntimeException("Parameter \"host\" from " + EMAIL_YML_FILE + " is null.\" ");
-		if (port == null)
-			throw new RuntimeException("Parameter \"port\" from " + EMAIL_YML_FILE + " is null.\" ");
-		if (username == null)
-			throw new RuntimeException("Parameter \"username\" from " + EMAIL_YML_FILE + " is null.");
-		if (password == null)
-			throw new RuntimeException("Parameter \"password\" from " + EMAIL_YML_FILE + " is null.");
-	}*/
 
 	public EmailDTO sendEmail(Email email) {
 
@@ -131,9 +116,7 @@ public class EmailServiceImplNew {
 	}
 
 	public List<EmailDTO> getAll() {
-
 		List<Email> emails = emailRepository.findAll();
-
 		return emails.stream()
 				.map((email) -> mapper.map(email, EmailDTO.class)).collect(Collectors.toList());
 	}

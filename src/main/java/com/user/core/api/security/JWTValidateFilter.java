@@ -34,10 +34,12 @@ public class JWTValidateFilter extends BasicAuthenticationFilter {
 
 		String attribute = request.getHeader(HEADER_ATTRIBUTE);
 		if (attribute == null) {
+			request.setAttribute("noAuthorizationHeader", "\"Authorization\" header is missing.");
 			chain.doFilter(request, response);
 			return;
 		}
 		if (!attribute.startsWith(ATTRIBUTE_PREFIX)) {
+			request.setAttribute("noBearerTokenHeader", "Authorization header value \"Bearer $token\" is missing.");
 			chain.doFilter(request, response);
 			return;
 		}

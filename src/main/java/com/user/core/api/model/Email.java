@@ -20,15 +20,25 @@ public class Email implements Serializable {
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private UUID id;
+
 	private Long userId;
+
 	private String addressFrom;
+
 	private String addressTo;
+
 	private String recipientName;
+
 	private String subject;
+
 	@Column(columnDefinition = "TEXT")
 	private String body;
+
 	private LocalDateTime sendDate;
+
+	@Enumerated(EnumType.STRING)
 	private StatusEmail status;
+
 	@JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
 	private String errorDetails;
 }
