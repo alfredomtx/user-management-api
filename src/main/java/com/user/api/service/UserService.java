@@ -18,11 +18,13 @@ public interface UserService {
 
 	UserResponseDTO add(UserRequestDTO user);
 
-	UserResponseDTO update(Long id, Map<String, Object> fields);
+	UserResponseDTO update(Map<String, String> fields);
 
 	void delete(Long id);
 
-	void changePassword(Long id, String password);
+	void changePassword(Map<String, String> fields);
+
 
 	Boolean validateLogin(User userRequest);
+
 }

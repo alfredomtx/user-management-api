@@ -11,6 +11,9 @@ import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 import java.net.URI;
 import java.net.URISyntaxException;
 
+/*
+* Database configuration with PostgreSQL for when the application is deployed in Heroku
+* */
 @Configuration
 @Profile("production")
 public class DatabaseConfigurationPostgreSQL {

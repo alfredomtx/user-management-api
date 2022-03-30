@@ -22,9 +22,11 @@ public class UserDetailData implements UserDetails {
 	public Collection<? extends GrantedAuthority> getAuthorities() {
 		List<GrantedAuthority> listRole = new ArrayList<GrantedAuthority>();
 
-		String role = user.getRole().name();
+		String role = null;
+		if (user.getRole() != null)
+			role = user.getRole().name();
 		// assign default role in case it's empty, otherwise exception will be thrown by spring
-		if (role.trim().isEmpty())
+		if (role == null)
 			role = Role.ROLE_USER.name();
 
 		listRole.add(new SimpleGrantedAuthority(role));

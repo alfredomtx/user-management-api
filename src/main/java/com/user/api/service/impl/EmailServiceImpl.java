@@ -1,53 +1,130 @@
 package com.user.api.service.impl;
 
 import com.user.api.enums.StatusEmail;
+import com.user.api.exceptions.EmailNotFoundException;
 import com.user.api.model.Email;
+import com.user.api.model.dto.EmailDTO;
 import com.user.api.repository.EmailRepository;
+import com.user.api.service.EmailService;
+import org.modelmapper.ModelMapper;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.mail.MailException;
-import org.springframework.mail.SimpleMailMessage;
-import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import javax.mail.Message;
+import javax.mail.MessagingException;
+import javax.mail.Session;
+import javax.mail.Transport;
+import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeMessage;
+import java.io.UnsupportedEncodingException;
 import java.time.LocalDateTime;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.Date;
+import java.util.List;
+import java.util.Properties;
+import java.util.stream.Collectors;
 
 @Service
-public class EmailServiceImpl {
+public class EmailServiceImpl implements EmailService {
 
 	@Autowired
 	private EmailRepository emailRepository;
 
 	@Autowired
-	private JavaMailSender emailSender;
+	private ModelMapper mapper;
 
-	public Email sendEmail(Email emailModel) {
-		emailModel.setSendDate(LocalDateTime.now());
+	@Value("${spring.mail.protocol}")
+	private String protocol;
+	@Value("${spring.mail.host}")
+	private String host;
+	@Value("${spring.mail.port}")
+	private String port;
+	@Value("${spring.mail.username}")
+	private String username;
+	@Value("${spring.mail.password}")
+	private String password;
+	@Value("${spring.mail.sender_email}")
+	private String senderEmail;
+	@Value("${spring.mail.sender_name}")
+	private String senderName;
+
+	@Override
+	public List<EmailDTO> getAll() {
+		List<Email> emails = emailRepository.findAll();
+		return emails.stream()
+				.map((email) -> mapper.map(email, EmailDTO.class)).collect(Collectors.toList());
+	}
+
+	@Override
+	public EmailDTO getById(Long id) {
+		Email email = emailRepository.findById(id).orElseThrow(() -> new EmailNotFoundException(id));
+		return mapper.map(email, EmailDTO.class);
+	}
+
+	@Override
+	public List<EmailDTO> getByAddressTo(String emailAddress) {
+		List<Email> emails = emailRepository.findByAddressTo(emailAddress);
+		return emails.stream()
+				.map((email) -> mapper.map(email, EmailDTO.class)).collect(Collectors.toList());
+	}
+
+	@Override
+	public EmailDTO sendEmail(Email email) {
+		Properties props = new Properties();
+		props.put("mail.transport.protocol", protocol);
+		props.put("mail.smtp.host", host);
+		props.put("mail.smtp.auth", "true");
+		props.put("mail.smtp.port", port);
+
+		Session session = Session.getDefaultInstance(props, null);
+		session.setDebug(false);
+
+		email.setSendDate(LocalDateTime.now());
 		try {
-			SimpleMailMessage message = new SimpleMailMessage();
-			message.setFrom(emailModel.getAddressFrom());
-			message.setTo(emailModel.getAddressTo());
-			message.setSubject(emailModel.getSubject());
-			message.setText(emailModel.getBody());
-			emailSender.send(message);
+			InternetAddress iaFrom = new InternetAddress(senderEmail, senderName);
+			InternetAddress[] iaTo = new InternetAddress[1];
+			InternetAddress[] iaReplyTo = new InternetAddress[1];
 
-			emailModel.setStatus(StatusEmail.SENT);
-		} catch (MailException e) {
+			iaReplyTo[0] = new InternetAddress(email.getAddressTo(), email.getRecipientName());
+			iaTo[0] = new InternetAddress(email.getAddressTo(), email.getRecipientName());
+
+			MimeMessage msg = new MimeMessage(session);
+			msg.setReplyTo(iaReplyTo);
+			msg.setFrom(iaFrom);
+			msg.setRecipients(Message.RecipientType.TO, iaTo);
+			msg.setSubject(email.getSubject());
+			msg.setSentDate(new Date());
+
+			msg.setContent(email.getBody(), "text/html");
+
+			Transport tr = session.getTransport(protocol);
+			tr.connect(host, username, password);
+
+			msg.saveChanges();
+
+			tr.sendMessage(msg, msg.getAllRecipients());
+			tr.close();
+			email.setStatus(StatusEmail.SENT);
+		} catch (UnsupportedEncodingException e) {
 			e.printStackTrace();
-			emailModel.setStatus(StatusEmail.ERROR);
-		} finally {
-			return emailRepository.save(emailModel);
+			email.setStatus(StatusEmail.ERROR);
+			email.setErrorDetails(e.getMessage());
+		} catch (MessagingException e) {
+			e.printStackTrace();
+			email.setStatus(StatusEmail.ERROR);
+			email.setErrorDetails(e.getMessage());
+		} catch (Exception e) {
+			e.printStackTrace();
+			email.setStatus(StatusEmail.ERROR);
+			email.setErrorDetails("[" + e.getClass() + "] " + e.getMessage());
 		}
+
+		emailRepository.save(email);
+
+		EmailDTO emailDTO = new EmailDTO();
+		BeanUtils.copyProperties(email, emailDTO);
+		return emailDTO;
 	}
 
-	public Page<Email> findAll(Pageable pageable) {
-		return emailRepository.findAll(pageable);
-	}
-
-	public Optional<Email> findById(UUID emailId) {
-		return emailRepository.findById(emailId);
-	}
 }

@@ -1,5 +1,6 @@
 package com.user.api.service.impl;
 
+import com.user.api.enums.Role;
 import com.user.api.exceptions.InvalidUserDataException;
 import com.user.api.exceptions.UserNotFoundException;
 import com.user.api.repository.UserRepository;
@@ -69,18 +70,22 @@ public class UserServiceImpl implements UserService {
 		User userAdd = mapper.map(user, User.class);
 
 		userAdd.setPassword(passwordEncoder.encode(userAdd.getPassword()));
+		userAdd.setActive(true);
+		userAdd.setRole(Role.ROLE_USER);
 
 		return mapper.map(userRepo.save(userAdd), UserResponseDTO.class);
 	}
 
 	@Override
-	public UserResponseDTO update(Long id, Map<String, Object> fields) {
-		User user = userRepo.findById(id).orElseThrow(() -> new UserNotFoundException(id));
+	public UserResponseDTO update(Map<String, String> fields) {
+
+		User user = getUserObjectByIdOrEmailFromFields(fields);
 
 		User userRequest = mapper.map(fields, User.class);
 
 		validateUserData(userRequest);
 		/*
+		 CHANGE EMAIL PROCESS:
 		 if the "email" of userRequest is different of the current user email in db
 		 check if there is another user with the new e-mail before updating
 		*/
@@ -93,7 +98,7 @@ public class UserServiceImpl implements UserService {
 		 * Set each field of the "user" object to save manually to avoid web tampering
 		 * And also to trigger the "creationDate" field in User object
 		 * */
-		user.setEmail(userRequest.getEmail());
+		//user.setEmail(userRequest.getEmail()); // make a separated process to update email in the future(with confirmation, etc)
 		user.setFirstName(userRequest.getFirstName());
 		user.setLastName(userRequest.getLastName());
 
@@ -118,10 +123,37 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
-	public void changePassword(Long id, String password) {
+	public void changePassword(Map<String, String> fields) {
+
+		String password = fields.get("password");
+		if (password == null)
+			throw new InvalidUserDataException("[password] field not set.");
+
 		validatePassword(password);
 
-		User user = userRepo.findById(id).orElseThrow(() -> new UserNotFoundException(id));
+		User user = getUserObjectByIdOrEmailFromFields(fields);
+
+		updatePassword(user, password);
+	}
+
+	private User getUserObjectByIdOrEmailFromFields(Map<String, String> fields){
+		String email = fields.get("email");
+		String idString = fields.get("id");
+
+		if (email == null && idString == null)
+			throw new InvalidUserDataException("[email] or [id] field must be set.");
+
+		User user = null;
+		if (email != null) {
+			user = userRepo.findByEmail(email).orElseThrow(() -> new UserNotFoundException(email));
+		} else if (idString != null){
+			Long id = Long.valueOf(idString);
+			user = userRepo.findById(id).orElseThrow(() -> new UserNotFoundException(id));
+		}
+		return user;
+	}
+
+	private void updatePassword(User user, String password){
 		user.setPassword(passwordEncoder.encode(password));
 		userRepo.save(user);
 	}
@@ -143,5 +175,6 @@ public class UserServiceImpl implements UserService {
 
 		return passwordEncoder.matches(userRequest.getPassword(), userExists.get().getPassword());
 	}
+
 
 }
