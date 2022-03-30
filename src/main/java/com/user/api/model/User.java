@@ -64,5 +64,4 @@ public class User {
 
 	private boolean active;
 
-
 }

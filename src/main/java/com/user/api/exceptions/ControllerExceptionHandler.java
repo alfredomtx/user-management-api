@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @ControllerAdvice
@@ -17,21 +18,36 @@ public class ControllerExceptionHandler {
 
 	@ExceptionHandler(UserNotFoundException.class)
 	public ResponseEntity<StandardError> userNotFoundException(UserNotFoundException e, HttpServletRequest request) {
-		StandardError error = new StandardError(HttpStatus.NOT_FOUND, e.getMessage(), request.getRequestURI());
+		StandardError error = new StandardError(
+				HttpStatus.NOT_FOUND.value(), HttpStatus.NOT_FOUND.name(), e.getMessage()
+				, request.getRequestURI(), LocalDateTime.now());
 		return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
 	}
 
 	@ExceptionHandler(InvalidUserDataException.class)
 	public ResponseEntity<StandardError> invalidUserDataException(InvalidUserDataException e, HttpServletRequest request) {
-		StandardError error = new StandardError(HttpStatus.BAD_REQUEST, e.getMessage(), request.getRequestURI());
+		StandardError error = new StandardError(
+				HttpStatus.BAD_REQUEST.value(), HttpStatus.BAD_REQUEST.name(), e.getMessage()
+				, request.getRequestURI(), LocalDateTime.now());
 		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
 	}
 
 	@ExceptionHandler(UserAlreadyExistsException.class)
 	public ResponseEntity<StandardError> userAlreadyExistsException(UserAlreadyExistsException e, HttpServletRequest request) {
-		StandardError error = new StandardError(HttpStatus.CONFLICT, e.getMessage(), request.getRequestURI());
+		StandardError error = new StandardError(
+				HttpStatus.CONFLICT.value(), HttpStatus.CONFLICT.name(), e.getMessage()
+				, request.getRequestURI(), LocalDateTime.now());
 		return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
 	}
+
+	@ExceptionHandler(EmailNotFoundException.class)
+	public ResponseEntity<StandardError> emailNotFoundException(EmailNotFoundException e, HttpServletRequest request) {
+		StandardError error = new StandardError(
+				HttpStatus.NOT_FOUND.value(), HttpStatus.NOT_FOUND.name(), e.getMessage()
+				, request.getRequestURI(), LocalDateTime.now());
+		return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
+	}
+
 
 	// override exception of JPA field validations when the @Valid notation is in the request param
 	@ExceptionHandler(MethodArgumentNotValidException.class)
@@ -43,7 +59,9 @@ public class ControllerExceptionHandler {
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error.toString());
 		}
 
-		StandardError error = new StandardError(HttpStatus.CONFLICT, e.getBindingResult().getFieldError().getDefaultMessage(), request.getRequestURI());
+		StandardError error = new StandardError(
+				HttpStatus.CONFLICT.value(), HttpStatus.CONFLICT.name(), e.getBindingResult().getFieldError().getDefaultMessage()
+				, request.getRequestURI(), LocalDateTime.now());
 		return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
 	}
 
@@ -63,7 +81,9 @@ public class ControllerExceptionHandler {
 		}
 		errors.append("]");
 
-		StandardError error = new StandardError(HttpStatus.BAD_REQUEST, errors.toString(), request.getRequestURI());
+		StandardError error = new StandardError(
+				HttpStatus.BAD_REQUEST.value(), HttpStatus.BAD_REQUEST.name(), errors.toString()
+				, request.getRequestURI(), LocalDateTime.now());
 		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
 	}
 

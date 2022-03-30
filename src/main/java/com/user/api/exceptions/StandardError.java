@@ -3,7 +3,6 @@ package com.user.api.exceptions;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
-import org.springframework.http.HttpStatus;
 
 import java.time.LocalDateTime;
 
@@ -12,16 +11,18 @@ import java.time.LocalDateTime;
 @Setter
 public class StandardError {
 
-	private HttpStatus status;
-	private String error;
+	private int code;
+	private String status;
+	private String message;
 	private String path;
+	private LocalDateTime timestamp;
 
 	public String toString() {
 		return "{"
-				+ "\"code\": " + status.value() + ","
-				+ "\"status\": \"" + status.name() + "\","
-				+ "\"timestamp\": \"" + LocalDateTime.now() + "\","
-				+ "\"message\": \"" + error + "\","
+				+ "\"code\": " + code + ","
+				+ "\"status\": \"" + status + "\","
+				+ "\"timestamp\": \"" + timestamp + "\","
+				+ "\"message\": \"" + message + "\","
 				+ "\"path\": \"" + path + "\""
 				+ "}";
 	}

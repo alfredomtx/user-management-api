@@ -7,8 +7,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 
+@Profile("test") // not using RabbitMQ for now although it is ready to use
 @Configuration
-@Profile("test")
 public class RabbitMQConfig {
 
 	@Value("${spring.rabbitmq.queue}")

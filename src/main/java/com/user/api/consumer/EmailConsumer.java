@@ -2,7 +2,7 @@ package com.user.api.consumer;
 
 import com.user.api.model.Email;
 import com.user.api.model.dto.EmailDTO;
-import com.user.api.service.impl.EmailServiceImplNew;
+import com.user.api.service.impl.EmailServiceImpl;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,7 +15,7 @@ import org.springframework.stereotype.Component;
 public class EmailConsumer {
 
 	@Autowired
-	private EmailServiceImplNew emailService;
+	private EmailServiceImpl emailService;
 
 	@RabbitListener(queues = "${spring.rabbitmq.queue}")
 	public void listen(@Payload EmailDTO emailDTO){

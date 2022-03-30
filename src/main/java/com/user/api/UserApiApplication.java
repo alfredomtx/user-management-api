@@ -10,10 +10,10 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 @SpringBootApplication()
 @EnableJpaRepositories(basePackageClasses = UserRepository.class)
-public class OlxApplication {
+public class UserApiApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(OlxApplication.class, args);
+		SpringApplication.run(UserApiApplication.class, args);
 	}
 
 	@Bean
