@@ -1,16 +1,17 @@
-package com.user.api.service;
+package com.user.api.user;
 
-import com.user.api.model.User;
-import com.user.api.model.dto.UserRequestDTO;
-import com.user.api.model.dto.UserResponseDTO;
+import com.user.api.user.model.User;
+import com.user.api.user.model.UserRequestDTO;
+import com.user.api.user.model.UserResponseDTO;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
-import java.util.List;
 import java.util.Map;
 
 
 public interface UserService {
 
-	List<UserResponseDTO> getAll();
+	Page<UserResponseDTO> getAll(Pageable pageable);
 
 	UserResponseDTO getById(Long id);
 

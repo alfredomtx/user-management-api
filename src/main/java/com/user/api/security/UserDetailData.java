@@ -1,7 +1,8 @@
-package com.user.api.data;
+package com.user.api.security;
 
+import com.user.api.user.model.User;
 import com.user.api.enums.Role;
-import com.user.api.model.User;
+
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -10,8 +11,13 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+/*
+* Class implementation needed for Spring Security
+* */
 public class UserDetailData implements UserDetails {
 
+	private static final long serialVersionUID = 1L;
+	
 	private final User user;
 
 	public UserDetailData(User user) {

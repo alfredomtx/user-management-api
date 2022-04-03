@@ -1,15 +1,15 @@
-package com.user.api.service.impl;
+package com.user.api.email;
 
+import com.user.api.email.model.Email;
+import com.user.api.email.model.EmailDTO;
 import com.user.api.enums.StatusEmail;
 import com.user.api.exceptions.EmailNotFoundException;
-import com.user.api.model.Email;
-import com.user.api.model.dto.EmailDTO;
-import com.user.api.repository.EmailRepository;
-import com.user.api.service.EmailService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import javax.mail.Message;
@@ -50,10 +50,10 @@ public class EmailServiceImpl implements EmailService {
 	private String senderName;
 
 	@Override
-	public List<EmailDTO> getAll() {
-		List<Email> emails = emailRepository.findAll();
-		return emails.stream()
-				.map((email) -> mapper.map(email, EmailDTO.class)).collect(Collectors.toList());
+	public Page<EmailDTO> getAll(Pageable pageable) {
+		Page<Email> emails = emailRepository.findAll(pageable);
+		Page<EmailDTO> emailsList = emails.map(email -> mapper.map(email, EmailDTO.class));
+		return emailsList;
 	}
 
 	@Override

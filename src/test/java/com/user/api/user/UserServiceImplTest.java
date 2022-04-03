@@ -1,17 +1,19 @@
-package com.user.api.service.impl;
+package com.user.api.user;
 
 import com.user.api.exceptions.UserAlreadyExistsException;
 import com.user.api.exceptions.UserNotFoundException;
-import com.user.api.model.User;
-import com.user.api.model.dto.UserRequestDTO;
-import com.user.api.model.dto.UserResponseDTO;
-import com.user.api.repository.UserRepository;
+import com.user.api.user.model.User;
+import com.user.api.user.model.UserRequestDTO;
+import com.user.api.user.model.UserResponseDTO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockitoAnnotations;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.validation.Validator;
 
@@ -88,12 +90,14 @@ class UserServiceImplTest {
 	void shouldReturnListOfUser_WhenGetAll() {
 		when(repository.findAll()).thenReturn(List.of(user));
 
-		List<UserResponseDTO> response = service.getAll();
+		PageRequest pageRequest = PageRequest.of(0, 10, Sort.Direction.ASC, "id");
+
+		Page<UserResponseDTO> response = service.getAll(pageRequest);
 		assertNotNull(response);
 		// list should return only 1 user
-		assertEquals(1, response.size());
+		assertEquals(1, response.getSize());
 		// do the rest of validations for the first user of the list
-		assertDtoResponse(response.get(0));
+		assertDtoResponse(response.getContent().get(0));
 	}
 
 	@Test

@@ -21,10 +21,6 @@ spring:
           auth: true
           starttls:enable: true
 
-  rabbitmq:
-    addresses: "amqps://jkmptozv:SFLEcjIVA0GruiDAYR__ibWsoD7ZKQo7@jackal.rmq.cloudamqp.com/jkmptozv"
-    queue: "user-api.email"
-
   security:
     token:
       # Token unique password for sign, generate on https://guidgenerator.com/

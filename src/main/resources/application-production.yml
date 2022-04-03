@@ -23,11 +23,6 @@ spring:
           auth: true
           starttls:enable: true
 
-  # Configuration of RabbitMQ, not used currently but it's ready to use. Change the @Profile() in RabbitMQConfig.java
-  rabbitmq:
-    addresses: ""
-    queue: ""
-
   security:
     token:
       # Token unique password for sign, generate on https://guidgenerator.com/

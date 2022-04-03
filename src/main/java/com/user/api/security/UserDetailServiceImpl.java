@@ -1,8 +1,7 @@
-package com.user.api.service.impl;
+package com.user.api.security;
 
-import com.user.api.data.UserDetailData;
-import com.user.api.model.User;
-import com.user.api.repository.UserRepository;
+import com.user.api.user.UserRepository;
+import com.user.api.user.model.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;

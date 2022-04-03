@@ -1,15 +1,12 @@
-package com.user.api.controller;
+package com.user.api.user;
 
+import com.user.api.email.EmailRepository;
 import com.user.api.exceptions.ObjectFieldsValidationException;
 import com.user.api.exceptions.UserAlreadyExistsException;
 import com.user.api.exceptions.UserNotFoundException;
-import com.user.api.model.User;
-import com.user.api.model.dto.UserResponseDTO;
-import com.user.api.repository.EmailRepository;
-import com.user.api.repository.UserRepository;
-import com.user.api.service.UserService;
-import com.user.api.service.impl.UserDetailServiceImpl;
-import com.user.api.service.impl.UserServiceImpl;
+import com.user.api.security.UserDetailServiceImpl;
+import com.user.api.user.model.User;
+import com.user.api.user.model.UserResponseDTO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
@@ -96,7 +93,7 @@ public class UserControllerTest {
 		List<UserResponseDTO> userList = new ArrayList<>();
 		userList.add(userResponseDTO);
 
-		when(service.getAll()).thenReturn(userList);
+		//when(service.getAll()).thenReturn(userList);
 
 		this.mockMvc.perform(get(API_URL)
 						.with(SecurityMockMvcRequestPostProcessors.user(EMAIL))

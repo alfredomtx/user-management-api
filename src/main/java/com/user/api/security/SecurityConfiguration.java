@@ -1,7 +1,6 @@
 package com.user.api.security;
 
-import com.user.api.repository.UserRepository;
-import com.user.api.service.impl.UserDetailServiceImpl;
+import com.user.api.user.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.http.HttpMethod;
