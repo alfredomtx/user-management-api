@@ -1,6 +1,6 @@
-package com.user.api.repository;
+package com.user.api.email;
 
-import com.user.api.model.Email;
+import com.user.api.email.model.Email;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;

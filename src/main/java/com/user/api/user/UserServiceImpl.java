@@ -1,17 +1,19 @@
-package com.user.api.service.impl;
+package com.user.api.user;
 
+import com.user.api.email.model.Email;
+import com.user.api.email.model.EmailDTO;
 import com.user.api.enums.Role;
 import com.user.api.exceptions.InvalidUserDataException;
-import com.user.api.exceptions.UserNotFoundException;
-import com.user.api.repository.UserRepository;
-import com.user.api.service.UserService;
-import com.user.api.exceptions.UserAlreadyExistsException;
 import com.user.api.exceptions.ObjectFieldsValidationException;
-import com.user.api.model.User;
-import com.user.api.model.dto.UserRequestDTO;
-import com.user.api.model.dto.UserResponseDTO;
+import com.user.api.exceptions.UserAlreadyExistsException;
+import com.user.api.exceptions.UserNotFoundException;
+import com.user.api.user.model.User;
+import com.user.api.user.model.UserRequestDTO;
+import com.user.api.user.model.UserResponseDTO;
 import lombok.SneakyThrows;
 import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BeanPropertyBindingResult;
@@ -40,11 +42,11 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
-	public List<UserResponseDTO> getAll() {
-		List<User> users = userRepo.findAll();
-
+	public Page<UserResponseDTO> getAll(Pageable pageable) {
+		Page<User> users = userRepo.findAll(pageable);
 		// convert each "User" to a "UserDTO" class
-		return users.stream().map((user -> mapper.map(user, UserResponseDTO.class))).collect(Collectors.toList());
+		Page<UserResponseDTO> usersList = users.map(user -> mapper.map(user, UserResponseDTO.class));
+		return usersList;
 	}
 
 	@Override

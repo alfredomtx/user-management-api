@@ -1,4 +1,4 @@
-package com.user.api.model.dto;
+package com.user.api.email.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.user.api.enums.StatusEmail;
@@ -18,7 +18,7 @@ import javax.validation.constraints.NotNull;
 public class EmailDTO {
 
 	@Id
-	private Long id;
+	private long id;
 
 	@NotNull
 	private Long userId;

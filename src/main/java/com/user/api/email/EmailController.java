@@ -1,10 +1,11 @@
-package com.user.api.controller;
+package com.user.api.email;
 
-import com.user.api.model.Email;
-import com.user.api.model.dto.EmailDTO;
-import com.user.api.service.impl.EmailServiceImpl;
+import com.user.api.email.model.Email;
+import com.user.api.email.model.EmailDTO;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -22,8 +23,8 @@ public class EmailController {
 
 
 	@GetMapping("/")
-	public ResponseEntity<List<EmailDTO>> getAll() {
-		return ResponseEntity.ok(emailService.getAll());
+	public ResponseEntity<Page<EmailDTO>> getAll(Pageable pageable) {
+		return ResponseEntity.ok(emailService.getAll(pageable));
 	}
 
 	@GetMapping(ID)

@@ -4,10 +4,10 @@ import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.fasterxml.jackson.core.exc.StreamReadException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.user.api.data.UserDetailData;
+import com.user.api.user.UserRepository;
+import com.user.api.user.model.User;
 import com.user.api.enums.Role;
-import com.user.api.model.User;
-import com.user.api.repository.UserRepository;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -28,9 +28,12 @@ import java.util.Optional;
 
 public class JWTAuthenticateFilter extends UsernamePasswordAuthenticationFilter {
 
+
+	// TODO find a way to get the token info from application properties file
 	@Value("${spring.security.token.expiration_minutes}")
-	private Long TOKEN_EXPIRATION_MINUTES;
+	public final static int TOKEN_EXPIRATION_MINUTES = 100000;
 	@Value("${spring.security.token.password}")
+	// Token unique password for sign, generate on https://guidgenerator.com/
 	public final static String TOKEN_PASSWORD = "d2eb2c8d-bafe-4e81-8c1a-ac0e58c6c652";
 
 	@Autowired

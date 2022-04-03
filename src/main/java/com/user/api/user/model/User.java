@@ -1,4 +1,4 @@
-package com.user.api.model;
+package com.user.api.user.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.user.api.enums.Role;

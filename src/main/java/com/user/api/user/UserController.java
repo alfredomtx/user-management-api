@@ -1,10 +1,11 @@
-package com.user.api.controller;
+package com.user.api.user;
 
-import com.user.api.model.User;
-import com.user.api.model.dto.UserRequestDTO;
-import com.user.api.model.dto.UserResponseDTO;
-import com.user.api.service.UserService;
+import com.user.api.user.model.User;
+import com.user.api.user.model.UserRequestDTO;
+import com.user.api.user.model.UserResponseDTO;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -12,7 +13,6 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import javax.validation.Valid;
 import java.net.URI;
-import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -25,8 +25,8 @@ public class UserController {
 	private UserService userService;
 
 	@GetMapping("/")
-	public ResponseEntity<List<UserResponseDTO>> getAll() {
-		return ResponseEntity.ok(userService.getAll());
+	public ResponseEntity<Page<UserResponseDTO>> getAll(Pageable pageable) {
+		return ResponseEntity.ok(userService.getAll(pageable));
 	}
 
 	@GetMapping(ID)
