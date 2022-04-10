@@ -8,36 +8,37 @@ import com.user.api.exceptions.AccountActivationException;
 import com.user.api.exceptions.ResetPasswordTokenException;
 import com.user.api.exceptions.UserNotFoundException;
 import com.user.api.user.UserRepository;
-import com.user.api.user.UserService;
 import com.user.api.user.model.User;
 import com.user.api.userProperties.UserPropertiesService;
 import com.user.api.userProperties.model.UserProperties;
 import com.user.api.util.JWTUtil;
-import lombok.RequiredArgsConstructor;
+import com.user.api.util.UserUtil;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.Map;
 
 @Service
-@RequiredArgsConstructor
 public class RegistrationService {
 
-	private final UserRepository userRepo;
-	private final UserPropertiesService userPropsService;
-	private final UserService userService;
-	private final EmailService emailService;
+	@Autowired
+	private UserRepository userRepo;
+	@Autowired
+	private UserPropertiesService userPropsService;
+	@Autowired
+	private EmailService emailService;
 
 	@Value("${project.api.domainUrl}")
 	private String apiDomainUrl;
 
 	public void requestActivateAccountEmail(Map<String, String> fields) {
-		User user = userService.getUserObjectByIdOrEmailFromFields(fields);
-		checkUserAlreadyActive(user);
+		User user = UserUtil.getUserObjectByIdOrEmailFromFields(fields);
 		sendActivationEmail(user);
 	}
 
-	private void sendActivationEmail(User user){
+	public void sendActivationEmail(User user){
+		checkUserAlreadyActive(user);
 		String token = JWTUtil.createToken(user.getEmail(), 60, "");
 
 		UserProperties userProps = userPropsService.getUserProperties(user);
@@ -62,7 +63,6 @@ public class RegistrationService {
 
 	public void activateAccount(String token, String email) {
 		User user = userRepo.findByEmail(email).orElseThrow(() -> new UserNotFoundException(email));
-		checkUserAlreadyActive(user);
 
 		DecodedJWT decodedJWT;
 		try {
