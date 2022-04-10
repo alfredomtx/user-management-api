@@ -8,7 +8,7 @@ server:
 
 
 spring:
-  jpa:hibernate:ddl-auto: update
+  jpa:hibernate:ddl-auto: create
 
   mail:
     sender_email: "support@oldbot.com.br"
