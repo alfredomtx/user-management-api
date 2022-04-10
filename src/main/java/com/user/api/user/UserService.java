@@ -82,11 +82,9 @@ public class UserService {
 
 		UserResponseDTO userResponse = mapper.map(userRepo.save(userAdd), UserResponseDTO.class);
 
-		/*
 		UserProperties userProps = new UserProperties();
 		userProps.setUser(userAdd);
-		userPropsRepo.save(userProps);
-		*/
+		userPropsService.saveUserProperties(userProps);
 
 		return userResponse;
 	}

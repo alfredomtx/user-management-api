@@ -45,7 +45,6 @@ public class UserApiApplication {
 
 				UserProperties userProps = new UserProperties();
 				userProps.setUser(user);
-
 				user.setUserProperties(userProps);
 				userProps.setUser(user);
 
@@ -65,7 +64,6 @@ public class UserApiApplication {
 
 				UserProperties userProps = new UserProperties();
 				userProps.setUser(user);
-
 				user.setUserProperties(userProps);
 				userProps.setUser(user);
 
