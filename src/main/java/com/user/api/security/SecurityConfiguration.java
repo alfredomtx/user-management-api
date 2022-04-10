@@ -49,6 +49,8 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 				.antMatchers(HttpMethod.GET, "/api/token/refresh").permitAll()
 				.antMatchers(HttpMethod.POST, "/api/user/requestResetPassword").permitAll()
 				.antMatchers(HttpMethod.GET, "/api/user/resetPassword/**").permitAll()
+				.antMatchers(HttpMethod.POST, "/api/registration/requestActivateAccountEmail").permitAll()
+				.antMatchers(HttpMethod.GET, "/api/registration/activateAccount/**").permitAll()
 				.antMatchers("/").permitAll()
 
 				// user api accessible for all roles

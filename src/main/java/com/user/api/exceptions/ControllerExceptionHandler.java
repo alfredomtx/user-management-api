@@ -95,6 +95,14 @@ public class ControllerExceptionHandler {
 		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
 	}
 
+	@ExceptionHandler(AccountActivationException.class)
+	public ResponseEntity<StandardError> accountActivationException(AccountActivationException e, HttpServletRequest request) {
+		StandardError error = new StandardError(
+				HttpStatus.BAD_REQUEST.value(), HttpStatus.BAD_REQUEST.name(), e.getMessage()
+				, request.getRequestURI(), LocalDateTime.now());
+		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+	}
+
 
 
 }

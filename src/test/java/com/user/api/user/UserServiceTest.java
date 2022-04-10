@@ -84,7 +84,6 @@ class UserServiceTest {
 		userResponseDTO = new UserResponseDTO();
 		userResponseDTO.setId(ID);
 		userResponseDTO.setEmail(EMAIL);
-		userResponseDTO.setPassword(PASSWORD);
 		userResponseDTO.setFirstName(FIRST_NAME);
 		userResponseDTO.setLastName(LAST_NAME);
 	}

@@ -34,6 +34,12 @@ public class AuthFailureHandler implements AuthenticationEntryPoint {
 			return;
 		}
 
+		final String userDisabled = (String) request.getAttribute("userDisabled");
+		if (userDisabled != null) {
+			setResponseError(request, response, HttpStatus.UNAUTHORIZED, userDisabled);
+			return;
+		}
+
 		final String noAuthorizationHeader = (String) request.getAttribute("noAuthorizationHeader");
 		if (noAuthorizationHeader != null) {
 			setResponseError(request, response, HttpStatus.BAD_REQUEST, noAuthorizationHeader);
