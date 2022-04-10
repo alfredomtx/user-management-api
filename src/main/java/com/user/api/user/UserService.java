@@ -5,6 +5,7 @@ import com.auth0.jwt.interfaces.DecodedJWT;
 import com.user.api.email.EmailService;
 import com.user.api.email.model.Email;
 import com.user.api.exceptions.*;
+import com.user.api.resgistration.RegistrationService;
 import com.user.api.user.enums.Role;
 import com.user.api.user.model.User;
 import com.user.api.user.model.UserRequestDTO;
@@ -12,10 +13,11 @@ import com.user.api.user.model.UserResponseDTO;
 import com.user.api.userProperties.UserPropertiesService;
 import com.user.api.userProperties.model.UserProperties;
 import com.user.api.util.JWTUtil;
-import lombok.RequiredArgsConstructor;
+import com.user.api.util.UserUtil;
 import lombok.SneakyThrows;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -33,15 +35,22 @@ import java.util.stream.Collectors;
 
 
 @Service
-@RequiredArgsConstructor
 public class UserService {
 
-	private final PasswordEncoder passwordEncoder;
-	private final UserRepository userRepo;
-	private final UserPropertiesService userPropsService;
-	private final ModelMapper mapper;
-	private final Validator validator;
-	private final EmailService emailService;
+	@Autowired
+	private PasswordEncoder passwordEncoder;
+	@Autowired
+	private UserRepository userRepo;
+	@Autowired
+	private UserPropertiesService userPropsService;
+	@Autowired
+	private RegistrationService registrationService;
+	@Autowired
+	private ModelMapper mapper;
+	@Autowired
+	private Validator validator;
+	@Autowired
+	private EmailService emailService;
 
 	@Value("${project.api.domainUrl}")
 	private String apiDomainUrl;
@@ -63,7 +72,7 @@ public class UserService {
 	}
 
 	public UserResponseDTO getByIdOrEmail(Map<String, String> fields) {
-		User user = getUserObjectByIdOrEmailFromFields(fields);
+		User user = UserUtil.getUserObjectByIdOrEmailFromFields(fields);
 		return mapper.map(user, UserResponseDTO.class);
 	}
 
@@ -86,11 +95,13 @@ public class UserService {
 		userProps.setUser(userAdd);
 		userPropsService.saveUserProperties(userProps);
 
+		registrationService.sendActivationEmail(userAdd);
+
 		return userResponse;
 	}
 
 	public UserResponseDTO update(Map<String, String> fields) {
-		User user = getUserObjectByIdOrEmailFromFields(fields);
+		User user = UserUtil.getUserObjectByIdOrEmailFromFields(fields);
 
 		User userRequest = mapper.map(fields, User.class);
 
@@ -151,7 +162,7 @@ public class UserService {
 
 		validatePassword(newPassword);
 
-		User user = getUserObjectByIdOrEmailFromFields(fields);
+		User user = UserUtil.getUserObjectByIdOrEmailFromFields(fields);
 		if (!passwordEncoder.matches(currentPassword, user.getPassword())){
 			throw new InvalidUserDataException("Wrong current password.");
 		}
@@ -159,27 +170,7 @@ public class UserService {
 		updatePassword(user, newPassword);
 	}
 
-	public User getUserObjectByIdOrEmailFromFields(Map<String, String> fields){
-		String email = fields.get("email");
-		String idString = fields.get("id");
 
-		if (email == null && idString == null)
-			throw new InvalidUserDataException("[email] or [id] field must be set.");
-
-		User user = null;
-		if (email != null) {
-			user = userRepo.findByEmail(email).orElseThrow(() -> new UserNotFoundException(email));
-		} else if (idString != null){
-			Long id;
-			try {
-				id = Long.valueOf(idString);
-			} catch (Exception e){
-				throw new InvalidUserDataException("[id] field is invalid.");
-			}
-			user = userRepo.findById(id).orElseThrow(() -> new UserNotFoundException(id));
-		}
-		return user;
-	}
 
 	private void updatePassword(User user, String password){
 		user.setPassword(passwordEncoder.encode(password));
@@ -196,7 +187,7 @@ public class UserService {
 	}
 
 	public void requestResetPasswordEmail(Map<String, String> fields) {
-		User user = getUserObjectByIdOrEmailFromFields(fields);
+		User user = UserUtil.getUserObjectByIdOrEmailFromFields(fields);
 
 		String token = JWTUtil.createToken(user.getEmail(), 60, "");
 

@@ -3,6 +3,7 @@ package com.user.api.user;
 import com.user.api.email.EmailService;
 import com.user.api.exceptions.UserAlreadyExistsException;
 import com.user.api.exceptions.UserNotFoundException;
+import com.user.api.resgistration.RegistrationService;
 import com.user.api.user.model.User;
 import com.user.api.user.model.UserRequestDTO;
 import com.user.api.user.model.UserResponseDTO;
@@ -40,6 +41,8 @@ class UserServiceTest {
 	@MockBean
 	private final UserPropertiesService userPropsService = mock(UserPropertiesService.class);
 	@MockBean
+	private final RegistrationService registrationService = mock(RegistrationService.class);
+	@MockBean
 	private final EmailService emailService = mock(EmailService.class);
 
 	// overriding PasswordEncoder methods to be able to use to validate login
@@ -55,8 +58,7 @@ class UserServiceTest {
 		}
 	};
 
-	private final UserService service = new UserService(passwordEncoder, repository, userPropsService
-			, mapper, validator, emailService);
+	private final UserService service = new UserService();
 
 	public static final Long ID = 1L;
 	public static final String EMAIL = "test@test.com";
