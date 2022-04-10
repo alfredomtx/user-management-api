@@ -15,7 +15,7 @@ import java.net.URISyntaxException;
 * Database configuration with PostgreSQL for when the application is deployed in Heroku
 * */
 @Configuration
-@Profile("production")
+@Profile("heroku")
 public class DatabaseConfigurationPostgreSQL {
 
 	@Bean

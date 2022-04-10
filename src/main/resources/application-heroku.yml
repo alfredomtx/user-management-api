@@ -1,0 +1,32 @@
+
+project:
+  api:
+    domainUrl: "http://localhost:8080"
+
+server:
+  port: 8080
+
+
+spring:
+  jpa:hibernate:ddl-auto: update
+
+  mail:
+    sender_email: "support@oldbot.com.br"
+    sender_name: "No Reply OldBot"
+    host: smtp.titan.email
+    username: support@oldbot.com.br
+    password: fWicKmtKuk
+    protocol: smtp
+    port: 587
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:enable: true
+
+  security:
+    token:
+      # Token unique password for sign, generate on https://guidgenerator.com/
+      password: "d2eb2c8d-bafe-4e81-8c1a-ac0e58c6c652"
+      # Time in minutes for the token to be expired after generated
+      expiration_minutes: 100000
