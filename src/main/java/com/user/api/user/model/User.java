@@ -19,6 +19,7 @@ import java.util.Date;
 @Getter
 @Setter
 @JsonIgnoreProperties(ignoreUnknown = true)
+@Table(name="users")
 public class User {
 
 	@Id
