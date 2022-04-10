@@ -6,6 +6,7 @@ import com.user.api.exceptions.UserNotFoundException;
 import com.user.api.user.model.User;
 import com.user.api.user.model.UserRequestDTO;
 import com.user.api.user.model.UserResponseDTO;
+import com.user.api.userProperties.UserPropertiesService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockitoAnnotations;
@@ -37,6 +38,8 @@ class UserServiceTest {
 	@MockBean
 	private final UserRepository repository = mock(UserRepository.class);
 	@MockBean
+	private final UserPropertiesService userPropsService = mock(UserPropertiesService.class);
+	@MockBean
 	private final EmailService emailService = mock(EmailService.class);
 
 	// overriding PasswordEncoder methods to be able to use to validate login
@@ -52,7 +55,8 @@ class UserServiceTest {
 		}
 	};
 
-	private final UserService service = new UserService(passwordEncoder, repository, mapper, validator, emailService);
+	private final UserService service = new UserService(passwordEncoder, repository, userPropsService
+			, mapper, validator, emailService);
 
 	public static final Long ID = 1L;
 	public static final String EMAIL = "test@test.com";
