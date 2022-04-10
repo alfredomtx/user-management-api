@@ -1,5 +1,6 @@
 package com.user.api.email.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.user.api.email.enums.StatusEmail;
 import lombok.Getter;
@@ -12,6 +13,7 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @Entity
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Email implements Serializable {
 	private static final long serialVersionUID = 1L;
 
