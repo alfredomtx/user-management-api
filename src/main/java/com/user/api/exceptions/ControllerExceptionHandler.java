@@ -87,11 +87,12 @@ public class ControllerExceptionHandler {
 		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
 	}
 
-	@ExceptionHandler(ObjectFieldsValidationException.class)
-	public ResponseEntity<String> objectFieldsValidationException(ObjectFieldsValidationException e, HttpServletRequest request) {
-		List<FieldError> errors = e.getErrors();
-		ObjectFieldsValidationError error = new ObjectFieldsValidationError(HttpStatus.BAD_REQUEST, errors, request);
-		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error.toString());
+	@ExceptionHandler(ResetPasswordTokenException.class)
+	public ResponseEntity<StandardError> resetPasswordTokenException(ResetPasswordTokenException e, HttpServletRequest request) {
+		StandardError error = new StandardError(
+				HttpStatus.BAD_REQUEST.value(), HttpStatus.BAD_REQUEST.name(), e.getMessage()
+				, request.getRequestURI(), LocalDateTime.now());
+		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
 	}
 
 

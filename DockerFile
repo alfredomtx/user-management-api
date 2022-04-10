@@ -1,0 +1,23 @@
+FROM amazoncorretto:11-alpine-jdk
+LABEL mantainer="amtrosul@hotmail.com"
+
+ARG PROFILE
+ARG ADDITIONAL_OPTS
+ARG PROJECT_JAR_FILE=oldbot-0.0.1-SNAPSHOT.jar
+
+ENV PROFILE=${PROFILE}
+ENV ADDITIONAL_OPTS=${ADDITIONAL_OPTS}
+
+WORKDIR /opt/spring_boot
+
+# COPY /target/${PROJECT_JAR_FILE} oldbot.jar
+COPY /target/${PROJECT_JAR_FILE} ${PROJECT_JAR_FILE}
+
+
+SHELL ["/bin/sh", "-c"]
+
+EXPOSE 5005
+EXPOSE 8080
+
+#CMD java ${ADDITIONAL_OPTS} -jar oldbot.jar --spring.profiles.active=${PROFILE}
+CMD java ${ADDITIONAL_OPTS} -jar ${PROJECT_JAR_FILE} --spring.profiles.active=${PROFILE}

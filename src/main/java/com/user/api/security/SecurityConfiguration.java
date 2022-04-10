@@ -10,6 +10,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -18,12 +19,11 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
 	@Autowired
-	private UserDetailServiceImpl userDetailService;
+	private UserDetailService userDetailService;
 	@Autowired
 	private UserRepository userRepository;
 	@Autowired
 	private PasswordEncoder encoder;
-
 
 	// configure spring security to use the project's classes as base classes of implementation
 	@Override
@@ -36,21 +36,30 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 		// override exception handling of spring security to handle with AuthFailureHandler
 		http.exceptionHandling().authenticationEntryPoint(new AuthFailureHandler());
 
+		// create the instance to be able to change URL and other things
+		JWTAuthenticationFilter customAuthenticationFilter = new JWTAuthenticationFilter(authenticationManager(), userRepository);
+		customAuthenticationFilter.setFilterProcessesUrl("/api/login");
+
 		http.csrf().disable();
 		http.cors();
 
 		http.authorizeRequests()
-				.antMatchers("/api/user/**").hasAnyRole("USER", "ADMIN")
-				.antMatchers("/api/**").hasRole("ADMIN")
 
-				.antMatchers(HttpMethod.POST, "/login").permitAll()
-				.antMatchers(HttpMethod.GET, "/ping").permitAll()
+				.antMatchers(HttpMethod.POST, "/api/login").permitAll()
+				.antMatchers(HttpMethod.GET, "/api/token/refresh").permitAll()
+				.antMatchers(HttpMethod.POST, "/api/user/requestResetPassword").permitAll()
+				.antMatchers(HttpMethod.GET, "/api/user/resetPassword/**").permitAll()
 				.antMatchers("/").permitAll()
+
+				// user api accessible for all roles
+				.antMatchers("/api/user/**").hasAnyRole("USER", "ADMIN")
+				// everything else allowed only for Admin
+				.antMatchers("/api/**").hasRole("ADMIN")
 
 				.anyRequest().authenticated()
 				.and()
-				.addFilter(new JWTAuthenticateFilter(authenticationManager(), userRepository))
-				.addFilter(new JWTValidateFilter(authenticationManager()))
+				.addFilter(customAuthenticationFilter)
+				.addFilterBefore(new JWTAuthorizationFilter(), UsernamePasswordAuthenticationFilter.class)
 				.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
 	}
 

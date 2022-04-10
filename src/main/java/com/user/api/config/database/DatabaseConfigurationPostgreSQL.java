@@ -27,7 +27,11 @@ public class DatabaseConfigurationPostgreSQL {
 		String dbUrl = "jdbc:postgresql://" + dbUri.getHost() + ':' + dbUri.getPort() + dbUri.getPath();
 
 		BasicDataSource basicDataSource = new BasicDataSource();
-		basicDataSource.setUrl(dbUrl);
+		basicDataSource.setUrl(dbUrl
+				+ "?useTimezone=true"
+				+ "&serverTimezone=UTC"
+				+ "&characterEncoding=utf-8"
+				+ "&createDatabaseIfNotExist=true");
 		basicDataSource.setUsername(username);
 		basicDataSource.setPassword(password);
 

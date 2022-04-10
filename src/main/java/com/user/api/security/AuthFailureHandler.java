@@ -17,46 +17,49 @@ import java.time.LocalDateTime;
 public class AuthFailureHandler implements AuthenticationEntryPoint {
 
 	@Override
-	public void commence(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, AuthenticationException e)
+	public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException e)
 			throws IOException, ServletException {
-		httpServletResponse.setContentType("application/json");
-		httpServletResponse.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+		response.setContentType("application/json");
+		response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
 
-		final String expired = (String) httpServletRequest.getAttribute("expired");
+		final String expired = (String) request.getAttribute("expired");
 		if (expired != null) {
-			StandardError error = new StandardError(HttpStatus.UNAUTHORIZED.value(), HttpStatus.UNAUTHORIZED.name(), expired
-					, httpServletRequest.getRequestURI(), LocalDateTime.now());
-			httpServletResponse.getOutputStream().println(error.toString());
+			setResponseError(request, response, HttpStatus.UNAUTHORIZED, expired);
 			return;
 		}
 
-		final String badCredentials = (String) httpServletRequest.getAttribute("badCredentials");
+		final String badCredentials = (String) request.getAttribute("badCredentials");
 		if (badCredentials != null) {
-			StandardError error = new StandardError(HttpStatus.UNAUTHORIZED.value(), HttpStatus.UNAUTHORIZED.name(), badCredentials
-					, httpServletRequest.getRequestURI(), LocalDateTime.now());
-			httpServletResponse.getOutputStream().println(error.toString());
+			setResponseError(request, response, HttpStatus.UNAUTHORIZED, badCredentials);
 			return;
 		}
 
-		final String noAuthorizationHeader = (String) httpServletRequest.getAttribute("noAuthorizationHeader");
+		final String noAuthorizationHeader = (String) request.getAttribute("noAuthorizationHeader");
 		if (noAuthorizationHeader != null) {
-			StandardError error = new StandardError(HttpStatus.BAD_REQUEST.value(), HttpStatus.BAD_REQUEST.name(), noAuthorizationHeader
-					, httpServletRequest.getRequestURI(), LocalDateTime.now());
-			httpServletResponse.getOutputStream().println(error.toString());
+			setResponseError(request, response, HttpStatus.BAD_REQUEST, noAuthorizationHeader);
 			return;
 		}
 
-		final String noBearerTokenHeader = (String) httpServletRequest.getAttribute("noBearerTokenHeader");
+		final String noBearerTokenHeader = (String) request.getAttribute("noBearerTokenHeader");
 		if (noBearerTokenHeader != null) {
-			StandardError error = new StandardError(HttpStatus.BAD_REQUEST.value(), HttpStatus.BAD_REQUEST.name(), noBearerTokenHeader
-					, httpServletRequest.getRequestURI(), LocalDateTime.now());
-			httpServletResponse.getOutputStream().println(error.toString());
+			setResponseError(request, response, HttpStatus.BAD_REQUEST, noBearerTokenHeader);
 			return;
 		}
 
-		StandardError error = new StandardError(HttpStatus.UNAUTHORIZED.value(), HttpStatus.UNAUTHORIZED.name(), e.getMessage()
-				, httpServletRequest.getRequestURI(), LocalDateTime.now());
-		httpServletResponse.getOutputStream().println(error.toString());
+		final String otherException = (String) request.getAttribute("otherException");
+		if (otherException != null) {
+			setResponseError(request, response, HttpStatus.FORBIDDEN, otherException);
+			return;
+		}
+
+		setResponseError(request, response, HttpStatus.FORBIDDEN, e.getMessage());
+	}
+
+	private void setResponseError(HttpServletRequest request, HttpServletResponse response, HttpStatus status, String message) throws IOException {
+		String URL = String.valueOf(request.getRequestURL());
+		StandardError error = new StandardError(status.value(), status.name(), message
+				, URL, LocalDateTime.now());
+		response.getOutputStream().println(error.toString());
 	}
 }
 

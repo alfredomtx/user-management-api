@@ -1,7 +1,7 @@
 package com.user.api.email;
 
-import com.user.api.email.model.Email;
 import com.user.api.email.model.EmailDTO;
+import com.user.api.email.model.Email;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -11,7 +11,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/email")
@@ -19,7 +18,7 @@ public class EmailController {
 	public static final String ID = "/id/{id}";
 
 	@Autowired
-	private EmailServiceImpl emailService;
+	private EmailService emailService;
 
 
 	@GetMapping("/")
@@ -34,8 +33,8 @@ public class EmailController {
 	}
 
 	@GetMapping("/to/{emailAddress}")
-	public ResponseEntity<List<EmailDTO>> getByAddressTo(@PathVariable("emailAddress") String emailAddress) {
-		return ResponseEntity.ok().body(emailService.getByAddressTo(emailAddress));
+	public ResponseEntity<Page<EmailDTO>> getByAddressTo(Pageable pageable, @PathVariable("emailAddress") String emailAddress) {
+		return ResponseEntity.ok().body(emailService.getByAddressTo(pageable, emailAddress));
 	}
 
 	@PostMapping("/send")
@@ -43,7 +42,6 @@ public class EmailController {
 		Email email = new Email();
 		BeanUtils.copyProperties(emailDTO, email);
 		EmailDTO emailSent = emailService.sendEmail(email);
-
 		return new ResponseEntity<>(emailSent, HttpStatus.CREATED);
 	}
 

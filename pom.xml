@@ -11,11 +11,11 @@
 		<relativePath /> <!-- lookup parent from repository -->
 	</parent>
 	
-	<groupId>com.olx</groupId>
-	<artifactId>olx</artifactId>
+	<groupId>com.user</groupId>
+	<artifactId>user</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>olx</name>
-	<description>OLX Project</description>
+	<name>user</name>
+	<description>User API Project</description>
 	
 	<properties>
 		<java.version>11</java.version>
@@ -109,7 +109,7 @@
 		<dependency>
 			<groupId>com.auth0</groupId>
 			<artifactId>java-jwt</artifactId>
-			<version>3.19.0</version>
+			<version>3.19.1</version>
 		</dependency>
 		<dependency>
 			<groupId>org.mockito</groupId>
@@ -131,7 +131,11 @@
 			<artifactId>spring-boot-starter-mail</artifactId>
 			<version>2.6.5</version>
 		</dependency>
-	</dependencies>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+        </dependency>
+    </dependencies>
 
 	<build>
 		<plugins>

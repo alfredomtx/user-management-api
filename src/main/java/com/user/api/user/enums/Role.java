@@ -1,4 +1,4 @@
-package com.user.api.enums;
+package com.user.api.user.enums;
 
 public enum Role {
 	ROLE_ADMIN,
