@@ -2,6 +2,7 @@ package com.user.api.user.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.user.api.user.enums.Role;
+import com.user.api.userProperties.model.UserProperties;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -54,15 +55,12 @@ public class User {
 	@UpdateTimestamp
 	private Date updateDate;
 
-	@Column(columnDefinition = "TEXT")
-	private String resetPasswordToken;
-
-	@Column(columnDefinition = "TEXT")
-	private String activateAccountToken;
-
 	@Enumerated(EnumType.STRING)
 	private Role role;
 
 	private boolean active;
+
+	@OneToOne(cascade = CascadeType.ALL, mappedBy = "user")
+	private UserProperties userProperties;
 
 }

@@ -10,13 +10,12 @@ import com.user.api.exceptions.UserNotFoundException;
 import com.user.api.user.UserRepository;
 import com.user.api.user.UserService;
 import com.user.api.user.model.User;
+import com.user.api.userProperties.UserPropertiesService;
+import com.user.api.userProperties.model.UserProperties;
 import com.user.api.util.JWTUtil;
 import lombok.RequiredArgsConstructor;
-import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.validation.Validator;
 
 import java.util.Map;
 
@@ -24,11 +23,9 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class RegistrationService {
 
-	private final PasswordEncoder passwordEncoder;
 	private final UserRepository userRepo;
+	private final UserPropertiesService userPropsService;
 	private final UserService userService;
-	private final ModelMapper mapper;
-	private final Validator validator;
 	private final EmailService emailService;
 
 	@Value("${project.api.domainUrl}")
@@ -43,8 +40,9 @@ public class RegistrationService {
 	private void sendActivationEmail(User user){
 		String token = JWTUtil.createToken(user.getEmail(), 60, "");
 
-		user.setActivateAccountToken(token);
-		userRepo.save(user);
+		UserProperties userProps = userPropsService.getUserProperties(user);
+		userProps.setActivateAccountToken(token);
+		userPropsService.saveUserProperties(userProps);
 
 		String activationUrl = apiDomainUrl
 				+ "/api/registration/activateAccount?token=" + token
@@ -60,7 +58,6 @@ public class RegistrationService {
 		);
 
 		emailService.sendEmail(activationEmail);
-
 	}
 
 	public void activateAccount(String token, String email) {
@@ -77,14 +74,16 @@ public class RegistrationService {
 			throw new AccountActivationException(e.getMessage());
 		}
 
-		if (!token.equals(user.getActivateAccountToken())){
+		UserProperties userProps = userPropsService.getUserProperties(user);
+
+		if (!token.equals(userProps.getActivateAccountToken())){
 			sendActivationEmail(user);
 			throw new ResetPasswordTokenException("Invalid account activation token, a new activation link has been sent to the email.");
 		}
 
 		user.setActive(true);
-		user.setActivateAccountToken("");
-		userRepo.save(user);
+		userProps.setActivateAccountToken(null);
+		userPropsService.saveUserProperties(userProps);
 	}
 
 	private void checkUserAlreadyActive(User user){

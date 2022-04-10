@@ -9,6 +9,8 @@ import com.user.api.user.enums.Role;
 import com.user.api.user.model.User;
 import com.user.api.user.model.UserRequestDTO;
 import com.user.api.user.model.UserResponseDTO;
+import com.user.api.userProperties.UserPropertiesService;
+import com.user.api.userProperties.model.UserProperties;
 import com.user.api.util.JWTUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
@@ -36,10 +38,10 @@ public class UserService {
 
 	private final PasswordEncoder passwordEncoder;
 	private final UserRepository userRepo;
+	private final UserPropertiesService userPropsService;
 	private final ModelMapper mapper;
 	private final Validator validator;
 	private final EmailService emailService;
-
 
 	@Value("${project.api.domainUrl}")
 	private String apiDomainUrl;
@@ -78,7 +80,15 @@ public class UserService {
 		userAdd.setActive(false);
 		userAdd.setRole(Role.ROLE_USER);
 
-		return mapper.map(userRepo.save(userAdd), UserResponseDTO.class);
+		UserResponseDTO userResponse = mapper.map(userRepo.save(userAdd), UserResponseDTO.class);
+
+		/*
+		UserProperties userProps = new UserProperties();
+		userProps.setUser(userAdd);
+		userPropsRepo.save(userProps);
+		*/
+
+		return userResponse;
 	}
 
 	public UserResponseDTO update(Map<String, String> fields) {
@@ -192,8 +202,9 @@ public class UserService {
 
 		String token = JWTUtil.createToken(user.getEmail(), 60, "");
 
-		user.setResetPasswordToken(token);
-		userRepo.save(user);
+		UserProperties userProps = userPropsService.getUserProperties(user);
+		userProps.setResetPasswordToken(token);
+		userPropsService.saveUserProperties(userProps);
 
 		String resetPasswordUrl = apiDomainUrl + "/api/user/resetPassword?token=" + token;
 
@@ -221,16 +232,17 @@ public class UserService {
 
 		String email = decodedJWT.getSubject();
 		User user = userRepo.findByEmail(email).orElseThrow(() -> new UserNotFoundException(email));
+		UserProperties userProps = userPropsService.getUserProperties(user);
 
-		if (!token.equals(user.getResetPasswordToken())){
+		if (!token.equals(userProps.getResetPasswordToken())){
 			throw new ResetPasswordTokenException("Invalid token for password reset, request to reset your password again.");
 		}
 
 		String randomPassword = generateCommonLangPassword();
 
 		user.setPassword(passwordEncoder.encode(randomPassword));
-		user.setResetPasswordToken("");
-		userRepo.save(user);
+		userProps.setResetPasswordToken(null);
+		userPropsService.saveUserProperties(userProps);
 
 		Email passwordEmail = new Email();
 		passwordEmail.setAddressTo(user.getEmail());
