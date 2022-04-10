@@ -1,12 +1,5 @@
 package com.user.api;
 
-import com.user.api.user.enums.Role;
-import com.user.api.exceptions.UserNotFoundException;
-import com.user.api.user.UserRepository;
-import com.user.api.user.UserService;
-import com.user.api.user.model.User;
-import com.user.api.user.model.UserRequestDTO;
-import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
@@ -26,12 +19,12 @@ public class UserApiApplication {
 		return encoder;
 	}
 
-	@Bean
+	/*@Bean
 	CommandLineRunner run(UserService userService, UserRepository userRepository){
 		return args -> {
-			/*
+			*//*
 			* Create default Admin and Test user by default
-			* */
+			* *//*
 			try {
 				userService.getByEmail("admin@admin.com");
 			} catch (UserNotFoundException e){
@@ -56,6 +49,6 @@ public class UserApiApplication {
 				userService.add(user);
 			}
 		};
-	}
+	}*/
 
 }
