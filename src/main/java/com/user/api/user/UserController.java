@@ -72,20 +72,19 @@ public class UserController {
 	@PostMapping(API_URL + "/changePassword")
 	public ResponseEntity<String> changePassword(@RequestBody Map<String, String> fields) {
 		userService.changeCurrentPassword(fields);
-		return ResponseEntity.ok().body("User password updated with success.");
+		return ResponseEntity.ok().body("User password changed with success.");
 	}
 
 	@PostMapping(API_URL + "/requestResetPassword")
 	public ResponseEntity<String> requestResetPassword(@RequestBody Map<String, String> fields) {
 		userService.requestResetPasswordEmail(fields);
-		return ResponseEntity.ok().body("A reset password confirmation link was sent to the email.");
-
+		return ResponseEntity.ok().body("A reset password confirmation link has been sent to the email.");
 	}
 
-	 @GetMapping(API_URL + "/resetPassword")
+	@GetMapping(API_URL + "/resetPassword")
 	public ResponseEntity<String> resetPassword(@RequestParam("token") String token) {
 		userService.resetPassword(token);
-		return ResponseEntity.ok().body("User password updated with success, a new password was sent to the email.");
+		return ResponseEntity.ok().body("User password reset with success, a new password has been sent to the email.");
 	}
 
 	// TODO implement refresh token and refactor JWT Authorization using JWTTokenUtil.java

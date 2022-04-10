@@ -1,10 +1,8 @@
 package com.user.api.security;
 
-import com.auth0.jwt.JWT;
-import com.auth0.jwt.JWTVerifier;
-import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.TokenExpiredException;
 import com.auth0.jwt.interfaces.DecodedJWT;
+import com.user.api.util.JWTUtil;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -51,9 +49,7 @@ public class JWTAuthorizationFilter extends OncePerRequestFilter {
 	// reads the token and return the user data to ensure it's a valid user
 	private UsernamePasswordAuthenticationToken getAuthenticationToken(String token, HttpServletRequest request) {
 		try {
-			Algorithm algorithm = Algorithm.HMAC512(JWTAuthenticationFilter.TOKEN_PASSWORD);
-			JWTVerifier verifier = JWT.require(algorithm).build();
-			DecodedJWT decodedJWT = verifier.verify(token);
+			DecodedJWT decodedJWT = JWTUtil.verifyToken(token);
 
 			String email = decodedJWT.getSubject();
 			String[] roles = decodedJWT.getClaim("roles").asArray(String.class);

@@ -56,6 +56,9 @@ public class User {
 	@Column(columnDefinition = "TEXT")
 	private String resetPasswordToken;
 
+	@Column(columnDefinition = "TEXT")
+	private String activateAccountToken;
+
 	@Enumerated(EnumType.STRING)
 	private Role role;
 

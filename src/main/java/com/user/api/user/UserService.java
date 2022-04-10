@@ -1,18 +1,15 @@
 package com.user.api.user;
 
-import com.auth0.jwt.JWT;
-import com.auth0.jwt.JWTVerifier;
-import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.TokenExpiredException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.user.api.email.EmailService;
 import com.user.api.email.model.Email;
 import com.user.api.exceptions.*;
-import com.user.api.security.JWTAuthenticationFilter;
 import com.user.api.user.enums.Role;
 import com.user.api.user.model.User;
 import com.user.api.user.model.UserRequestDTO;
 import com.user.api.user.model.UserResponseDTO;
+import com.user.api.util.JWTUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import org.apache.commons.lang3.RandomStringUtils;
@@ -26,7 +23,10 @@ import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.Validator;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 
@@ -75,7 +75,7 @@ public class UserService {
 		User userAdd = mapper.map(user, User.class);
 
 		userAdd.setPassword(passwordEncoder.encode(userAdd.getPassword()));
-		userAdd.setActive(true);
+		userAdd.setActive(false);
 		userAdd.setRole(Role.ROLE_USER);
 
 		return mapper.map(userRepo.save(userAdd), UserResponseDTO.class);
@@ -151,7 +151,7 @@ public class UserService {
 		updatePassword(user, newPassword);
 	}
 
-	private User getUserObjectByIdOrEmailFromFields(Map<String, String> fields){
+	public User getUserObjectByIdOrEmailFromFields(Map<String, String> fields){
 		String email = fields.get("email");
 		String idString = fields.get("id");
 
@@ -190,14 +190,7 @@ public class UserService {
 	public void requestResetPasswordEmail(Map<String, String> fields) {
 		User user = getUserObjectByIdOrEmailFromFields(fields);
 
-		int tokenExpirationMinutes = 60;
-
-		Date tokenExpiration = new Date(System.currentTimeMillis() + ((tokenExpirationMinutes * 60) * 1000));
-
-		String token = JWT.create()
-				.withSubject(user.getEmail())
-				.withExpiresAt(tokenExpiration)
-				.sign(Algorithm.HMAC512(JWTAuthenticationFilter.TOKEN_PASSWORD));
+		String token = JWTUtil.createToken(user.getEmail(), 60, "");
 
 		user.setResetPasswordToken(token);
 		userRepo.save(user);
@@ -214,16 +207,12 @@ public class UserService {
 		);
 
 		emailService.sendEmail(passwordEmail);
-
 	}
 
 	public void resetPassword(String token) {
 		DecodedJWT decodedJWT;
 		try {
-			Algorithm algorithm = Algorithm.HMAC512(JWTAuthenticationFilter.TOKEN_PASSWORD);
-			JWTVerifier verifier = JWT.require(algorithm).build();
-			decodedJWT = verifier.verify(token);
-			System.out.println(decodedJWT);
+			decodedJWT = JWTUtil.verifyToken(token);
 		} catch (TokenExpiredException e) {
 			throw new ResetPasswordTokenException(e.getMessage());
 		} catch (Exception e){
@@ -245,11 +234,10 @@ public class UserService {
 
 		Email passwordEmail = new Email();
 		passwordEmail.setAddressTo(user.getEmail());
-		passwordEmail.setSubject("Password Reseted");
-		passwordEmail.setBody("Your password has been reseted.<br>The new password is: " + randomPassword);
+		passwordEmail.setSubject("Password Reset");
+		passwordEmail.setBody("Your password has been reset.<br>The new password is: " + randomPassword);
 
 		emailService.sendEmail(passwordEmail);
-
 	}
 
 	public String generateCommonLangPassword() {
