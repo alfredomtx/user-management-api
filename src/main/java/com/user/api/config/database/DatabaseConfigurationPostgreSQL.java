@@ -27,6 +27,7 @@ public class DatabaseConfigurationPostgreSQL {
 		String dbUrl = "jdbc:postgresql://" + dbUri.getHost() + ':' + dbUri.getPort() + dbUri.getPath();
 
 		BasicDataSource basicDataSource = new BasicDataSource();
+		basicDataSource.setDriverClassName("org.postgresql.Driver");
 		basicDataSource.setUrl(dbUrl
 				+ "?useTimezone=true"
 				+ "&serverTimezone=UTC"
