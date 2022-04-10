@@ -14,8 +14,8 @@ spring:
     sender_email: "support@oldbot.com.br"
     sender_name: "No Reply OldBot"
     host: smtp.titan.email
-    username: support@oldbot.com.br
-    password: fWicKmtKuk
+    username: ${SMTP_USERNAME}
+    password: ${SMTP_PASSWORD}
     protocol: smtp
     port: 587
     properties:
