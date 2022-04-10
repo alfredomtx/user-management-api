@@ -4,7 +4,7 @@ import com.user.api.email.EmailRepository;
 import com.user.api.exceptions.ObjectFieldsValidationException;
 import com.user.api.exceptions.UserAlreadyExistsException;
 import com.user.api.exceptions.UserNotFoundException;
-import com.user.api.security.UserDetailServiceImpl;
+import com.user.api.security.UserDetailService;
 import com.user.api.user.model.User;
 import com.user.api.user.model.UserResponseDTO;
 import org.junit.jupiter.api.BeforeEach;
@@ -38,11 +38,11 @@ public class UserControllerTest {
 	@Autowired
 	private MockMvc mockMvc;
 
-	// need to use the real implementation of ModelMapper in UserServiceImpl
+	// need to use the real implementation of ModelMapper in UserService
 	// private final ModelMapper mapper = new ModelMapper();
 
 	@Mock
-	private UserServiceImpl servicesImpl;
+	private UserService servicesImpl;
 	@MockBean
 	private UserRepository repository;
 	@MockBean
@@ -50,7 +50,7 @@ public class UserControllerTest {
 	@MockBean
 	private UserService service;
 	@MockBean
-	private UserDetailServiceImpl userDetailServiceImpl; // for Spring Security
+	private UserDetailService userDetailService; // for Spring Security
 
 	public static final String API_URL = "/api/user/";
 	public static final Long ID = 1L;
@@ -235,6 +235,7 @@ public class UserControllerTest {
 				.andExpect(jsonPath("$.error", is(exceptionExpectedMessage)));
 	}*/
 
+	/*
 	@Test
 	void shouldReturnTrueAndOk_WhenValidateLogin() throws Exception {
 		when(service.validateLogin(any())).thenReturn(true);
@@ -260,6 +261,7 @@ public class UserControllerTest {
 				.andExpect(status().isUnauthorized())
 				.andExpect(content().string("false"));
 	}
+	*/
 
 	// TODO test send user with invalid fields
 

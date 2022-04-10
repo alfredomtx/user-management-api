@@ -1,7 +1,7 @@
 package com.user.api.user.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.user.api.enums.Role;
+import com.user.api.user.enums.Role;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -54,10 +54,7 @@ public class User {
 	private Date updateDate;
 
 	@Column(columnDefinition = "TEXT")
-	private String token;
-
-	@Temporal(TemporalType.TIMESTAMP)
-	private Date tokenExpiration;
+	private String resetPasswordToken;
 
 	@Enumerated(EnumType.STRING)
 	private Role role;

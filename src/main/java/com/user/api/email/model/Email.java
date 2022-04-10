@@ -1,7 +1,7 @@
 package com.user.api.email.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.user.api.enums.StatusEmail;
+import com.user.api.email.enums.StatusEmail;
 import lombok.Getter;
 import lombok.Setter;
 

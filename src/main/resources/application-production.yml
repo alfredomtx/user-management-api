@@ -1,8 +1,12 @@
 
-database:
-  db_name: ""
-  username: ""
-  password: ""
+project:
+  api:
+    domainUrl: ""
+
+server:
+  #port: ${PORT}
+  port: 8080
+
 
 spring:
   # On "development" profile, use "update" to create the tables

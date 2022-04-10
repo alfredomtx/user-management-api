@@ -1,8 +1,11 @@
 
-database:
-  db_name: "user_api"
-  username: "root"
-  password: " root"
+project:
+  api:
+    domainUrl: "http://localhost:8080"
+
+server:
+  port: 8080
+
 
 spring:
   jpa:hibernate:ddl-auto: update
