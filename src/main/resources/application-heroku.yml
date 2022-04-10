@@ -4,7 +4,7 @@ project:
     domainUrl: "https://user-api-oldbot.herokuapp.com/"
 
 server:
-  port: 8080
+  port: ${PORT}
 
 
 spring:
