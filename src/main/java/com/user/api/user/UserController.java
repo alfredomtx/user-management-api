@@ -50,6 +50,13 @@ public class UserController {
 		return ResponseEntity.created(uri).build();
 	}
 
+	@PostMapping(API_URL + "/admin")
+	public ResponseEntity<String> addUserAlreadyActive(@RequestBody @Valid UserRequestDTO userRequest) {
+		UserResponseDTO user = userService.addUserAlreadyActive(userRequest);
+		URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(user.getId()).toUri();
+		return ResponseEntity.created(uri).build();
+	}
+
 	@PatchMapping(API_URL + ID)
 	public ResponseEntity<String> update(@PathVariable("id") Long id, @RequestBody Map<String, String> fields) {
 		fields.put("id", String.valueOf(id));
