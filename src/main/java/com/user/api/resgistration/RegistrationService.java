@@ -54,14 +54,39 @@ public class RegistrationService {
 		Email activationEmail = new Email();
 		activationEmail.setAddressTo(user.getEmail());
 		activationEmail.setSubject("Account Activation");
-		activationEmail.setBody("Click on this link to activate your account:<br>"
-				+ activationUrl
-				+ "<br><br>"
-				+ "The link expires in 60 minutes."
-		);
 
+
+		StringBuilder htmlButton = new StringBuilder();
+		htmlButton.append("<a href='" + activationUrl + "' target='_blank' ");
+			htmlButton.append("style='cursor: pointer; text-decoration: none; padding-top: 5px' ");
+		htmlButton.append(">");
+		htmlButton.append("<button class='button' ");
+			htmlButton.append("style='padding: 10px; cursor: pointer; background-color: red; text-decoration: none; font-weight: bold' ");
+		htmlButton.append(">");
+		htmlButton.append("Click to Activate Account");
+		htmlButton.append("</button>");
+		htmlButton.append("</a>");
+
+		StringBuilder activationUrlHtml = new StringBuilder();
+		activationUrlHtml.append("<a href='" + activationUrl + "'>" + activationUrl + "</a></small>");
+
+		StringBuilder emailHtml = new StringBuilder();
+		emailHtml.append("Open the link to activate your account:<br>");
+		emailHtml.append(htmlButton);
+		emailHtml.append("<br><br>");
+		emailHtml.append("<div style='color: gray'>");
+			emailHtml.append("<small>");
+			emailHtml.append("Alternatively you can copy and paste the link in your browser:<br>");
+			emailHtml.append(activationUrlHtml);
+			emailHtml.append("</small>");
+			emailHtml.append("<br><br>");
+			emailHtml.append("The link expires in 60 minutes.");
+		emailHtml.append("</div>");
+
+		activationEmail.setBody(emailHtml.toString());
 		emailService.sendEmail(activationEmail);
 	}
+
 
 	public void activateAccount(String token, String email) {
 		User user = userRepo.findByEmail(email).orElseThrow(() -> new UserNotFoundException(email));
@@ -93,6 +118,7 @@ public class RegistrationService {
 			throw new AccountActivationException("User is already active.");
 		}
 	}
+
 
 
 }
