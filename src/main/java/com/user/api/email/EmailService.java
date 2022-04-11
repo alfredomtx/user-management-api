@@ -135,7 +135,9 @@ public class EmailService {
 			email.setErrorDetails("[" + e.getClass() + "] " + e.getMessage());
 		}
 
+		/*
 		emailRepository.save(email);
+		*/
 
 		EmailDTO emailDTO = new EmailDTO();
 		BeanUtils.copyProperties(email, emailDTO);
