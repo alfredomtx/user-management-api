@@ -28,12 +28,14 @@ public class RegistrationService {
 	private UserPropertiesService userPropsService;
 	@Autowired
 	private EmailService emailService;
+	@Autowired
+	private UserUtil userUtil;
 
 	@Value("${project.api.domainUrl}")
 	private String apiDomainUrl;
 
 	public void requestActivateAccountEmail(Map<String, String> fields) {
-		User user = UserUtil.getUserObjectByIdOrEmailFromFields(fields);
+		User user = userUtil.getUserObjectByIdOrEmailFromFields(fields);
 		sendActivationEmail(user);
 	}
 

@@ -5,15 +5,17 @@ import com.user.api.exceptions.UserNotFoundException;
 import com.user.api.user.UserRepository;
 import com.user.api.user.model.User;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.util.Map;
 
+@Service
 public class UserUtil {
 
 	@Autowired
-	private static UserRepository userRepo;
+	private UserRepository userRepo;
 
-	public static User getUserObjectByIdOrEmailFromFields(Map<String, String> fields){
+	public User getUserObjectByIdOrEmailFromFields(Map<String, String> fields){
 		String email = fields.get("email");
 		String idString = fields.get("id");
 
