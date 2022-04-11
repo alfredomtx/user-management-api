@@ -45,6 +45,9 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
 		http.authorizeRequests()
 
+				/*
+					URLs allowed for non-authenticated users (anyone on the internet)
+				*/
 				.antMatchers(HttpMethod.POST, "/api/login").permitAll()
 				.antMatchers(HttpMethod.GET, "/api/token/refresh").permitAll()
 				.antMatchers(HttpMethod.POST, "/api/user/requestResetPassword").permitAll()
@@ -53,10 +56,11 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 				.antMatchers(HttpMethod.GET, "/api/registration/activateAccount/**").permitAll()
 				.antMatchers("/").permitAll()
 
-				// user api accessible for all roles
 				.antMatchers("/api/user/admin/**").hasRole("ADMIN")
-				.antMatchers("/api/user/**").hasAnyRole("USER", "ADMIN")
-				// everything else allowed only for Admin
+				// .antMatchers("/api/user/**").hasAnyRole("USER", "ADMIN")
+				/*
+					everything else allowed only for Admin
+				*/
 				.antMatchers("/api/**").hasRole("ADMIN")
 
 				.anyRequest().authenticated()
