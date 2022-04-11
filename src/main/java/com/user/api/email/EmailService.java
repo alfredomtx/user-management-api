@@ -7,7 +7,6 @@ import com.user.api.exceptions.EmailNotFoundException;
 import com.user.api.exceptions.ObjectFieldsValidationException;
 import lombok.SneakyThrows;
 import org.modelmapper.ModelMapper;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
@@ -137,10 +136,11 @@ public class EmailService {
 
 		/*
 		emailRepository.save(email);
-		*/
 
 		EmailDTO emailDTO = new EmailDTO();
 		BeanUtils.copyProperties(email, emailDTO);
+		 */
+		EmailDTO emailDTO = mapper.map(email, EmailDTO.class);
 		return emailDTO;
 	}
 

@@ -87,7 +87,6 @@ public class RegistrationService {
 		emailService.sendEmail(activationEmail);
 	}
 
-
 	public void activateAccount(String token, String email) {
 		User user = userRepo.findByEmail(email).orElseThrow(() -> new UserNotFoundException(email));
 
