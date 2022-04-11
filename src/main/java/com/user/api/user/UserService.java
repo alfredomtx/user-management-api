@@ -51,6 +51,9 @@ public class UserService {
 	private Validator validator;
 	@Autowired
 	private EmailService emailService;
+	@Autowired
+	private UserUtil userUtil;
+	
 
 	@Value("${project.api.domainUrl}")
 	private String apiDomainUrl;
@@ -72,7 +75,7 @@ public class UserService {
 	}
 
 	public UserResponseDTO getByIdOrEmail(Map<String, String> fields) {
-		User user = UserUtil.getUserObjectByIdOrEmailFromFields(fields);
+		User user = userUtil.getUserObjectByIdOrEmailFromFields(fields);
 		return mapper.map(user, UserResponseDTO.class);
 	}
 
@@ -89,19 +92,20 @@ public class UserService {
 		userAdd.setActive(false);
 		userAdd.setRole(Role.ROLE_USER);
 
-		UserResponseDTO userResponse = mapper.map(userRepo.save(userAdd), UserResponseDTO.class);
-
 		UserProperties userProps = new UserProperties();
 		userProps.setUser(userAdd);
-		userPropsService.saveUserProperties(userProps);
+		userAdd.setUserProperties(userProps);
+		userProps.setUser(userAdd);
 
-		registrationService.sendActivationEmail(userAdd);
+		User userSaved = userRepo.save(userAdd);
 
-		return userResponse;
+		registrationService.sendActivationEmail(userSaved);
+
+		return mapper.map(userSaved, UserResponseDTO.class);
 	}
 
 	public UserResponseDTO update(Map<String, String> fields) {
-		User user = UserUtil.getUserObjectByIdOrEmailFromFields(fields);
+		User user = userUtil.getUserObjectByIdOrEmailFromFields(fields);
 
 		User userRequest = mapper.map(fields, User.class);
 
@@ -143,6 +147,11 @@ public class UserService {
 		userRepo.deleteById(id);
 	}
 
+	public void deleteByIdOrEmail(Map<String, String> fields) {
+		User user = userUtil.getUserObjectByIdOrEmailFromFields(fields);
+		userRepo.delete(user);
+	}
+
 	public void changeCurrentPassword(Map<String, String> fields) {
 		String currentPassword = fields.get("currentPassword");
 		if (currentPassword == null)
@@ -162,7 +171,7 @@ public class UserService {
 
 		validatePassword(newPassword);
 
-		User user = UserUtil.getUserObjectByIdOrEmailFromFields(fields);
+		User user = userUtil.getUserObjectByIdOrEmailFromFields(fields);
 		if (!passwordEncoder.matches(currentPassword, user.getPassword())){
 			throw new InvalidUserDataException("Wrong current password.");
 		}
@@ -187,7 +196,7 @@ public class UserService {
 	}
 
 	public void requestResetPasswordEmail(Map<String, String> fields) {
-		User user = UserUtil.getUserObjectByIdOrEmailFromFields(fields);
+		User user = userUtil.getUserObjectByIdOrEmailFromFields(fields);
 
 		String token = JWTUtil.createToken(user.getEmail(), 60, "");
 

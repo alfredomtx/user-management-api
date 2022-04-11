@@ -20,7 +20,6 @@ public class UserPropertiesService {
 	private Validator validator;
 
 	public UserProperties getUserProperties(User user){
-
 		UserProperties userProps = user.getUserProperties();
 
 		if (userProps == null){
@@ -34,7 +33,6 @@ public class UserPropertiesService {
 
 	public void saveUserProperties(UserProperties userProperties){
 		validateUserPropertiesData(userProperties);
-
 		userPropsRepo.save(userProperties);
 	}
 

@@ -63,6 +63,12 @@ public class UserController {
 		return ResponseEntity.ok().build();
 	}
 
+	@DeleteMapping(API_URL)
+	public ResponseEntity<UserResponseDTO> delete(@RequestBody Map<String, String> fields) {
+		userService.deleteByIdOrEmail(fields);
+		return ResponseEntity.noContent().build();
+	}
+
 	@DeleteMapping(API_URL + ID)
 	public ResponseEntity<UserResponseDTO> delete(@PathVariable("id") Long id) {
 		userService.delete(id);
