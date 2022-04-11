@@ -104,6 +104,29 @@ public class UserService {
 		return mapper.map(userSaved, UserResponseDTO.class);
 	}
 
+	public UserResponseDTO addUserAlreadyActive(UserRequestDTO user) {
+		// validate if user already exists by email
+		Optional<User> userExists = userRepo.findByEmail(user.getEmail());
+		if (userExists.isPresent())
+			throw new UserAlreadyExistsException(userExists.get().getEmail());
+
+		// create new User object to add on database to avoid Web Parameter Tampering
+		User userAdd = mapper.map(user, User.class);
+
+		userAdd.setPassword(passwordEncoder.encode(userAdd.getPassword()));
+		userAdd.setActive(true);
+		userAdd.setRole(Role.ROLE_USER);
+
+		UserProperties userProps = new UserProperties();
+		userProps.setUser(userAdd);
+		userAdd.setUserProperties(userProps);
+		userProps.setUser(userAdd);
+
+		User userSaved = userRepo.save(userAdd);
+
+		return mapper.map(userSaved, UserResponseDTO.class);
+	}
+
 	public UserResponseDTO update(Map<String, String> fields) {
 		User user = userUtil.getUserObjectByIdOrEmailFromFields(fields);
 
