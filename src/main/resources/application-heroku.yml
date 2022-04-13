@@ -17,9 +17,9 @@ spring:
   mail:
     # Use your environment variables
     # Example: "No Reply <YOUR_SERVICE>"
-    sender_name: ${SMTP_SENDER_EMAIL}
+    sender_name: ${SMTP_SENDER_NAME}
     # Example: "support@yourservice.com"
-    sender_email: ${SMTP_SENDER_NAME}
+    sender_email: ${SMTP_SENDER_EMAIL}
     host: ${SMTP_HOST}
     username: ${SMTP_USERNAME}
     password: ${SMTP_PASSWORD}
