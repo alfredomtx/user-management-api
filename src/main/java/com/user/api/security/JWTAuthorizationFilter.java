@@ -2,7 +2,7 @@ package com.user.api.security;
 
 import com.auth0.jwt.exceptions.TokenExpiredException;
 import com.auth0.jwt.interfaces.DecodedJWT;
-import com.user.api.util.JWTUtil;
+import com.user.api.security.util.JWTUtil;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -41,7 +41,13 @@ public class JWTAuthorizationFilter extends OncePerRequestFilter {
 		}
 
 		String token = authorizationHeader.replace(ATTRIBUTE_PREFIX, "");
-		UsernamePasswordAuthenticationToken authToken = getAuthenticationToken(token, request);
+		UsernamePasswordAuthenticationToken authToken;
+		try {
+			authToken = getAuthenticationToken(token, request);
+		} catch (Exception e){
+			filterChain.doFilter(request, response);
+			return;
+		}
 		SecurityContextHolder.getContext().setAuthentication(authToken);
 		filterChain.doFilter(request, response);
 	}
@@ -63,7 +69,7 @@ public class JWTAuthorizationFilter extends OncePerRequestFilter {
 		} catch (TokenExpiredException e) {
 			// setting header to be able to identify the error and send a custom response on AuthFailureHandler
 			request.setAttribute("expired", e.getMessage());
-			throw new TokenExpiredException(e.getMessage());
+			throw e;
 		} catch (Exception e){
 			request.setAttribute("otherException", e.getMessage());
 			throw e;

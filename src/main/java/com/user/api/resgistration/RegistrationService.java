@@ -3,16 +3,16 @@ package com.user.api.resgistration;
 import com.auth0.jwt.exceptions.TokenExpiredException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.user.api.email.EmailService;
-import com.user.api.email.model.Email;
+import com.user.api.email.model.EmailDTO;
 import com.user.api.exceptions.AccountActivationException;
 import com.user.api.exceptions.ResetPasswordTokenException;
 import com.user.api.exceptions.UserNotFoundException;
+import com.user.api.security.util.JWTUtil;
 import com.user.api.user.UserRepository;
 import com.user.api.user.model.User;
+import com.user.api.user.util.UserUtil;
 import com.user.api.userProperties.UserPropertiesService;
 import com.user.api.userProperties.model.UserProperties;
-import com.user.api.util.JWTUtil;
-import com.user.api.util.UserUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -51,7 +51,7 @@ public class RegistrationService {
 				+ "/api/registration/activateAccount?token=" + token
 				+ "&email=" + user.getEmail();
 
-		Email activationEmail = new Email();
+		EmailDTO activationEmail = new EmailDTO();
 		activationEmail.setAddressTo(user.getEmail());
 		activationEmail.setSubject("Account Activation");
 
@@ -84,7 +84,7 @@ public class RegistrationService {
 		emailHtml.append("</div>");
 
 		activationEmail.setBody(emailHtml.toString());
-		emailService.sendEmail(activationEmail);
+		emailService.sendEmailToQueue(activationEmail);
 	}
 
 	public void activateAccount(String token, String email) {

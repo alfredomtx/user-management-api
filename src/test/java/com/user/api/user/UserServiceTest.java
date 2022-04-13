@@ -1,29 +1,29 @@
 package com.user.api.user;
 
 import com.user.api.email.EmailService;
+import com.user.api.exceptions.InvalidUserDataException;
 import com.user.api.exceptions.UserAlreadyExistsException;
 import com.user.api.exceptions.UserNotFoundException;
 import com.user.api.resgistration.RegistrationService;
 import com.user.api.user.model.User;
 import com.user.api.user.model.UserRequestDTO;
 import com.user.api.user.model.UserResponseDTO;
+import com.user.api.user.util.UserUtil;
 import com.user.api.userProperties.UserPropertiesService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.validation.Validator;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
@@ -44,6 +44,8 @@ class UserServiceTest {
 	private final RegistrationService registrationService = mock(RegistrationService.class);
 	@MockBean
 	private final EmailService emailService = mock(EmailService.class);
+	@MockBean
+	private final UserUtil userUtil = mock(UserUtil.class);
 
 	// overriding PasswordEncoder methods to be able to use to validate login
 	@Autowired
@@ -58,7 +60,16 @@ class UserServiceTest {
 		}
 	};
 
-	private final UserService service = new UserService();
+	@Autowired
+	private final UserService service = new UserService(passwordEncoder,
+			repository,
+			userPropsService,
+			registrationService,
+			mapper,
+			validator,
+			emailService,
+			userUtil
+		);
 
 	public static final Long ID = 1L;
 	public static final String EMAIL = "test@test.com";
@@ -68,6 +79,7 @@ class UserServiceTest {
 
 	// exception messages constants
 	public static final String USER_NOT_FOUND_BY_ID = "User with id [" + ID + "] not found.";
+	public static final String USER_NOT_FOUND_BY_EMAIL = "User with email [" + EMAIL + "] not found.";
 	public static final String USER_ALREADY_EXISTS_BY_EMAIL = "User with e-mail [" + EMAIL + "] already exists.";
 
 	private User user;
@@ -95,50 +107,101 @@ class UserServiceTest {
 	}
 
 	@Test
-	void shouldReturnListOfUser_WhenGetAll() {
-		when(repository.findAll()).thenReturn(List.of(user));
+	void shouldReturnPageOfUser_When_getAll() {
+		List<User> userList = new ArrayList<>();
+		userList.add(user);
+		Page<User> userListPage = new PageImpl(userList);
 
-		PageRequest pageRequest = PageRequest.of(0, 10, Sort.Direction.ASC, "id");
+		Mockito.when(repository.findAll(any(Pageable.class))).thenReturn(userListPage);
 
-		Page<UserResponseDTO> response = service.getAll(pageRequest);
+		Page<UserResponseDTO> response = service.getAll(Mockito.mock(Pageable.class));
 		assertNotNull(response);
-		// list should return only 1 user
 		assertEquals(1, response.getSize());
+		// list should return only 1 user
+		assertEquals(1, response.getContent().size());
+		assertEquals(1, response.getTotalPages());
 		// do the rest of validations for the first user of the list
-		assertDtoResponse(response.getContent().get(0));
+		assertUserDtoResponse(response.getContent().get(0));
 	}
 
 	@Test
-	void shouldReturnUser_WhenGetById() {
+	void shouldReturnUser_When_getById() {
 		when(repository.findById(anyLong())).thenReturn(Optional.of(user));
 		UserResponseDTO response = service.getById(ID);
-		assertDtoResponse(response);
+		assertUserDtoResponse(response);
 	}
 
 	@Test
-	void shouldThrowUserNotFoundException_WhenGetById() {
+	void shouldThrowUserNotFoundException_When_getById() {
 		when(repository.findById(anyLong())).thenThrow(new UserNotFoundException(ID));
 
-		String exceptionExpectedMessage = "User with id [" + ID + "] not found.";
 		try {
 			service.getById(ID);
 		} catch (Exception e) {
 			assertEquals(UserNotFoundException.class, e.getClass());
-			assertEquals(exceptionExpectedMessage, e.getMessage());
+			assertEquals(USER_NOT_FOUND_BY_ID, e.getMessage());
 			return;
 		}
 		failedExceptionNotThrown();
 	}
 
 	@Test
-	void shouldThrowUserNotFoundException_WhenGetByEmail() {
+	void shouldReturnUser_When_getByEmail() {
+		when(repository.findByEmail(anyString())).thenReturn(Optional.of(user));
+		UserResponseDTO response = service.getByEmail(EMAIL);
+		assertUserDtoResponse(response);
+	}
+
+	@Test
+	void shouldThrowUserNotFoundException_When_getByEmail() {
 		when(repository.findByEmail(anyString())).thenThrow(new UserNotFoundException(EMAIL));
 
-		String exceptionExpectedMessage = "User with email [" + EMAIL + "] not found.";
 		try {
 			service.getByEmail(EMAIL);
 		} catch (Exception e) {
 			assertEquals(UserNotFoundException.class, e.getClass());
+			assertEquals(USER_NOT_FOUND_BY_EMAIL, e.getMessage());
+			return;
+		}
+		failedExceptionNotThrown();
+	}
+
+	@Test
+	void shouldReturnUser_When_UsingEmail_getByIdOrEmail() {
+		when(repository.findByEmail(anyString())).thenReturn(Optional.of(user));
+		when(userUtil.getUserObjectByIdOrEmailFromFields(anyMap())).thenReturn(user);
+
+		Map<String, String> fields = new HashMap<>();
+		fields.put("email", EMAIL);
+		UserResponseDTO response = service.getByIdOrEmail(fields);
+		assertUserDtoResponse(response);
+	}
+
+	@Test
+	void shouldThrowUserNotFoundException_When_UsingEmail_getByIdOrEmail() {
+		when(userUtil.getUserObjectByIdOrEmailFromFields(anyMap())).thenThrow(new UserNotFoundException(EMAIL));
+
+		Map<String, String> fields = new HashMap<>();
+		fields.put("email", EMAIL);
+		try {
+			service.getByIdOrEmail(fields);
+		} catch (Exception e) {
+			assertEquals(UserNotFoundException.class, e.getClass());
+			assertEquals(USER_NOT_FOUND_BY_EMAIL, e.getMessage());
+			return;
+		}
+		failedExceptionNotThrown();
+	}
+
+	@Test
+	void shouldThrowInvalidUserDataException_When_getByIdOrEmail() {
+		String exceptionExpectedMessage = "[email] or [id] field must be set.";
+
+		when(userUtil.getUserObjectByIdOrEmailFromFields(anyMap())).thenThrow(new InvalidUserDataException(exceptionExpectedMessage));
+		try {
+			service.getByIdOrEmail(new HashMap<String, String>());
+		} catch (Exception e) {
+			assertEquals(InvalidUserDataException.class, e.getClass());
 			assertEquals(exceptionExpectedMessage, e.getMessage());
 			return;
 		}
@@ -146,22 +209,15 @@ class UserServiceTest {
 	}
 
 	@Test
-	void shouldReturnUser_WhenGetByEmail() {
-		when(repository.findByEmail(anyString())).thenReturn(Optional.of(user));
-		UserResponseDTO response = service.getByEmail(EMAIL);
-		assertDtoResponse(response);
-	}
-
-	@Test
-	void shouldReturnUser_WhenAddUser() {
+	void shouldReturnUser_When_add() {
 		UserRequestDTO userInsert = mapper.map(user, UserRequestDTO.class);
 		when(repository.save(any())).thenReturn(user);
 		UserResponseDTO response = service.add(userInsert);
-		assertDtoResponse(response);
+		assertUserDtoResponse(response);
 	}
 
 	@Test
-	void shouldReturnUserAlreadyExistsException_WhenAddUser() {
+	void shouldReturnUserAlreadyExistsException_When_add() {
 		UserRequestDTO userInsert = new UserRequestDTO();
 		userInsert.setEmail(EMAIL);
 
@@ -339,7 +395,7 @@ class UserServiceTest {
 	}
 	*/
 
-	private void assertDtoResponse(UserResponseDTO responseUser) {
+	private void assertUserDtoResponse(UserResponseDTO responseUser) {
 		assertNotNull(responseUser);
 		assertEquals(UserResponseDTO.class, responseUser.getClass());
 		assertEquals(ID, responseUser.getId());

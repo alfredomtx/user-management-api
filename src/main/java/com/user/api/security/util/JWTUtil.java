@@ -1,4 +1,4 @@
-package com.user.api.util;
+package com.user.api.security.util;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTVerifier;

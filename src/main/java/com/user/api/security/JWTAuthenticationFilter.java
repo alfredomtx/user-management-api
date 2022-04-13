@@ -2,11 +2,10 @@ package com.user.api.security;
 
 import com.fasterxml.jackson.core.exc.StreamReadException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.user.api.security.util.JWTUtil;
 import com.user.api.user.UserRepository;
 import com.user.api.user.model.UserRequestDTO;
-import com.user.api.util.JWTUtil;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.DisabledException;
@@ -29,12 +28,9 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 
-
-	// TODO find a way to get the token info from application properties file
-	@Value("${spring.security.token.expiration_minutes}")
-	public final static int TOKEN_EXPIRATION_MINUTES = 100000;
-	@Value("${spring.security.token.password}")
-
+	public final int ACCESS_TOKEN_EXPIRATION_MINUTES = 60;
+	// refresh token with 24 hours of expiration
+	public final int REFRESH_TOKEN_EXPIRATION_MINUTES = 60 * 24;
 
 	@Autowired
 	private AuthenticationManager authManager;
@@ -80,10 +76,10 @@ public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 
 		String accessToken = JWTUtil.createTokenLogin(userData.getUsername()
 				, userData.getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(Collectors.toList())
-				, TOKEN_EXPIRATION_MINUTES, request.getRequestURL().toString());
+				, ACCESS_TOKEN_EXPIRATION_MINUTES, request.getRequestURL().toString());
 
 		String refreshToken = JWTUtil.createToken(userData.getUsername()
-				, TOKEN_EXPIRATION_MINUTES, request.getRequestURL().toString());
+				, REFRESH_TOKEN_EXPIRATION_MINUTES, request.getRequestURL().toString());
 
 		response.setHeader("access_token", accessToken);
 		response.setHeader("refresh_token", refreshToken);

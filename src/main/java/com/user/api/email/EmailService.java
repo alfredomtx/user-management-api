@@ -5,6 +5,7 @@ import com.user.api.email.model.Email;
 import com.user.api.email.model.EmailDTO;
 import com.user.api.exceptions.EmailNotFoundException;
 import com.user.api.exceptions.ObjectFieldsValidationException;
+import com.user.api.rabbitmq.RabbitMQService;
 import lombok.SneakyThrows;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,7 +38,11 @@ public class EmailService {
 	private ModelMapper mapper;
 	@Autowired
 	private Validator validator;
+	@Autowired
+	private RabbitMQService rabbitMQService;
 
+	@Value("${spring.rabbitmq.queue}")
+	private String queue;
 
 	@Value("${spring.mail.protocol}")
 	private String protocol;
@@ -80,6 +85,11 @@ public class EmailService {
 		if (result.hasErrors()) {
 			throw new ObjectFieldsValidationException(result.getFieldErrors());
 		}
+	}
+
+	public void sendEmailToQueue(EmailDTO emailDto){
+		// System.out.println(emailDto);
+		rabbitMQService.sendMessage(queue, emailDto);
 	}
 
 	public EmailDTO sendEmail(Email email) {

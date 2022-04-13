@@ -57,6 +57,12 @@ public class UserController {
 		return ResponseEntity.created(uri).build();
 	}
 
+	@PatchMapping(API_URL)
+	public ResponseEntity<String> updateByEmailOrId(@RequestBody Map<String, String> fields) {
+		userService.update(fields);
+		return ResponseEntity.ok().build();
+	}
+
 	@PatchMapping(API_URL + ID)
 	public ResponseEntity<String> update(@PathVariable("id") Long id, @RequestBody Map<String, String> fields) {
 		fields.put("id", String.valueOf(id));
@@ -64,15 +70,9 @@ public class UserController {
 		return ResponseEntity.ok().build();
 	}
 
-	@PatchMapping(API_URL)
-	public ResponseEntity<String> updateByEmailOrId(@RequestBody Map<String, String> fields) {
-		userService.update(fields);
-		return ResponseEntity.ok().build();
-	}
-
 	@DeleteMapping(API_URL)
-	public ResponseEntity<UserResponseDTO> delete(@RequestBody Map<String, String> fields) {
-		userService.deleteByIdOrEmail(fields);
+	public ResponseEntity<UserResponseDTO> deleteByEmailOrId(@RequestBody Map<String, String> fields) {
+		userService.delete(fields);
 		return ResponseEntity.noContent().build();
 	}
 
@@ -103,6 +103,8 @@ public class UserController {
 	// TODO implement refresh token and refactor JWT Authorization using JWTTokenUtil.java
 	@GetMapping("/token/refresh")
 	public ResponseEntity<?>refreshToken(HttpServletRequest request, HttpServletResponse response){
+
+
 		String authorizationHeader = request.getHeader(AUTHORIZATION);
 		return ResponseEntity.ok().body("test");
 	}

@@ -57,7 +57,11 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 				.antMatchers("/").permitAll()
 
 				.antMatchers("/api/user/admin/**").hasRole("ADMIN")
+				/*
+					for now only ADMIN can use the API
+				*/
 				// .antMatchers("/api/user/**").hasAnyRole("USER", "ADMIN")
+
 				/*
 					everything else allowed only for Admin
 				*/

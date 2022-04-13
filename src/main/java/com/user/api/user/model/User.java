@@ -27,22 +27,22 @@ public class User {
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private Long id;
 
-	@NotBlank(message = "Email is blank.")
-	@Email(message = "Not a valid email.")
-	@Size(min = 4, max = 255, message = "Field is too short(less than 4) or too big(more than 255).")
+	@NotBlank()
+	@Email()
+	@Size(min = 4, max = 255)
 	@Column(unique = true)
 	private String email;
 
-	@NotBlank(message = "Password is blank.")
-	@Size(min = 4, max = 255, message = "Field is too short(less than 4) or too big(more than 255).")
+	@NotBlank()
+	@Size(min = 4, max = 255)
 	private String password;
 
-	@NotBlank(message = "First name is blank.")
-	@Size(min = 2, max = 255, message = "Field is too short(less than 2) or too big(more than 255).")
+	@NotBlank()
+	@Size(min = 2, max = 255)
 	private String firstName;
 
-	@NotBlank(message = "Last name is blank.")
-	@Size(min = 2, max = 255, message = "Field is too short(less than 2) or too big(more than 255).")
+	@NotBlank()
+	@Size(min = 2, max = 255)
 	private String lastName;
 
 	@Column(updatable = false)

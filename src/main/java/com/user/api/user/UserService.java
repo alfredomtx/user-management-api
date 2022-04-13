@@ -3,21 +3,21 @@ package com.user.api.user;
 import com.auth0.jwt.exceptions.TokenExpiredException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.user.api.email.EmailService;
-import com.user.api.email.model.Email;
+import com.user.api.email.model.EmailDTO;
 import com.user.api.exceptions.*;
 import com.user.api.resgistration.RegistrationService;
+import com.user.api.security.util.JWTUtil;
 import com.user.api.user.enums.Role;
 import com.user.api.user.model.User;
 import com.user.api.user.model.UserRequestDTO;
 import com.user.api.user.model.UserResponseDTO;
+import com.user.api.user.util.UserUtil;
 import com.user.api.userProperties.UserPropertiesService;
 import com.user.api.userProperties.model.UserProperties;
-import com.user.api.util.JWTUtil;
-import com.user.api.util.UserUtil;
+import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -35,24 +35,17 @@ import java.util.stream.Collectors;
 
 
 @Service
+@RequiredArgsConstructor
 public class UserService {
 
-	@Autowired
-	private PasswordEncoder passwordEncoder;
-	@Autowired
-	private UserRepository userRepo;
-	@Autowired
-	private UserPropertiesService userPropsService;
-	@Autowired
-	private RegistrationService registrationService;
-	@Autowired
-	private ModelMapper mapper;
-	@Autowired
-	private Validator validator;
-	@Autowired
-	private EmailService emailService;
-	@Autowired
-	private UserUtil userUtil;
+	private final PasswordEncoder passwordEncoder;
+	private final UserRepository userRepo;
+	private final UserPropertiesService userPropsService;
+	private final RegistrationService registrationService;
+	private final ModelMapper mapper;
+	private final Validator validator;
+	private final EmailService emailService;
+	private final UserUtil userUtil;
 	
 
 	@Value("${project.api.domainUrl}")
@@ -166,11 +159,16 @@ public class UserService {
 	}
 
 	public void delete(Long id) {
-		userRepo.findById(id).orElseThrow(() -> new UserNotFoundException(id));
-		userRepo.deleteById(id);
+		User user = userRepo.findById(id).orElseThrow(() -> new UserNotFoundException(id));
+		userRepo.delete(user);
 	}
 
-	public void deleteByIdOrEmail(Map<String, String> fields) {
+	public void delete(String email) {
+		User user = userRepo.findByEmail(email).orElseThrow(() -> new UserNotFoundException(email));
+		userRepo.delete(user);
+	}
+
+	public void delete(Map<String, String> fields) {
 		User user = userUtil.getUserObjectByIdOrEmailFromFields(fields);
 		userRepo.delete(user);
 	}
@@ -202,8 +200,6 @@ public class UserService {
 		updatePassword(user, newPassword);
 	}
 
-
-
 	private void updatePassword(User user, String password){
 		user.setPassword(passwordEncoder.encode(password));
 		userRepo.save(user);
@@ -229,7 +225,7 @@ public class UserService {
 
 		String resetPasswordUrl = apiDomainUrl + "/api/user/resetPassword?token=" + token;
 
-		Email passwordEmail = new Email();
+		EmailDTO passwordEmail = new EmailDTO();
 		passwordEmail.setAddressTo(user.getEmail());
 		passwordEmail.setSubject("Reset User Password Confirmation");
 		passwordEmail.setBody("Click on this link to reset your password:<br>"
@@ -238,7 +234,7 @@ public class UserService {
 				+ "The link expires in 60 minutes."
 		);
 
-		emailService.sendEmail(passwordEmail);
+		emailService.sendEmailToQueue(passwordEmail);
 	}
 
 	public void resetPassword(String token) {
@@ -265,12 +261,12 @@ public class UserService {
 		userProps.setResetPasswordToken(null);
 		userPropsService.saveUserProperties(userProps);
 
-		Email passwordEmail = new Email();
+		EmailDTO passwordEmail = new EmailDTO();
 		passwordEmail.setAddressTo(user.getEmail());
 		passwordEmail.setSubject("Password Reset");
 		passwordEmail.setBody("Your password has been reset.<br>The new password is: " + randomPassword);
 
-		emailService.sendEmail(passwordEmail);
+		emailService.sendEmailToQueue(passwordEmail);
 	}
 
 	public String generateCommonLangPassword() {
