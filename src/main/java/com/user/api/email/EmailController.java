@@ -45,5 +45,11 @@ public class EmailController {
 		return new ResponseEntity<>(emailSent, HttpStatus.CREATED);
 	}
 
+	@PostMapping("/sendToQueue")
+	public ResponseEntity<String> sendEmailToQueue(@RequestBody @Valid EmailDTO emailDTO) {
+		emailService.sendEmailToQueue(emailDTO);
+		return ResponseEntity.ok().build();
+	}
+
 
 }

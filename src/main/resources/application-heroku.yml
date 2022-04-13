@@ -1,6 +1,8 @@
 
 project:
   api:
+    # domain which will be appended in the email links URLs, without / at the end
+    # final URL example: http://localhost:8080/api/registration/activateAccount
     domainUrl: "https://user-api-oldbot.herokuapp.com"
 
 server:
@@ -8,12 +10,15 @@ server:
 
 
 spring:
-  jpa:hibernate:ddl-auto: create
+  # On "development" profile, use "update" to create the tables
+  jpa:hibernate:ddl-auto: update
 
+  # Mail service configuration
   mail:
     sender_email: "support@oldbot.com.br"
     sender_name: "No Reply OldBot"
     host: smtp.titan.email
+    # recommended to use environment variables for sensitive information
     username: ${SMTP_USERNAME}
     password: ${SMTP_PASSWORD}
     protocol: smtp
@@ -24,9 +29,10 @@ spring:
           auth: true
           starttls:enable: true
 
-  security:
-    token:
-      # Token unique password for sign, generate on https://guidgenerator.com/
-      password: "d2eb2c8d-bafe-4e81-8c1a-ac0e58c6c652"
-      # Time in minutes for the token to be expired after generated
-      expiration_minutes: 100000
+
+  rabbitmq:
+    addresses: ${RABBITMQ_URL}
+    username: ${RABBITMQ_USERNAME}
+    password: ${RABBITMQ_PASSWORD}
+    queue: "EMAIL"
+    exchange: "amq.direct"

@@ -1,4 +1,4 @@
-package com.user.api.util;
+package com.user.api.user.util;
 
 import com.user.api.exceptions.InvalidUserDataException;
 import com.user.api.exceptions.UserNotFoundException;
