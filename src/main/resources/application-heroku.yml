@@ -15,10 +15,12 @@ spring:
 
   # Mail service configuration
   mail:
-    sender_email: "support@oldbot.com.br"
-    sender_name: "No Reply OldBot"
-    host: smtp.titan.email
-    # recommended to use environment variables for sensitive information
+    # Use your environment variables
+    # Example: "No Reply <YOUR_SERVICE>"
+    sender_name: ${SMTP_SENDER_EMAIL}
+    # Example: "support@yourservice.com"
+    sender_email: ${SMTP_SENDER_NAME}
+    host: ${SMTP_HOST}
     username: ${SMTP_USERNAME}
     password: ${SMTP_PASSWORD}
     protocol: smtp
@@ -31,8 +33,10 @@ spring:
 
 
   rabbitmq:
+    # Use your environment variables
     addresses: ${RABBITMQ_URL}
     username: ${RABBITMQ_USERNAME}
     password: ${RABBITMQ_PASSWORD}
+    # Name of the queue
     queue: "EMAIL"
     exchange: "amq.direct"
