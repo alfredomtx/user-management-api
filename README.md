@@ -38,7 +38,7 @@ Currently, there are only two main roles used in the project, they are:
 
 
 ## Email Service
-The email service uses Java Mail to send emails. It's needed to set up the SMTP settings in your
+The email service uses Java Mail to send emails. The SMTP settings must be set in your
 `application.properties` file.
 
 ### Asynchronous email sending with RabbitMQ
@@ -48,6 +48,9 @@ using messaging queues.
 
 You can create your own instance of RabbitMQ using docker locally or, as I prefer, a cloud solution, and I recommend
 https://www.cloudamqp.com. It has free plans for hobby/development, and it's very easy to use.
+
+- `RabbitMQService.java` is the Publisher which send the messages to the queue.
+- `EmailConsumer.java` is the Subscriber which receive the queue messages and call `EmailService` to send the emails.
 
 
 ## Database
