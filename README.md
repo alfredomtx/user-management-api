@@ -1,10 +1,10 @@
 
 # ☕ What is this project?
 > Most applications need some type of user management API, a service to add new users, authenticate login, 
-manage passwords, recover and reset, etc. So I'm building my own 🙂
+manage passwords, recover and reset, etc. So I'm **building my own** 🙂
 
-This project is a User Management REST API built with `Spring Boot 2.6.4` and `Java 11`. I intend to use it in my own projects, and it's a way for me to practice 
-what I study and learn about Java/Spring.
+This project is a User Management REST API built with `Spring Boot 2.6.4` and `Java 11`. I intend to use it in my own
+projects, and it's a way for me to practice what I study and learn about Java/Spring.
 
 Currently, I'm using this API in my personal project [OldBot](https://oldbot.com.br).
 
@@ -47,8 +47,9 @@ Since sending email is something that can take a few seconds and does not make m
 , it's recommended to send emails asynchronously, to achieve that, one of the best solutions is RabbitMQ
 using messaging queues.
 
-You can create your own instance of [RabbitMQ](https://www.rabbitmq.com/) using docker locally or, as I prefer, a cloud solution, and I recommend
-[CloudAMQP](https://www.cloudamqp.com). It has free plans for hobby/development, and it's very easy to use.
+You can create your own instance of [RabbitMQ](https://www.rabbitmq.com/) using docker locally or, as I prefer, a
+ cloud solution, and I recommend [CloudAMQP](https://www.cloudamqp.com). It has free plans for hobby/development
+, and it's very easy to use.
 
 - `RabbitMQService.java` is the Publisher which sends the messages to the queue.
 - `EmailConsumer.java` is the Subscriber which receives the queue messages and call **EmailService** to send the emails.
@@ -59,7 +60,8 @@ You can create your own instance of [RabbitMQ](https://www.rabbitmq.com/) using 
 
 The project has 2 configured databases by default, `MySQL` and `PostgreSQL`.
 
-MySQL I use in my local machine, and Postgre, since my application is deployed in [Heroku](https://heroku.com/), it's used there.
+MySQL I use in my local machine, and Postgre, since my application is deployed in [Heroku](https://heroku.com/)
+, it's used there.
 
 </details>
 
@@ -74,12 +76,14 @@ Another important pending work to do is implement **integration** tests, which I
 
 ## 🚀 Work to do, improvements, intentions
 There are still many things I have in mind for this project, things to implement, things to learn how to do, things 
-to finish, etc. **Here is a list** of some of them separated in topics, I will be updating this list as I finish any item 
-or think of new things to add.
+to finish, etc. **Here is a list** of some of them separated in topics, I will be updating this list as 
+I finish any item or think of new things to add.
 
-<details><summary><b>General project</b></summary>
+<details><summary><b>General stuff</b></summary>
 
 *️⃣ Implement integration tests.
+
+*️⃣ Implement API call limitations with Bucket4J.
 </details>
 
 
@@ -98,7 +102,8 @@ or think of new things to add.
 *️⃣ Create a microservice for the Email service(detach from the User service).
 
 *️⃣ Create a microservice for the Consumer/Subscriber of the Email queue.
-It's simple to do but for now I'm keeping in the same application to save costs with new Dynos 🙂 (since my application has low traffic).
+It's simple to do but for now I'm keeping in the same application to save costs with new Dynos 🙂 (since my application
+ has low traffic).
 
 *️⃣ Implement unit tests.
 </details>
