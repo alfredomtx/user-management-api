@@ -22,37 +22,37 @@ public class AuthFailureHandler implements AuthenticationEntryPoint {
 		response.setContentType("application/json");
 		response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
 
-		final String expired = (String) request.getAttribute("expired");
+		String expired = (String) request.getAttribute("expired");
 		if (expired != null) {
 			setResponseError(request, response, HttpStatus.UNAUTHORIZED, expired);
 			return;
 		}
 
-		final String badCredentials = (String) request.getAttribute("badCredentials");
+		String badCredentials = (String) request.getAttribute("badCredentials");
 		if (badCredentials != null) {
 			setResponseError(request, response, HttpStatus.UNAUTHORIZED, badCredentials);
 			return;
 		}
 
-		final String userDisabled = (String) request.getAttribute("userDisabled");
+		String userDisabled = (String) request.getAttribute("userDisabled");
 		if (userDisabled != null) {
 			setResponseError(request, response, HttpStatus.UNAUTHORIZED, userDisabled);
 			return;
 		}
 
-		final String noAuthorizationHeader = (String) request.getAttribute("noAuthorizationHeader");
+		String noAuthorizationHeader = (String) request.getAttribute("noAuthorizationHeader");
 		if (noAuthorizationHeader != null) {
 			setResponseError(request, response, HttpStatus.BAD_REQUEST, noAuthorizationHeader);
 			return;
 		}
 
-		final String noBearerTokenHeader = (String) request.getAttribute("noBearerTokenHeader");
+		String noBearerTokenHeader = (String) request.getAttribute("noBearerTokenHeader");
 		if (noBearerTokenHeader != null) {
 			setResponseError(request, response, HttpStatus.BAD_REQUEST, noBearerTokenHeader);
 			return;
 		}
 
-		final String otherException = (String) request.getAttribute("otherException");
+		String otherException = (String) request.getAttribute("otherException");
 		if (otherException != null) {
 			setResponseError(request, response, HttpStatus.FORBIDDEN, otherException);
 			return;

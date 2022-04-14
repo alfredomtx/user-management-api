@@ -27,6 +27,15 @@ It uses Auth0 for Authorization, generating Json Web Tokens to be used in every 
 All requests received are intercepted by Spring Security and validations are performed to check whether
 the `access token` provided in the request is valid.
 
+The token configuration such as expiration time, are set in the `JWTAuthenticationFilter.java` file.
+
+### Spring Security and Roles
+All the access for the API and it's routes are set in the `SecurityConfiguration.java` file.  
+
+Currently, there are only two main roles used in the project, they are:
+- `USER`: simple user, allowed to access only login and registration related routes.
+- `ADMIN`: has access and is allowed for everything.
+
 
 ## Email Service
 The email service uses Java Mail to send emails. It's needed to set up the SMTP settings in your
@@ -56,7 +65,7 @@ Another important pending work to do is implement integration tests, which I sti
 
 ## Work to do, improvements, intentions
 There are still many things I have in mind for this project, things to implement, things to learn how to do, things 
-to finish, etc. Here is a list of some of them separated in topics, I will be updating this list as I finish any item 
+to finish, etc. **Here is a list** of some of them separated in topics, I will be updating this list as I finish any item 
 or think of new things to add.
 
 ### General project
