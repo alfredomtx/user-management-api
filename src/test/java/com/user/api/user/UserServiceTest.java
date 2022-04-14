@@ -4,7 +4,7 @@ import com.user.api.email.EmailService;
 import com.user.api.exceptions.InvalidUserDataException;
 import com.user.api.exceptions.UserAlreadyExistsException;
 import com.user.api.exceptions.UserNotFoundException;
-import com.user.api.resgistration.RegistrationService;
+import com.user.api.registration.RegistrationService;
 import com.user.api.user.model.User;
 import com.user.api.user.model.UserRequestDTO;
 import com.user.api.user.model.UserResponseDTO;
@@ -28,6 +28,17 @@ import java.util.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
+
+
+/*
+ * Test functions naming convention being used:
+ * should[Action][What]_When_[WithSomething(optional)]_[functionName]
+ *
+ * @Examples:
+ * - shouldReturnUser_When_getById
+ * - shouldReturnUser_When_UsingEmail_getByIdOrEmail
+ * - shouldThrowUserNotFoundException_When_getById
+ * */
 
 class UserServiceTest {
 
@@ -199,7 +210,7 @@ class UserServiceTest {
 
 		when(userUtil.getUserObjectByIdOrEmailFromFields(anyMap())).thenThrow(new InvalidUserDataException(exceptionExpectedMessage));
 		try {
-			service.getByIdOrEmail(new HashMap<String, String>());
+			service.getByIdOrEmail(new HashMap<>());
 		} catch (Exception e) {
 			assertEquals(InvalidUserDataException.class, e.getClass());
 			assertEquals(exceptionExpectedMessage, e.getMessage());
@@ -232,70 +243,83 @@ class UserServiceTest {
 		failedExceptionNotThrown();
 	}
 
-	/*@Test
-	void shouldReturnUser_WhenUpdateUser_WithSuccess() {
-		Map<String, String> userUpdate = getUserRequestObject();
-		String newEmail = "testupdate@test.com";
-		userUpdate.put("email", newEmail);
-
-		when(repository.findById(anyLong())).thenReturn(Optional.of(user));
+	@Test
+	void shouldReturnUser_When_update() {
+		when(userUtil.getUserObjectByIdOrEmailFromFields(anyMap())).thenReturn(user);
 		when(repository.save(any())).thenReturn(user);
 
-		UserResponseDTO response = service.update(ID, userUpdate);
-
-		assertNotNull(response);
-		assertEquals(UserResponseDTO.class, response.getClass());
-		assertEquals(ID, response.getId());
-		// email should be different from default
-		assertEquals(newEmail, response.getEmail());
-		assertEquals(FIRST_NAME, response.getFirstName());
-		assertEquals(LAST_NAME, response.getLastName());
-	}*/
-
-	/*@Test
-	void shouldThrowUserAlreadyExistsException_WhenUpdateUser_WithEmailAlreadyInUse() {
-		Map<String, String> userRequest = getUserRequestObject();
-		String newEmail = "new_email@test.com";
-		userRequest.put("email", newEmail);
-
-		// creating another user with the same e-mail the current user want to update
-		User anotherExistingUser = mapper.map(userRequest, User.class);
-		anotherExistingUser.setEmail(newEmail);
-		anotherExistingUser.setId(ID + 1);
-
-		// new email must be different of the current one
-		assertNotEquals(userRequest.get("email"), user.getEmail());
-		// ensure the new email is the same email of another user
-		assertEquals(userRequest.get("email"), anotherExistingUser.getEmail());
-
-		when(repository.findByEmail(EMAIL)).thenReturn(Optional.of(user));
-		when(repository.findByEmail(newEmail)).thenReturn(Optional.of(anotherExistingUser));
-		when(repository.findById(anyLong())).thenReturn(Optional.of(user));
-
-		String exceptionExpectedMessage = "User with e-mail [" + newEmail + "] already exists.";
-		try {
-			service.update(ID, userRequest);
-		} catch (Exception e) {
-			assertEquals(UserAlreadyExistsException.class, e.getClass());
-			assertEquals(exceptionExpectedMessage, e.getMessage());
-			return;
-		}
-		failedExceptionNotThrown();
-	}*/
-
-	@Test
-	void shouldReturnVoid_WhenDeleteUser_WithSuccess() {
-		when(repository.findById(anyLong())).thenReturn(Optional.of(user));
-		doNothing().when(repository).deleteById(anyLong());
-		service.delete(ID);
-		verify(repository, times(1)).deleteById(anyLong());
+		UserResponseDTO response = service.update(getUserRequestObject());
+		assertUserDtoResponse(response);
 	}
 
 	@Test
-	void shouldThrowUserNotFoundException_WhenDeleteById() {
+	void shouldThrowUserNotFoundException_When_update() {
+		when(userUtil.getUserObjectByIdOrEmailFromFields(anyMap())).thenThrow(new UserNotFoundException(EMAIL));
+
+		try {
+			service.update(getUserRequestObject());
+		} catch (Exception e) {
+			assertEquals(UserNotFoundException.class, e.getClass());
+			assertEquals(USER_NOT_FOUND_BY_EMAIL, e.getMessage());
+			return;
+		}
+		failedExceptionNotThrown();
+	}
+
+	// TODO implement test for used with invalid fields
+	// currently it's not working probably because of BindingResult class being mocked
+	/*
+	@Test
+	void shouldThrowObjectFieldsValidationException_When_update() {
+		when(userUtil.getUserObjectByIdOrEmailFromFields(anyMap())).thenReturn(user);
+		when(repository.save(any())).thenReturn(user);
+
+		Map<String, String> userRequest = new HashMap<>();
+		userRequest.put("password", null);
+
+		try {
+			service.update(userRequest);
+		} catch (Exception e) {
+			assertEquals(ObjectFieldsValidationException.class, e.getClass());
+			// assertEquals(USER_NOT_FOUND_BY_EMAIL, e.getMessage());
+			return;
+		}
+		failedExceptionNotThrown();
+	}
+	*/
+
+	@Test
+	void shouldReturnVoid_When_UsingId_delete() {
+		when(repository.findById(anyLong())).thenReturn(Optional.of(user));
+		doNothing().when(repository).delete(any());
+
+		service.delete(ID);
+		verify(repository, times(1)).delete(any());
+	}
+
+	@Test
+	void shouldReturnVoid_When_UsingEmail_delete() {
+		when(repository.findByEmail(anyString())).thenReturn(Optional.of(user));
+		doNothing().when(repository).delete(any());
+
+		service.delete(EMAIL);
+		verify(repository, times(1)).delete(any());
+	}
+
+	@Test
+	void shouldReturnVoid_When_UsingEmailOrId_delete() {
+		when(userUtil.getUserObjectByIdOrEmailFromFields(anyMap())).thenReturn(user);
+		doNothing().when(repository).delete(any());
+
+		service.delete(getUserRequestObject());
+		verify(repository, times(1)).delete(any());
+	}
+
+	@Test
+	void shouldThrowUserNotFoundException_When_UsingId_delete() {
 		when(repository.findById(anyLong())).thenThrow(new UserNotFoundException(ID));
 		try {
-			service.getById(ID);
+			service.delete(ID);
 		} catch (Exception e) {
 			assertEquals(UserNotFoundException.class, e.getClass());
 			assertEquals(USER_NOT_FOUND_BY_ID, e.getMessage());
@@ -304,96 +328,195 @@ class UserServiceTest {
 		failedExceptionNotThrown();
 	}
 
-	/*@Test
-	void shouldReturnVoid_WhenUpdatePassword_WithSuccess() {
-		when(repository.findById(anyLong())).thenReturn(Optional.of(user));
+	@Test
+	void shouldThrowUserNotFoundException_When_UsingEmail_delete() {
+		when(repository.findByEmail(anyString())).thenThrow(new UserNotFoundException(EMAIL));
+		try {
+			service.delete(EMAIL);
+		} catch (Exception e) {
+			assertEquals(UserNotFoundException.class, e.getClass());
+			assertEquals(USER_NOT_FOUND_BY_EMAIL, e.getMessage());
+			return;
+		}
+		failedExceptionNotThrown();
+	}
+
+	@Test
+	void shouldThrowUserNotFoundException_When_UsingEmailOrId_delete() {
+		when(userUtil.getUserObjectByIdOrEmailFromFields(anyMap())).thenThrow(new UserNotFoundException(EMAIL));
+		try {
+			service.delete(getUserRequestObject());
+		} catch (Exception e) {
+			assertEquals(UserNotFoundException.class, e.getClass());
+			assertEquals(USER_NOT_FOUND_BY_EMAIL, e.getMessage());
+			return;
+		}
+		failedExceptionNotThrown();
+	}
+
+	@Test
+	void shouldReturnVoid_When_changeCurrentPassword() {
+		when(userUtil.getUserObjectByIdOrEmailFromFields(anyMap())).thenReturn(user);
 		when(repository.save(any())).thenReturn(user);
 
-		service.changePassword(ID, "123test");
-		verify(repository, times(1)).save(any());
-	}*/
+		Map<String, String> fields = new HashMap<>();
+		fields.put("email", EMAIL);
+		String newPassword = "12345";
+		fields.put("newPassword", newPassword);
+		fields.put("newPasswordConfirmation", newPassword);
+		fields.put("currentPassword", PASSWORD);
 
-	/*@Test
-	void shouldThrowInvalidUserDataException_WhenUpdatePassword_WithPasswordBlank() {
-		String newPassword = "";
-		user.setPassword(newPassword);
+		service.changeCurrentPassword(fields);
+		verify(repository, times(1)).save(any());
+	}
+
+	@Test
+	void shouldThrowInvalidUserDataException_When_WithCurrentPasswordNotSet_changeCurrentPassword() {
+		String exceptionExpectedMessage = "[currentPassword] field not set.";
+		try {
+			service.changeCurrentPassword(new HashMap<>());
+		} catch (Exception e) {
+			assertEquals(InvalidUserDataException.class, e.getClass());
+			assertEquals(exceptionExpectedMessage, e.getMessage());
+			return;
+		}
+		failedExceptionNotThrown();
+	}
+
+	@Test
+	void shouldThrowInvalidUserDataException_When_WithNewPasswordNotSet_changeCurrentPassword() {
+		Map<String, String> fields = new HashMap<>();
+		fields.put("currentPassword", "");
+
+		String exceptionExpectedMessage = "[newPassword] field not set.";
+		try {
+			service.changeCurrentPassword(fields);
+		} catch (Exception e) {
+			assertEquals(InvalidUserDataException.class, e.getClass());
+			assertEquals(exceptionExpectedMessage, e.getMessage());
+			return;
+		}
+		failedExceptionNotThrown();
+	}
+
+	@Test
+	void shouldThrowInvalidUserDataException_When_WithNewPasswordConfirmationNotSet_changeCurrentPassword() {
+		Map<String, String> fields = new HashMap<>();
+		fields.put("currentPassword", "");
+		fields.put("newPassword", "");
+
+		String exceptionExpectedMessage = "[newPasswordConfirmation] field not set.";
+		try {
+			service.changeCurrentPassword(fields);
+		} catch (Exception e) {
+			assertEquals(InvalidUserDataException.class, e.getClass());
+			assertEquals(exceptionExpectedMessage, e.getMessage());
+			return;
+		}
+		failedExceptionNotThrown();
+	}
+
+	@Test
+	void shouldThrowInvalidUserDataException_When_WithNewPasswordConfirmationNotMatch_changeCurrentPassword() {
+		Map<String, String> fields = new HashMap<>();
+		fields.put("currentPassword", "");
+		fields.put("newPassword", "123");
+		fields.put("newPasswordConfirmation", "321");
+
+		String exceptionExpectedMessage = "new password confirmation does not match.";
+		try {
+			service.changeCurrentPassword(fields);
+		} catch (Exception e) {
+			assertEquals(InvalidUserDataException.class, e.getClass());
+			assertEquals(exceptionExpectedMessage, e.getMessage());
+			return;
+		}
+		failedExceptionNotThrown();
+	}
+
+	@Test
+	void shouldThrowInvalidUserDataException_When_WithPasswordBlank_changeCurrentPassword() {
+		Map<String, String> fields = new HashMap<>();
+		fields.put("currentPassword", "");
+		fields.put("newPassword", " ");
+		fields.put("newPasswordConfirmation", " ");
 
 		String exceptionExpectedMessage = "Password is blank.";
 		try {
-			service.changePassword(ID, newPassword);
+			service.changeCurrentPassword(fields);
 		} catch (Exception e) {
 			assertEquals(InvalidUserDataException.class, e.getClass());
 			assertEquals(exceptionExpectedMessage, e.getMessage());
 			return;
 		}
 		failedExceptionNotThrown();
-	}*/
+	}
 
-	/*@Test
-	void shouldThrowInvalidUserDataException_WhenUpdatePassword_WithPasswordTooShort() {
-		String newPassword = "a";
-		user.setPassword(newPassword);
-
-		assertEquals(newPassword.length(), 1);
+	@Test
+	void shouldThrowInvalidUserDataException_When_WithPasswordTooShort_changeCurrentPassword() {
+		Map<String, String> fields = new HashMap<>();
+		fields.put("currentPassword", "");
+		fields.put("newPassword", "123");
+		fields.put("newPasswordConfirmation", "123");
 
 		String exceptionExpectedMessage = "Password is too short, less than 4 characters.";
 		try {
-			service.changePassword(ID, newPassword);
+			service.changeCurrentPassword(fields);
 		} catch (Exception e) {
 			assertEquals(InvalidUserDataException.class, e.getClass());
 			assertEquals(exceptionExpectedMessage, e.getMessage());
 			return;
 		}
 		failedExceptionNotThrown();
-	}*/
+	}
 
-	/*@Test
-	void shouldThrowInvalidUserDataException_WhenUpdatePassword_WithPasswordTooLong() {
+
+	@Test
+	void shouldThrowInvalidUserDataException_When_WithPasswordTooLong_changeCurrentPassword() {
 		String newPassword = "StringWithMoreThan255Characters_____________________________________________" +
 				"_________________________________________________________________________________________" +
 				"___________________________________________________________________________________________";
-		user.setPassword(newPassword);
+		Map<String, String> fields = new HashMap<>();
+		fields.put("currentPassword", "");
+		fields.put("newPassword", newPassword);
+		fields.put("newPasswordConfirmation", newPassword);
+
 		assertEquals(newPassword.length(), 256);
 
-		String exceptionExpectedMessage = "Password is too big, more than 255 characters.";
+		String exceptionExpectedMessage = "Password is too long, more than 255 characters.";
 		try {
-			service.changePassword(ID, newPassword);
+			service.changeCurrentPassword(fields);
 		} catch (Exception e) {
 			assertEquals(InvalidUserDataException.class, e.getClass());
 			assertEquals(exceptionExpectedMessage, e.getMessage());
 			return;
 		}
 		failedExceptionNotThrown();
-	}*/
-
-	/*
-	@Test
-	void shouldReturnTrue_WhenValidateLogin() {
-		when(repository.findByEmail(anyString())).thenReturn(Optional.of(user));
-		boolean response = service.validateLogin(user);
-		assertTrue(response);
 	}
 
 	@Test
-	void shouldReturnFalse_WhenValidateLogin_WithWrongPassword() {
-		User userWithWrongPass = new User();
-		userWithWrongPass.setEmail(EMAIL);
-		userWithWrongPass.setPassword("abc");
+	void shouldThrowInvalidUserDataException_When_WithWrongCurrentPassword_changeCurrentPassword() {
+		when(userUtil.getUserObjectByIdOrEmailFromFields(anyMap())).thenReturn(user);
 
-		assertNotEquals(userWithWrongPass.getPassword(), user.getPassword());
+		String newPassword = "1234";
+		Map<String, String> fields = new HashMap<>();
+		fields.put("email", EMAIL);
+		fields.put("currentPassword", newPassword);
+		fields.put("newPassword", newPassword);
+		fields.put("newPasswordConfirmation", newPassword);
 
-		when(repository.findByEmail(anyString())).thenReturn(Optional.of(user));
-		boolean response = service.validateLogin(userWithWrongPass);
-		assertFalse(response);
+		assertNotEquals(user.getPassword(), fields.get("currentPassword"));
+
+		String exceptionExpectedMessage = "Wrong current password.";
+		try {
+			service.changeCurrentPassword(fields);
+		} catch (Exception e) {
+			assertEquals(InvalidUserDataException.class, e.getClass());
+			assertEquals(exceptionExpectedMessage, e.getMessage());
+			return;
+		}
+		failedExceptionNotThrown();
 	}
-
-	@Test
-	void shouldReturnFalse_WhenValidateLogin_WhenUserDoesNotExist() {
-		when(repository.findByEmail(anyString())).thenReturn(Optional.empty());
-		boolean response = service.validateLogin(user);
-		assertFalse(response);
-	}
-	*/
 
 	private void assertUserDtoResponse(UserResponseDTO responseUser) {
 		assertNotNull(responseUser);
@@ -402,10 +525,11 @@ class UserServiceTest {
 		assertEquals(EMAIL, responseUser.getEmail());
 		assertEquals(FIRST_NAME, responseUser.getFirstName());
 		assertEquals(LAST_NAME, responseUser.getLastName());
+		assertFalse(responseUser.isActive());
 	}
 
 	private void failedExceptionNotThrown() {
-		fail("Should reach this line, exception was not thrown");
+		fail("Should reach this line, exception was not thrown.");
 	}
 
 	private Map<String, String> getUserRequestObject() {

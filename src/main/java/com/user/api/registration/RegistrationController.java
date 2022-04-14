@@ -1,4 +1,4 @@
-package com.user.api.resgistration;
+package com.user.api.registration;
 
 
 import org.springframework.beans.factory.annotation.Autowired;

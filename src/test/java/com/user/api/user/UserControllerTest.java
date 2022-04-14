@@ -214,7 +214,7 @@ public class UserControllerTest {
 				.andExpect(status().isOk());
 	}
 
-	// TODO make this working, currently it's failing when throwing the exception
+	// TODO make this work, currently it's failing when throwing the ObjectFieldsValidationException
 	/*@Test
 	void shouldThrowUserFieldsValidationException_When_UsingId_update() throws Exception {
 		List<FieldError> errors = new ArrayList<>();

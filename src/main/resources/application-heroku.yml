@@ -1,12 +1,9 @@
 
 project:
   api:
-    # domain which will be appended in the email links URLs, without / at the end
-    # final URL example: http://localhost:8080/api/registration/activateAccount
+    # Domain which will be appended in the email links URLs, without / at the end
+    # Final URL example: http://localhost:8080/api/registration/activateAccount
     domainUrl: "https://user-api-oldbot.herokuapp.com"
-
-server:
-  port: 8080
 
 
 spring:
@@ -18,7 +15,7 @@ spring:
     # Use your environment variables
     # Example: "No Reply <YOUR_SERVICE>"
     sender_name: ${SMTP_SENDER_NAME}
-    # Example: "support@yourservice.com"
+    # Example: "noreply@yourservice.com"
     sender_email: ${SMTP_SENDER_EMAIL}
     host: ${SMTP_HOST}
     username: ${SMTP_USERNAME}

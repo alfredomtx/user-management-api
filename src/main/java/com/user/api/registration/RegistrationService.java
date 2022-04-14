@@ -1,4 +1,4 @@
-package com.user.api.resgistration;
+package com.user.api.registration;
 
 import com.auth0.jwt.exceptions.TokenExpiredException;
 import com.auth0.jwt.interfaces.DecodedJWT;

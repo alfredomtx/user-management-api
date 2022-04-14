@@ -5,7 +5,7 @@ import com.auth0.jwt.interfaces.DecodedJWT;
 import com.user.api.email.EmailService;
 import com.user.api.email.model.EmailDTO;
 import com.user.api.exceptions.*;
-import com.user.api.resgistration.RegistrationService;
+import com.user.api.registration.RegistrationService;
 import com.user.api.security.util.JWTUtil;
 import com.user.api.user.enums.Role;
 import com.user.api.user.model.User;
@@ -53,8 +53,7 @@ public class UserService {
 
 	public Page<UserResponseDTO> getAll(Pageable pageable) {
 		Page<User> users = userRepo.findAll(pageable);
-		Page<UserResponseDTO> usersList = users.map(user -> mapper.map(user, UserResponseDTO.class));
-		return usersList;
+		return users.map(user -> mapper.map(user, UserResponseDTO.class));
 	}
 
 	public UserResponseDTO getById(Long id) {
@@ -73,41 +72,30 @@ public class UserService {
 	}
 
 	public UserResponseDTO add(UserRequestDTO user) {
-		// validate if user already exists by email
-		Optional<User> userExists = userRepo.findByEmail(user.getEmail());
-		if (userExists.isPresent())
-			throw new UserAlreadyExistsException(userExists.get().getEmail());
+		validateUserAlreadyExistsByEmail(user);
 
-		// create new User object to add on database to avoid Web Parameter Tampering
-		User userAdd = mapper.map(user, User.class);
-
-		userAdd.setPassword(passwordEncoder.encode(userAdd.getPassword()));
-		userAdd.setActive(false);
-		userAdd.setRole(Role.ROLE_USER);
-
-		UserProperties userProps = new UserProperties();
-		userProps.setUser(userAdd);
-		userAdd.setUserProperties(userProps);
-		userProps.setUser(userAdd);
-
+		User userAdd = createUserAddObject(user, false);
 		User userSaved = userRepo.save(userAdd);
 
 		registrationService.sendActivationEmail(userSaved);
-
 		return mapper.map(userSaved, UserResponseDTO.class);
 	}
 
 	public UserResponseDTO addUserAlreadyActive(UserRequestDTO user) {
-		// validate if user already exists by email
-		Optional<User> userExists = userRepo.findByEmail(user.getEmail());
-		if (userExists.isPresent())
-			throw new UserAlreadyExistsException(userExists.get().getEmail());
+		validateUserAlreadyExistsByEmail(user);
 
+		User userAdd = createUserAddObject(user, true);
+		User userSaved = userRepo.save(userAdd);
+
+		return mapper.map(userSaved, UserResponseDTO.class);
+	}
+
+	private User createUserAddObject(UserRequestDTO user, boolean active){
 		// create new User object to add on database to avoid Web Parameter Tampering
 		User userAdd = mapper.map(user, User.class);
 
 		userAdd.setPassword(passwordEncoder.encode(userAdd.getPassword()));
-		userAdd.setActive(true);
+		userAdd.setActive(active);
 		userAdd.setRole(Role.ROLE_USER);
 
 		UserProperties userProps = new UserProperties();
@@ -115,37 +103,47 @@ public class UserService {
 		userAdd.setUserProperties(userProps);
 		userProps.setUser(userAdd);
 
-		User userSaved = userRepo.save(userAdd);
+		return userAdd;
+	}
 
-		return mapper.map(userSaved, UserResponseDTO.class);
+	private Optional<User> validateUserAlreadyExistsByEmail(UserRequestDTO user) throws UserAlreadyExistsException {
+		Optional<User> userExists = userRepo.findByEmail(user.getEmail());
+		if (userExists.isPresent())
+			throw new UserAlreadyExistsException(userExists.get().getEmail());
+		return userExists;
 	}
 
 	public UserResponseDTO update(Map<String, String> fields) {
 		User user = userUtil.getUserObjectByIdOrEmailFromFields(fields);
-
 		User userRequest = mapper.map(fields, User.class);
 
 		validateUserData(userRequest);
 		/*
-		 CHANGE EMAIL PROCESS:
-		 if the "email" of userRequest is different of the current user email in db
-		 check if there is another user with the new e-mail before updating
-		*/
-		if (!user.getEmail().equals(userRequest.getEmail())) {
-			Optional<User> anotherUserExists = userRepo.findByEmail(userRequest.getEmail());
-			if (anotherUserExists.isPresent())
-				throw new UserAlreadyExistsException(anotherUserExists.get().getEmail());
-		}
-		/*
 		 * Set each field of the "user" object to save manually to avoid web tampering
 		 * And also to trigger the "creationDate" field in User object
 		 * */
-		//user.setEmail(userRequest.getEmail()); // make a separated process to update email in the future(with confirmation, etc)
 		user.setFirstName(userRequest.getFirstName());
 		user.setLastName(userRequest.getLastName());
 
 		return mapper.map(userRepo.save(user), UserResponseDTO.class);
 	}
+
+	// TODO implement change email process
+	/*
+	 CHANGE EMAIL PROCESS:
+	 if the "email" of userRequest is different of the current user email in db
+	 check if there is another user with the new e-mail before updating
+	*/
+	/*
+	public void changeUserEmail(){
+
+		if (!user.getEmail().equals(userRequest.getEmail())) {
+			Optional<User> anotherUserExists = userRepo.findByEmail(userRequest.getEmail());
+			if (anotherUserExists.isPresent())
+				throw new UserAlreadyExistsException(anotherUserExists.get().getEmail());
+		}
+
+	}*/
 
 	@SneakyThrows
 	private void validateUserData(User user)  {
@@ -211,7 +209,7 @@ public class UserService {
 		if (password.length() < 4)
 			throw new InvalidUserDataException("Password is too short, less than 4 characters.");
 		if (password.length() > 255)
-			throw new InvalidUserDataException("Password is too big, more than 255 characters.");
+			throw new InvalidUserDataException("Password is too long, more than 255 characters.");
 	}
 
 	public void requestResetPasswordEmail(Map<String, String> fields) {

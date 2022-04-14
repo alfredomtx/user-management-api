@@ -1,53 +1,25 @@
 package com.user.api.rabbitmq;
 
-import org.springframework.amqp.core.AmqpAdmin;
-import org.springframework.amqp.core.Binding;
-import org.springframework.amqp.core.DirectExchange;
-import org.springframework.amqp.core.Queue;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
+import org.springframework.amqp.core.AcknowledgeMode;
+import org.springframework.amqp.rabbit.config.DirectRabbitListenerContainerFactory;
+import org.springframework.amqp.rabbit.connection.ConnectionFactory;
+import org.springframework.amqp.rabbit.listener.DirectMessageListenerContainer;
+import org.springframework.amqp.rabbit.listener.RabbitListenerContainerFactory;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 
-import javax.annotation.PostConstruct;
-
-@Component
+@Configuration
 public class RabbitMQConfig {
 
-	@Value("${spring.rabbitmq.queue}")
-	private String queue;
-	@Value("${spring.rabbitmq.exchange}")
-	private String exchange;
+	@Bean
+	public RabbitListenerContainerFactory<DirectMessageListenerContainer> rabbitListenerContainerFactory(ConnectionFactory connectionFactory) {
+		DirectRabbitListenerContainerFactory factory = new DirectRabbitListenerContainerFactory();
 
-	private AmqpAdmin amqpAdmin;
+		factory.setConnectionFactory(connectionFactory);
+		factory.setAcknowledgeMode(AcknowledgeMode.AUTO);
 
-	private RabbitMQConfig(AmqpAdmin amqpAdmin){
-		this.amqpAdmin = amqpAdmin;
+		factory.setErrorHandler(new RabbitMQErrorHandler());
+		return factory;
 	}
-
-	private Queue queue(String queueName){
-		return new Queue(queueName, true, false, false);
-	}
-
-	private DirectExchange directExchange(){
-		return new DirectExchange(exchange);
-	}
-
-	private Binding relationship(Queue queue, DirectExchange exchange){
-		return new Binding(queue.getName(), Binding.DestinationType.QUEUE, exchange.getName()
-				, queue.getName(), null);
-	}
-
-	// Run add method after the class is initialized, because of @Component annotation
-	@PostConstruct
-	private void add(){
-		Queue emailQueue = queue(queue);
-
-		DirectExchange exchange = directExchange();
-
-		Binding relation = relationship(emailQueue, exchange);
-
-		amqpAdmin.declareQueue(emailQueue);
-		amqpAdmin.declareExchange(exchange);
-		amqpAdmin.declareBinding(relation);
-	}
-
 }
+

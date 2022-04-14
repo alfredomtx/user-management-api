@@ -18,7 +18,6 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.Validator;
 
 import javax.mail.Message;
-import javax.mail.MessagingException;
 import javax.mail.Session;
 import javax.mail.Transport;
 import javax.mail.internet.InternetAddress;
@@ -31,6 +30,9 @@ import java.util.Properties;
 @Service
 public class EmailService {
 
+	// Whether to save the emails in the database
+	private final boolean SAVE_EMAIL_DATABASE = false;
+
 	@Autowired
 	private EmailRepository emailRepository;
 
@@ -40,9 +42,6 @@ public class EmailService {
 	private Validator validator;
 	@Autowired
 	private RabbitMQService rabbitMQService;
-
-	@Value("${spring.rabbitmq.queue}")
-	private String queue;
 
 	@Value("${spring.mail.protocol}")
 	private String protocol;
@@ -61,8 +60,7 @@ public class EmailService {
 
 	public Page<EmailDTO> getAll(Pageable pageable) {
 		Page<Email> emails = emailRepository.findAll(pageable);
-		Page<EmailDTO> emailsList = emails.map(email -> mapper.map(email, EmailDTO.class));
-		return emailsList;
+		return emails.map(email -> mapper.map(email, EmailDTO.class));
 	}
 
 	public EmailDTO getById(Long id) {
@@ -72,8 +70,7 @@ public class EmailService {
 
 	public Page<EmailDTO> getByAddressTo(Pageable pageable, String emailAddress) {
 		Page<Email> emails = emailRepository.findByAddressTo(pageable, emailAddress);
-		Page<EmailDTO> emailsList = emails.map(email -> mapper.map(email, EmailDTO.class));
-		return emailsList;
+		return emails.map(email -> mapper.map(email, EmailDTO.class));
 	}
 
 	@SneakyThrows
@@ -88,8 +85,8 @@ public class EmailService {
 	}
 
 	public void sendEmailToQueue(EmailDTO emailDto){
-		// System.out.println(emailDto);
-		rabbitMQService.sendMessage(queue, emailDto);
+		validateEmailData(mapper.map(emailDto, Email.class));
+		rabbitMQService.sendMessage(emailDto);
 	}
 
 	public EmailDTO sendEmail(Email email) {
@@ -134,24 +131,16 @@ public class EmailService {
 			e.printStackTrace();
 			email.setStatus(StatusEmail.ERROR);
 			email.setErrorDetails(e.getMessage());
-		} catch (MessagingException e) {
-			e.printStackTrace();
-			email.setStatus(StatusEmail.ERROR);
-			email.setErrorDetails(e.getMessage());
 		} catch (Exception e) {
 			e.printStackTrace();
 			email.setStatus(StatusEmail.ERROR);
 			email.setErrorDetails("[" + e.getClass() + "] " + e.getMessage());
 		}
 
-		/*
-		emailRepository.save(email);
+		if (SAVE_EMAIL_DATABASE)
+			emailRepository.save(email);
 
-		EmailDTO emailDTO = new EmailDTO();
-		BeanUtils.copyProperties(email, emailDTO);
-		 */
-		EmailDTO emailDTO = mapper.map(email, EmailDTO.class);
-		return emailDTO;
+		return mapper.map(email, EmailDTO.class);
 	}
 
 }

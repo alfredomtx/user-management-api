@@ -11,9 +11,9 @@ import javax.persistence.*;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 
+@Entity
 @Getter
 @Setter
-@Entity
 @ToString
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Email implements Serializable {
