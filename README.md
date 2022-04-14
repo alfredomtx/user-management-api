@@ -1,9 +1,9 @@
 
 # ☕ What is this project?
-> Most applications nowadays need some type of user management API, services to add new users, authenticate login, 
+> Most applications need some type of user management API, a service to add new users, authenticate login, 
 manage passwords, recover and reset, etc. So I'm building my own 🙂
 
-This project is a user management REST API built with `Spring Boot 2.6.4` and `Java 11`. I intend to use it in my own projects, and it's a way for me to practice 
+This project is a User Management REST API built with `Spring Boot 2.6.4` and `Java 11`. I intend to use it in my own projects, and it's a way for me to practice 
 what I study and learn about Java/Spring.
 
 Currently, I'm using this API in my personal project [OldBot](https://oldbot.com.br).
@@ -15,23 +15,23 @@ on it as way to learn and improve my Java/Spring knowledge.
 
 
 ## Project technologies, functionalities and more
-<details><summary><b>💻Security, Authentication and Authorization</b></summary>
+<details><summary><b>💻 Security, Authentication and Authorization</b></summary>
 
 Spring Security is responsible to manage Authentication and Authorization.
 When logging in, the user is authenticated in the database and receives an `access` and `refresh` token.
 
 ### 🔴 Auth0 and Json Web Token (JWT)
-It uses `Auth0` for Authorization, generating Json Web Tokens to be used in every request by the users.
+It uses `Auth0` for Authorization, generating **Json Web Tokens** to be used in every request by the users.
 
 All requests received are intercepted by Spring Security and validations are performed to check whether
 the `access token` provided in the request is valid.
 
-The token configuration such as expiration time, are set in the `JWTAuthenticationFilter.java` file.
+The token configurations, such as <u>expiration time</u>, are set in the `JWTAuthenticationFilter.java` file.
 
 ### 👮‍♂ Spring Security and Roles
 All the access for the API and it's routes are set in the `SecurityConfiguration.java` file.  
 
-Currently, there are only two main roles used in the project, they are:
+Currently, there are only `2` main roles used in the project, they are:
 - `USER`: simple user, allowed to access only login and registration related routes.
 - `ADMIN`: has access and is allowed for everything.
 </details>
@@ -47,19 +47,19 @@ Since sending email is something that can take a few seconds and does not make m
 , it's recommended to send emails asynchronously, to achieve that, one of the best solutions is RabbitMQ
 using messaging queues.
 
-You can create your own instance of RabbitMQ using docker locally or, as I prefer, a cloud solution, and I recommend
-https://www.cloudamqp.com. It has free plans for hobby/development, and it's very easy to use.
+You can create your own instance of [RabbitMQ](https://www.rabbitmq.com/) using docker locally or, as I prefer, a cloud solution, and I recommend
+[CloudAMQP](https://www.cloudamqp.com). It has free plans for hobby/development, and it's very easy to use.
 
-- `RabbitMQService.java` is the Publisher which send the messages to the queue.
-- `EmailConsumer.java` is the Subscriber which receive the queue messages and call **EmailService** to send the emails.
+- `RabbitMQService.java` is the Publisher which sends the messages to the queue.
+- `EmailConsumer.java` is the Subscriber which receives the queue messages and call **EmailService** to send the emails.
 </details>
 
 
 <details><summary><b>📦 Database</b></summary>
 
-The project has 2 already configured databases, `MySQL` and `PostgreSQL`.
+The project has 2 configured databases by default, `MySQL` and `PostgreSQL`.
 
-MySQL I use in my local machine, and Postgre, since my application is deployed in Heroku, it's used there.
+MySQL I use in my local machine, and Postgre, since my application is deployed in [Heroku](https://heroku.com/), it's used there.
 
 </details>
 
