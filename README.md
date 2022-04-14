@@ -34,6 +34,7 @@ All the access for the API and it's routes are set in the `SecurityConfiguration
 Currently, there are only `2` main roles used in the project, they are:
 - `USER`: simple user, allowed to access only login and registration related routes.
 - `ADMIN`: has access and is allowed for everything.
+
 </details>
 
 
@@ -53,6 +54,7 @@ You can create your own instance of [RabbitMQ](https://www.rabbitmq.com/) using 
 
 - `RabbitMQService.java` is the Publisher which sends the messages to the queue.
 - `EmailConsumer.java` is the Subscriber which receives the queue messages and call **EmailService** to send the emails.
+
 </details>
 
 
@@ -71,6 +73,7 @@ Most of the `User` related Controller and Service methods have unit testing.
 More tests will be implemented as the project goes on.
 
 Another important pending work to do is implement **integration** tests, which I still need to learn how to implement.
+
 </details>
 
 
@@ -81,40 +84,41 @@ I finish any item or think of new things to add.
 
 <details><summary><b>General stuff</b></summary>
 
-*️⃣ Implement integration tests.
+- *️⃣ Implement integration tests.
+- *️⃣ Implement API call limitations with Bucket4J.
+- *️⃣ Implement system logs (to use with a log service such as PaperTrail).
 
-*️⃣ Implement API call limitations with Bucket4J.
 </details>
 
 
 <details><summary><b>User</b></summary>
 
-*️⃣ Implement `refresh token` functioning to renew the `access token`.
+- *️⃣ Implement `refresh token` functioning to renew the `access token`.
+- *️⃣ Finish/fix the implementation of some tests with `TODO` comment.
+- *️⃣ Implement change user email process, with emails confirmation, token, etc. 
 
-*️⃣ Finish/fix the implementation of some tests with `TODO` comment.
-
-*️⃣ Implement change user email process, with emails confirmation, token, etc. 
 </details>
 
 
 <details><summary><b>Email</b></summary>
 
-*️⃣ Create a microservice for the Email service(detach from the User service).
-
-*️⃣ Create a microservice for the Consumer/Subscriber of the Email queue.
+- *️⃣ Create a microservice for the Email service(detach from the User service).
+- *️⃣ Create a microservice for the Consumer/Subscriber of the Email queue.
 It's simple to do but for now I'm keeping in the same application to save costs with new Dynos 🙂 (since my application
  has low traffic).
+- *️⃣ Implement unit tests.
 
-*️⃣ Implement unit tests.
 </details>
 
 <details><summary><b>RabbitMQ (Email)</b></summary>
 
-*️⃣ Learn how to save failed messages in database or other queue for further analysis and retries.
+- *️⃣ Learn how to save failed messages in database or other queue for further analysis and retries.
+
 </details>
 
 
 <details><summary><b>Registration</b></summary>
 
-*️⃣ Implement unit tests.
+- *️⃣ Implement unit tests.
+
 </details>
