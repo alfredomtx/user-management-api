@@ -46,8 +46,8 @@ The email service uses Java Mail to send emails. The SMTP settings must be set i
 You can use [MailDev](https://github.com/maildev/maildev) to easily test email service in your local machine.
 
 ### 🐇 Asynchronous email sending with RabbitMQ
-Since sending email is something that can take a few seconds and does not make much sense being synchronous
-, it's recommended to send emails asynchronously, to achieve that, one of the best solutions is RabbitMQ
+Since sending email is something that can take a few seconds and does not make much sense being synchronous, 
+it's recommended to send emails asynchronously, to achieve that, one of the best solutions is RabbitMQ
 using messaging queues.
 
 You can create your own instance of [RabbitMQ](https://www.rabbitmq.com/) using docker locally or, as I prefer, a
@@ -102,7 +102,7 @@ I finish any item or think of new things to add.
 
 <details><summary><b>Email</b></summary>
 
-- *️⃣ Create a microservice for the Email service(detach from the User service).
+- *️⃣ Create a microservice for the Email service(detach from the User service application).
 - *️⃣ Create a microservice for the Consumer/Subscriber of the Email queue.
 It's simple to do but for now I'm keeping in the same application to save costs with new Dynos 🙂 (since my application
  has low traffic).
