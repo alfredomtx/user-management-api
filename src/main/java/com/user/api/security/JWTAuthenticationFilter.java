@@ -28,7 +28,7 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 
-	public final int ACCESS_TOKEN_EXPIRATION_MINUTES = 60;
+	public final int ACCESS_TOKEN_EXPIRATION_MINUTES = 120;
 
 	@Autowired
 	private AuthenticationManager authManager;
