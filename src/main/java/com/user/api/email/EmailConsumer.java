@@ -25,7 +25,7 @@ public class EmailConsumer {
 		logger.info("SENDING EMAIL FROM QUEUE");
 		try {
 			EmailDTO emailSent = emailService.sendEmail(email);
-			logger.info(emailSent.toString());
+			logger.info( "Subject: " + emailSent.getSubject() + ", From: " + emailSent.getAddressFrom() + ", To: " + emailSent.getAddressTo() );
 		} catch (Exception e){
 			logger.error("Error sending email: " + e.getMessage() + " | " + e.getCause().getMessage());
 		}
