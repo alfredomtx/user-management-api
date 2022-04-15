@@ -29,8 +29,6 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 
 	public final int ACCESS_TOKEN_EXPIRATION_MINUTES = 60;
-	// refresh token with 24 hours of expiration
-	public final int REFRESH_TOKEN_EXPIRATION_MINUTES = 60 * 24;
 
 	@Autowired
 	private AuthenticationManager authManager;
@@ -78,14 +76,9 @@ public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 				, userData.getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(Collectors.toList())
 				, ACCESS_TOKEN_EXPIRATION_MINUTES, request.getRequestURL().toString());
 
-		String refreshToken = JWTUtil.createToken(userData.getUsername()
-				, REFRESH_TOKEN_EXPIRATION_MINUTES, request.getRequestURL().toString());
-
 		response.setHeader("access_token", accessToken);
-		response.setHeader("refresh_token", refreshToken);
 		Map<String, String> tokens = new HashMap<>();
 		tokens.put("access_token", accessToken);
-		tokens.put("refresh_token", refreshToken);
 		response.setContentType(APPLICATION_JSON_VALUE);
 		new ObjectMapper().writeValue(response.getOutputStream(), tokens);
 	}

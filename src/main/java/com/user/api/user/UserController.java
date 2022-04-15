@@ -9,8 +9,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import java.net.URI;
 import java.util.Map;
@@ -95,12 +93,5 @@ public class UserController {
 		userService.resetPassword(token);
 		return ResponseEntity.ok().body("User password reset with success, a new password has been sent to the email.");
 	}
-
-	// TODO implement refresh token and refactor JWT Authorization using JWTTokenUtil.java
-	@GetMapping("/token/refresh")
-	public ResponseEntity<String>refreshAccessToken(HttpServletRequest request, HttpServletResponse response){
-		return ResponseEntity.ok().body("test");
-	}
-
 
 }

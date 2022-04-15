@@ -18,7 +18,7 @@ on it as way to learn and improve my Java/Spring knowledge.
 <details><summary><b>💻 Security, Authentication and Authorization</b></summary>
 
 Spring Security is responsible to manage Authentication and Authorization.
-When logging in, the user is authenticated in the database and receives an `access` and `refresh` token.
+When logging in, the user is authenticated in the database and receives an `access token`.
 
 ### 🔴 Auth0 and Json Web Token (JWT)
 It uses `Auth0` for Authorization, generating **Json Web Tokens** to be used in every request by the users.
@@ -93,7 +93,6 @@ I finish any item or think of new things to add.
 
 <details><summary><b>User</b></summary>
 
-- *️⃣ Implement `refresh token` functioning to renew the `access token`.
 - *️⃣ Finish/fix the implementation of some tests with `TODO` comment.
 - *️⃣ Implement change user email process, with emails confirmation, token, etc. 
 
