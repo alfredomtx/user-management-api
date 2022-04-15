@@ -11,7 +11,6 @@ import javax.persistence.Enumerated;
 import javax.persistence.Id;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 
 @Getter
@@ -23,15 +22,12 @@ public class EmailDTO implements Serializable {
 	@Id
 	private long id;
 
-	@NotNull
-	private Long userId;
-
-	@NotBlank
 	@Email
+	@NotBlank
 	private String addressFrom;
 
-	@NotBlank
 	@Email
+	@NotBlank
 	private String addressTo;
 
 	@NotBlank

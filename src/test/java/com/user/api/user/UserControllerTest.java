@@ -9,7 +9,6 @@ import com.user.api.user.model.User;
 import com.user.api.user.model.UserResponseDTO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -36,20 +35,15 @@ public class UserControllerTest {
 
 	@Autowired
 	private MockMvc mockMvc;
-
-	// need to use the real implementation of ModelMapper in UserService
-	// private final ModelMapper mapper = new ModelMapper();
-
-	@Mock
-	private UserService servicesImpl;
+	@MockBean
+	private UserService service;
 	@MockBean
 	private UserRepository repository;
 	@MockBean
 	private EmailRepository emailRepository;
 	@MockBean
-	private UserService service;
-	@MockBean
 	private UserDetailService userDetailService; // for Spring Security
+
 
 	public static final String API_URL = "/api/user";
 
@@ -91,7 +85,7 @@ public class UserControllerTest {
 	}
 
 	@Test
-	public void shouldReturnListOfUser_When_getAll() throws Exception {
+	public void shouldReturnPageOfUser_When_getAll() throws Exception {
 		List<UserResponseDTO> userList = new ArrayList<>();
 		userList.add(userResponseDTO);
 		Page<UserResponseDTO> userListPage = new PageImpl(userList);

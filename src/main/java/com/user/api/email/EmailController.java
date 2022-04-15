@@ -1,8 +1,6 @@
 package com.user.api.email;
 
 import com.user.api.email.model.EmailDTO;
-import com.user.api.email.model.Email;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -28,8 +26,7 @@ public class EmailController {
 
 	@GetMapping(ID)
 	public ResponseEntity<EmailDTO> getById(@PathVariable("id") Long id) {
-		EmailDTO email = emailService.getById(id);
-		return ResponseEntity.ok().body(email);
+		return ResponseEntity.ok().body(emailService.getById(id));
 	}
 
 	@GetMapping("/to/{emailAddress}")
@@ -38,16 +35,13 @@ public class EmailController {
 	}
 
 	@PostMapping("/send")
-	public ResponseEntity<EmailDTO> sendEmail(@RequestBody @Valid EmailDTO emailDTO) {
-		Email email = new Email();
-		BeanUtils.copyProperties(emailDTO, email);
-		EmailDTO emailSent = emailService.sendEmail(email);
-		return new ResponseEntity<>(emailSent, HttpStatus.CREATED);
+	public ResponseEntity<EmailDTO> sendEmail(@RequestBody @Valid EmailDTO emailDto) {
+		return new ResponseEntity<>(emailService.sendEmail(emailDto), HttpStatus.CREATED);
 	}
 
 	@PostMapping("/sendToQueue")
-	public ResponseEntity<String> sendEmailToQueue(@RequestBody @Valid EmailDTO emailDTO) {
-		emailService.sendEmailToQueue(emailDTO);
+	public ResponseEntity<String> sendEmailToQueue(@RequestBody @Valid EmailDTO emailDto) {
+		emailService.sendEmailToQueue(emailDto);
 		return ResponseEntity.ok().build();
 	}
 

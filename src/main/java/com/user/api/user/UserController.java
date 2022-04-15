@@ -15,8 +15,6 @@ import javax.validation.Valid;
 import java.net.URI;
 import java.util.Map;
 
-import static org.springframework.http.HttpHeaders.AUTHORIZATION;
-
 @RestController
 @RequestMapping("/api")
 public class UserController {
@@ -33,14 +31,12 @@ public class UserController {
 
 	@GetMapping(API_URL)
 	public ResponseEntity<UserResponseDTO> getByEmailOrId(@RequestBody Map<String, String> fields) {
-		UserResponseDTO user = userService.getByIdOrEmail(fields);
-		return ResponseEntity.ok().body(user);
+		return ResponseEntity.ok().body(userService.getByIdOrEmail(fields));
 	}
 
 	@GetMapping(API_URL + ID)
 	public ResponseEntity<UserResponseDTO> getById(@PathVariable("id") Long id) {
-		UserResponseDTO user = userService.getById(id);
-		return ResponseEntity.ok().body(user);
+		return ResponseEntity.ok().body(userService.getById(id));
 	}
 
 	@PostMapping(API_URL)
@@ -102,10 +98,7 @@ public class UserController {
 
 	// TODO implement refresh token and refactor JWT Authorization using JWTTokenUtil.java
 	@GetMapping("/token/refresh")
-	public ResponseEntity<?>refreshToken(HttpServletRequest request, HttpServletResponse response){
-
-
-		String authorizationHeader = request.getHeader(AUTHORIZATION);
+	public ResponseEntity<String>refreshAccessToken(HttpServletRequest request, HttpServletResponse response){
 		return ResponseEntity.ok().body("test");
 	}
 

@@ -23,8 +23,6 @@ public class Email implements Serializable {
 	@GeneratedValue(strategy = GenerationType.SEQUENCE)
 	private Long id;
 
-	private Long userId;
-
 	private String addressFrom;
 
 	private String addressTo;

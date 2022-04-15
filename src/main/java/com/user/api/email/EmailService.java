@@ -8,6 +8,7 @@ import com.user.api.exceptions.ObjectFieldsValidationException;
 import com.user.api.rabbitmq.RabbitMQService;
 import lombok.SneakyThrows;
 import org.modelmapper.ModelMapper;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
@@ -87,6 +88,12 @@ public class EmailService {
 	public void sendEmailToQueue(EmailDTO emailDto){
 		validateEmailData(mapper.map(emailDto, Email.class));
 		rabbitMQService.sendMessage(emailDto);
+	}
+
+	public EmailDTO sendEmail(EmailDTO emailDto){
+		Email email = new Email();
+		BeanUtils.copyProperties(emailDto, email);
+		return sendEmail(email);
 	}
 
 	public EmailDTO sendEmail(Email email) {

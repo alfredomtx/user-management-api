@@ -122,3 +122,9 @@ It's simple to do but for now I'm keeping in the same application to save costs 
 - *️⃣ Implement unit tests.
 
 </details>
+
+<details><summary><b>Security</b></summary>
+
+- *️⃣ Implement unit tests for Spring Security.
+
+</details>
