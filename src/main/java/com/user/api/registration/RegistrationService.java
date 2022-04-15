@@ -17,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
 import java.util.Map;
 
 @Service
@@ -39,6 +40,7 @@ public class RegistrationService {
 		sendActivationEmail(user);
 	}
 
+	@Transactional
 	public void sendActivationEmail(User user){
 		checkUserAlreadyActive(user);
 		String token = JWTUtil.createToken(user.getEmail(), 60, "");

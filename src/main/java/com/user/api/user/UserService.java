@@ -27,6 +27,7 @@ import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.Validator;
 
+import javax.transaction.Transactional;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -71,6 +72,7 @@ public class UserService {
 		return mapper.map(user, UserResponseDTO.class);
 	}
 
+	@Transactional
 	public UserResponseDTO add(UserRequestDTO user) {
 		validateUserAlreadyExistsByEmail(user);
 
@@ -81,6 +83,7 @@ public class UserService {
 		return mapper.map(userSaved, UserResponseDTO.class);
 	}
 
+	@Transactional
 	public UserResponseDTO addUserAlreadyActive(UserRequestDTO user) {
 		validateUserAlreadyExistsByEmail(user);
 
@@ -171,6 +174,7 @@ public class UserService {
 		userRepo.delete(user);
 	}
 
+	@Transactional
 	public void changeCurrentPassword(Map<String, String> fields) {
 		String currentPassword = fields.get("currentPassword");
 		if (currentPassword == null)
@@ -212,6 +216,7 @@ public class UserService {
 			throw new InvalidUserDataException("Password is too long, more than 255 characters.");
 	}
 
+	@Transactional
 	public void requestResetPasswordEmail(Map<String, String> fields) {
 		User user = userUtil.getUserObjectByIdOrEmailFromFields(fields);
 
@@ -235,6 +240,7 @@ public class UserService {
 		emailService.sendEmailToQueue(passwordEmail);
 	}
 
+	@Transactional
 	public void resetPassword(String token) {
 		DecodedJWT decodedJWT;
 		try {
