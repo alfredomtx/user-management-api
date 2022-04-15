@@ -20,7 +20,8 @@ public class Email implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	@Id
-	@GeneratedValue(strategy = GenerationType.SEQUENCE)
+	@SequenceGenerator(name = "email_sequence", sequenceName = "email_sequence", allocationSize = 1)
+	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "email_sequence")
 	private Long id;
 
 	private String addressFrom;

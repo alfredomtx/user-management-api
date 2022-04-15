@@ -1,12 +1,20 @@
 package com.user.api.rabbitmq;
 
 import com.user.api.rabbitmq.model.FailedMessage;
+import lombok.AllArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.amqp.AmqpRejectAndDontRequeueException;
 import org.springframework.amqp.rabbit.support.ListenerExecutionFailedException;
 import org.springframework.util.ErrorHandler;
 
 
+@AllArgsConstructor
 public class RabbitMQErrorHandler implements ErrorHandler {
+	private static final Logger logger = LoggerFactory.getLogger(RabbitMQErrorHandler.class);
+
+	private FailedMessageRepository failedMessageRepository;
+
 
 	@Override
 	public void handleError(Throwable t) {
@@ -16,19 +24,22 @@ public class RabbitMQErrorHandler implements ErrorHandler {
 		FailedMessage failedMessage = new FailedMessage();
 		failedMessage.setQueueName(queueName);
 		failedMessage.setQueueMessage(message);
-		failedMessage.setErrorCause(t.getCause().getMessage());
+		failedMessage.setErrorClass(t.getCause().getClass().getName());
+		failedMessage.setErrorMessage(t.getCause().getMessage());
 
-		/*try {
-			failedMessageRepository.save(failedMessage);
+		FailedMessage failedMessageSaved = null;
+		try {
+			failedMessageSaved = failedMessageRepository.save(failedMessage);
 		} catch (Exception e){
 			e.printStackTrace();
-		}*/
+			logger.error("Error saving failed message: " + e);
+		}
 
-		System.out.println("------------------------");
-		System.out.println(failedMessage);
-		System.out.println("------------------------");
+		Long id = null;
+		if (failedMessageSaved != null)
+			id = failedMessageSaved.getId();
 
-		throw new AmqpRejectAndDontRequeueException("Shall not return to queue");
-
+		throw new AmqpRejectAndDontRequeueException("Message will not return to queue. " +
+				"Failed message id: " + id);
 	}
 }

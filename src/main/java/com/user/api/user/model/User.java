@@ -24,7 +24,8 @@ import java.util.Date;
 public class User {
 
 	@Id
-	@GeneratedValue(strategy = GenerationType.AUTO)
+	@GeneratedValue(strategy = GenerationType.AUTO, generator = "users_sequence")
+	@SequenceGenerator(name = "users_sequence", sequenceName = "users_sequence", allocationSize = 1)
 	private Long id;
 
 	@NotBlank()

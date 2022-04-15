@@ -14,7 +14,8 @@ import javax.persistence.*;
 public class UserProperties {
 
 	@Id
-	@GeneratedValue(strategy = GenerationType.AUTO)
+	@GeneratedValue(strategy = GenerationType.AUTO, generator = "user_properties_sequence")
+	@SequenceGenerator(name = "user_properties_sequence", sequenceName = "user_properties_sequence", allocationSize = 1)
 	private Long id;
 
 	@OneToOne

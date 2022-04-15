@@ -8,6 +8,8 @@ import com.user.api.exceptions.ObjectFieldsValidationException;
 import com.user.api.rabbitmq.RabbitMQService;
 import lombok.SneakyThrows;
 import org.modelmapper.ModelMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -23,13 +25,14 @@ import javax.mail.Session;
 import javax.mail.Transport;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
-import java.io.UnsupportedEncodingException;
 import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.Properties;
 
 @Service
 public class EmailService {
+
+	private static final Logger logger = LoggerFactory.getLogger(EmailService.class);
 
 	// Whether to save the emails in the database
 	private final boolean SAVE_EMAIL_DATABASE = false;
@@ -134,14 +137,12 @@ public class EmailService {
 			tr.sendMessage(msg, msg.getAllRecipients());
 			tr.close();
 			email.setStatus(StatusEmail.SENT);
-		} catch (UnsupportedEncodingException e) {
-			e.printStackTrace();
-			email.setStatus(StatusEmail.ERROR);
-			email.setErrorDetails(e.getMessage());
 		} catch (Exception e) {
 			e.printStackTrace();
 			email.setStatus(StatusEmail.ERROR);
 			email.setErrorDetails("[" + e.getClass() + "] " + e.getMessage());
+			logger.error("Error sending email: " + e);
+
 		}
 
 		if (SAVE_EMAIL_DATABASE)

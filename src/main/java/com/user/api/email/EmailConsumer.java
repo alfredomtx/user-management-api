@@ -12,11 +12,11 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class EmailConsumer {
+	private static final Logger logger = LoggerFactory.getLogger(EmailConsumer.class);
 
 	@Autowired
 	private EmailService emailService;
 
-	private static final Logger logger = LoggerFactory.getLogger(EmailConsumer.class);
 
 	@RabbitListener(queues = "${spring.rabbitmq.queue}")
 	private void consumer(String message) throws JsonProcessingException, InterruptedException {
@@ -25,9 +25,10 @@ public class EmailConsumer {
 		logger.info("SENDING EMAIL FROM QUEUE");
 		try {
 			EmailDTO emailSent = emailService.sendEmail(email);
-			logger.info( "Subject: " + emailSent.getSubject() + ", From: " + emailSent.getAddressFrom() + ", To: " + emailSent.getAddressTo() );
+			logger.info("ID: " + emailSent.getId() + ", Subject: " + emailSent.getSubject() + ", From: " + emailSent.getAddressFrom() + ", To: " + emailSent.getAddressTo() );
 		} catch (Exception e){
-			logger.error("Error sending email: " + e.getMessage() + " | " + e.getCause().getMessage());
+			logger.error("Error sending email: " + e);
 		}
+		//throw new IllegalArgumentException("Test exception");
 	}
 }

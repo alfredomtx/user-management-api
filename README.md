@@ -110,12 +110,6 @@ It's simple to do but for now I'm keeping in the same application to save costs 
 
 </details>
 
-<details><summary><b>RabbitMQ (Email)</b></summary>
-
-- *️⃣ Save failed messages in database or other queue for further analysis and retries.
-
-</details>
-
 
 <details><summary><b>Registration</b></summary>
 

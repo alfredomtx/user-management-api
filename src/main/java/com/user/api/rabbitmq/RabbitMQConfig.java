@@ -5,20 +5,25 @@ import org.springframework.amqp.rabbit.config.DirectRabbitListenerContainerFacto
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.amqp.rabbit.listener.DirectMessageListenerContainer;
 import org.springframework.amqp.rabbit.listener.RabbitListenerContainerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class RabbitMQConfig {
 
+	@Autowired
+	private FailedMessageRepository failedMessageRepository;
+
 	@Bean
-	public RabbitListenerContainerFactory<DirectMessageListenerContainer> rabbitListenerContainerFactory(ConnectionFactory connectionFactory) {
+	public RabbitListenerContainerFactory<DirectMessageListenerContainer> rabbitListenerContainerFactory(
+			ConnectionFactory connectionFactory) {
 		DirectRabbitListenerContainerFactory factory = new DirectRabbitListenerContainerFactory();
 
 		factory.setConnectionFactory(connectionFactory);
 		factory.setAcknowledgeMode(AcknowledgeMode.AUTO);
 
-		factory.setErrorHandler(new RabbitMQErrorHandler());
+		factory.setErrorHandler(new RabbitMQErrorHandler(failedMessageRepository));
 		return factory;
 	}
 }

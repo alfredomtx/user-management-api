@@ -18,7 +18,8 @@ import java.util.Date;
 public class FailedMessage {
 
 	@Id
-	@GeneratedValue(strategy = GenerationType.SEQUENCE)
+	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "rabbitmq_failed_messages_sequence")
+	@SequenceGenerator(name = "rabbitmq_failed_messages_sequence", sequenceName = "rabbitmq_failed_messages_sequence", allocationSize = 1)
 	private Long id;
 
 	private String queueName;
@@ -29,8 +30,7 @@ public class FailedMessage {
 	@Column(columnDefinition = "TEXT")
 	private String errorMessage;
 
-	@Column(columnDefinition = "TEXT")
-	private String errorCause;
+	private String errorClass;
 
 	@Column(updatable = false)
 	@Temporal(TemporalType.TIMESTAMP)

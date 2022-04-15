@@ -5,6 +5,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.user.api.security.util.JWTUtil;
 import com.user.api.user.UserRepository;
 import com.user.api.user.model.UserRequestDTO;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -27,6 +29,7 @@ import java.util.stream.Collectors;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
+	private static final Logger logger = LoggerFactory.getLogger(JWTAuthenticationFilter.class);
 
 	public final int ACCESS_TOKEN_EXPIRATION_MINUTES = 120;
 

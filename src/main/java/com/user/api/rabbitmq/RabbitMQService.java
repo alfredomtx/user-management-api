@@ -28,7 +28,7 @@ public class RabbitMQService {
 			rabbitTemplate.convertAndSend(queue, jsonMessage);
 		} catch (Exception e){
 			e.printStackTrace();
-			logger.error("Error sending message: " + e.getMessage() + " | " + e.getCause().getMessage());
+			logger.error("Error sending message: " + e.getCause().getClass().getName() + " | " + e.getCause().getMessage());
 		}
 	}
 }

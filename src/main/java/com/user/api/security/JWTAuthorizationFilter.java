@@ -3,6 +3,8 @@ package com.user.api.security;
 import com.auth0.jwt.exceptions.TokenExpiredException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.user.api.security.util.JWTUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -20,6 +22,7 @@ import java.util.Collection;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
 public class JWTAuthorizationFilter extends OncePerRequestFilter {
+	private static final Logger logger = LoggerFactory.getLogger(JWTAuthorizationFilter.class);
 
 	public static final String ATTRIBUTE_PREFIX = "Bearer ";
 
@@ -45,7 +48,7 @@ public class JWTAuthorizationFilter extends OncePerRequestFilter {
 		try {
 			authToken = getAuthenticationToken(token, request);
 		} catch (Exception e){
-			logger.error("Error authenticating user: " + e.getMessage() + " | " + e.getCause().getMessage());
+			logger.error("Error authenticating user: " + e);
 			filterChain.doFilter(request, response);
 			return;
 		}
