@@ -45,6 +45,7 @@ public class JWTAuthorizationFilter extends OncePerRequestFilter {
 		try {
 			authToken = getAuthenticationToken(token, request);
 		} catch (Exception e){
+			logger.error("Error authenticating user: " + e.getMessage() + " | " + e.getCause().getMessage());
 			filterChain.doFilter(request, response);
 			return;
 		}

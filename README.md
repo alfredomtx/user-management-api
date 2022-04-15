@@ -86,7 +86,6 @@ I finish any item or think of new things to add.
 
 - *️⃣ Implement integration tests.
 - *️⃣ Implement API call limitations with Bucket4J.
-- *️⃣ Implement system logs (to use with a log service such as PaperTrail).
 
 </details>
 
@@ -111,7 +110,7 @@ It's simple to do but for now I'm keeping in the same application to save costs 
 
 <details><summary><b>RabbitMQ (Email)</b></summary>
 
-- *️⃣ Learn how to save failed messages in database or other queue for further analysis and retries.
+- *️⃣ Save failed messages in database or other queue for further analysis and retries.
 
 </details>
 
