@@ -7,7 +7,6 @@ project:
 
 
 spring:
-  # On "development" profile, use "update" to create the tables
   jpa:hibernate:ddl-auto: update
 
   # Mail service configuration
@@ -27,7 +26,6 @@ spring:
         smtp:
           auth: true
           starttls:enable: true
-
 
   rabbitmq:
     # Use your environment variables

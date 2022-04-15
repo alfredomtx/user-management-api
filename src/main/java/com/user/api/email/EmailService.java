@@ -100,6 +100,7 @@ public class EmailService {
 	}
 
 	public EmailDTO sendEmail(Email email) {
+		email.setAddressFrom(senderEmail);
 		validateEmailData(email);
 
 		Properties props = new Properties();
