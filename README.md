@@ -43,6 +43,8 @@ Currently, there are only `2` main roles used in the project, they are:
 The email service uses Java Mail to send emails. The SMTP settings must be set in your
 `application.properties` file.
 
+You can use [MailDev](https://github.com/maildev/maildev) to easily test email service in your local machine.
+
 ### 🐇 Asynchronous email sending with RabbitMQ
 Since sending email is something that can take a few seconds and does not make much sense being synchronous
 , it's recommended to send emails asynchronously, to achieve that, one of the best solutions is RabbitMQ
