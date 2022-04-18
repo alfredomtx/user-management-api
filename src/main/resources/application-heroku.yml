@@ -9,6 +9,11 @@ project:
 spring:
   jpa:hibernate:ddl-auto: update
 
+  security:
+    jwt:
+      # Token unique password for sign, generate on https://guidgenerator.com/
+      tokenPassword: ${JWT_TOKEN_PASSWORD}
+
   # Mail service configuration
   mail:
     # Use your environment variables

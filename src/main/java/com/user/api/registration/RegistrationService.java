@@ -37,6 +37,8 @@ public class RegistrationService {
 
 	@Value("${project.api.domainUrl}")
 	private String apiDomainUrl;
+	@Value("${spring.security.jwt.tokenPassword}")
+	private String tokenPassword;
 
 	public void requestActivateAccountEmail(Map<String, String> fields) {
 		User user = userUtil.getUserObjectByIdOrEmailFromFields(fields);
@@ -46,7 +48,7 @@ public class RegistrationService {
 	@Transactional
 	public void sendActivationEmail(User user){
 		checkUserAlreadyActive(user);
-		String token = JWTUtil.createToken(user.getEmail(), 60, "");
+		String token = JWTUtil.createToken(user.getEmail(), 60, "", tokenPassword);
 
 		UserProperties userProps = userPropsService.getUserProperties(user);
 		userProps.setActivateAccountToken(token);
@@ -68,7 +70,7 @@ public class RegistrationService {
 
 		DecodedJWT decodedJWT;
 		try {
-			decodedJWT = JWTUtil.verifyToken(token);
+			decodedJWT = JWTUtil.verifyToken(token, tokenPassword);
 		} catch (TokenExpiredException e) {
 			sendActivationEmail(user);
 			throw new AccountActivationException(e.getMessage());

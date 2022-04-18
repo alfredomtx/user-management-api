@@ -51,6 +51,8 @@ public class UserService {
 
 	@Value("${project.api.domainUrl}")
 	private String apiDomainUrl;
+	@Value("${spring.security.jwt.tokenPassword}")
+	private String tokenPassword;
 
 	public Page<UserResponseDTO> getAll(Pageable pageable) {
 		Page<User> users = userRepo.findAll(pageable);
@@ -220,7 +222,7 @@ public class UserService {
 	public void requestResetPasswordEmail(Map<String, String> fields) {
 		User user = userUtil.getUserObjectByIdOrEmailFromFields(fields);
 
-		String token = JWTUtil.createToken(user.getEmail(), 60, "");
+		String token = JWTUtil.createToken(user.getEmail(), 60, "", tokenPassword);
 
 		UserProperties userProps = userPropsService.getUserProperties(user);
 		userProps.setResetPasswordToken(token);
@@ -244,7 +246,7 @@ public class UserService {
 	public void resetPassword(String token) {
 		DecodedJWT decodedJWT;
 		try {
-			decodedJWT = JWTUtil.verifyToken(token);
+			decodedJWT = JWTUtil.verifyToken(token, tokenPassword);
 		} catch (TokenExpiredException e) {
 			throw new ResetPasswordTokenException(e.getMessage());
 		} catch (Exception e){

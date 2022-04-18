@@ -10,18 +10,15 @@ import java.util.List;
 
 public class JWTUtil {
 
-	// Token unique password for sign, generate on https://guidgenerator.com/
-	public final static String TOKEN_PASSWORD = "d2eb2c8d-bafe-4e81-8c1a-ac0e58c6c652";
-
-	public static Algorithm algorithm = Algorithm.HMAC512(TOKEN_PASSWORD);
-
-	public static DecodedJWT verifyToken(String token){
+	public static DecodedJWT verifyToken(String token, String tokenPassword){
+		Algorithm algorithm = Algorithm.HMAC512(tokenPassword);
 		JWTVerifier verifier = JWT.require(algorithm).build();
 		DecodedJWT decodedJWT = verifier.verify(token);
 		return decodedJWT;
 	}
 
-	public static String createToken(String username, int tokenExpirationMinutes, String issuer){
+	public static String createToken(String username, int tokenExpirationMinutes, String issuer, String tokenPassword){
+		Algorithm algorithm = Algorithm.HMAC512(tokenPassword);
 		String token = JWT.create()
 				.withSubject(username)
 				.withExpiresAt(getTokenExpiration(tokenExpirationMinutes))
@@ -30,7 +27,10 @@ public class JWTUtil {
 		return token;
 	}
 
-	public static String createTokenLogin(String username, List<String> roles, int tokenExpirationMinutes, String issuer){
+	public static String createTokenLogin(String username, List<String> roles, int tokenExpirationMinutes
+			, String issuer, String tokenPassword){
+		Algorithm algorithm = Algorithm.HMAC512(tokenPassword);
+
 		String token = JWT.create()
 				.withSubject(username)
 				.withClaim("roles", roles)

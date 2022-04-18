@@ -33,15 +33,18 @@ public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 
 	public final int ACCESS_TOKEN_EXPIRATION_MINUTES = 120;
 
+	private String tokenPassword;
+
 	@Autowired
 	private AuthenticationManager authManager;
 
 	@Autowired
 	private UserRepository userRepository;
 
-	public JWTAuthenticationFilter(AuthenticationManager authManager, UserRepository userRepository) {
+	public JWTAuthenticationFilter(AuthenticationManager authManager, UserRepository userRepository, String tokenPassword) {
 		this.authManager = authManager;
 		this.userRepository = userRepository;
+		this.tokenPassword = tokenPassword;
 	}
 
 	@Override
@@ -75,9 +78,11 @@ public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 											Authentication authResult) throws IOException {
 		UserDetailData userData = (UserDetailData) authResult.getPrincipal();
 
+		System.out.println(tokenPassword);
+
 		String accessToken = JWTUtil.createTokenLogin(userData.getUsername()
 				, userData.getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(Collectors.toList())
-				, ACCESS_TOKEN_EXPIRATION_MINUTES, request.getRequestURL().toString());
+				, ACCESS_TOKEN_EXPIRATION_MINUTES, request.getRequestURL().toString(), tokenPassword);
 
 		response.setHeader("access_token", accessToken);
 		Map<String, String> tokens = new HashMap<>();

@@ -2,6 +2,7 @@ package com.user.api.security;
 
 import com.user.api.user.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -17,6 +18,9 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 @EnableWebSecurity
 public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
+
+	@Value("${spring.security.jwt.tokenPassword}")
+	private String tokenPassword;
 
 	@Autowired
 	private UserDetailService userDetailService;
@@ -37,7 +41,8 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 		http.exceptionHandling().authenticationEntryPoint(new AuthFailureHandler());
 
 		// create the instance to be able to change URL and other things
-		JWTAuthenticationFilter customAuthenticationFilter = new JWTAuthenticationFilter(authenticationManager(), userRepository);
+		JWTAuthenticationFilter customAuthenticationFilter = new JWTAuthenticationFilter(authenticationManager()
+				, userRepository, tokenPassword);
 		customAuthenticationFilter.setFilterProcessesUrl("/api/login");
 
 		http.csrf().disable();
@@ -70,7 +75,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 				.anyRequest().authenticated()
 				.and()
 				.addFilter(customAuthenticationFilter)
-				.addFilterBefore(new JWTAuthorizationFilter(), UsernamePasswordAuthenticationFilter.class)
+				.addFilterBefore(new JWTAuthorizationFilter(tokenPassword), UsernamePasswordAuthenticationFilter.class)
 				.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
 	}
 

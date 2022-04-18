@@ -26,6 +26,12 @@ public class JWTAuthorizationFilter extends OncePerRequestFilter {
 
 	public static final String ATTRIBUTE_PREFIX = "Bearer ";
 
+	private String tokenPassword;
+
+	public JWTAuthorizationFilter(String tokenPassword){
+		this.tokenPassword = tokenPassword;
+	}
+
 	// override method to intercept request header
 	@Override
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
@@ -59,7 +65,7 @@ public class JWTAuthorizationFilter extends OncePerRequestFilter {
 	// reads the token and return the user data to ensure it's a valid user
 	private UsernamePasswordAuthenticationToken getAuthenticationToken(String token, HttpServletRequest request) {
 		try {
-			DecodedJWT decodedJWT = JWTUtil.verifyToken(token);
+			DecodedJWT decodedJWT = JWTUtil.verifyToken(token, tokenPassword);
 
 			String email = decodedJWT.getSubject();
 			String[] roles = decodedJWT.getClaim("roles").asArray(String.class);
