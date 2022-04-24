@@ -7,6 +7,7 @@ import com.user.api.exceptions.EmailNotFoundException;
 import com.user.api.exceptions.ObjectFieldsValidationException;
 import com.user.api.rabbitmq.RabbitMQService;
 import lombok.SneakyThrows;
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,6 +29,8 @@ import javax.mail.internet.MimeMessage;
 import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.Properties;
+
+import static org.apache.commons.text.StringEscapeUtils.unescapeJava;
 
 @Service
 public class EmailService {
@@ -80,9 +83,7 @@ public class EmailService {
 	@SneakyThrows
 	private void validateEmailData(Email email)  {
 		BindingResult result = new BeanPropertyBindingResult(email, "email");
-
 		validator.validate(email, result);
-
 		if (result.hasErrors()) {
 			throw new ObjectFieldsValidationException(result.getFieldErrors());
 		}
@@ -128,7 +129,7 @@ public class EmailService {
 			msg.setSubject(email.getSubject());
 			msg.setSentDate(new Date());
 
-			msg.setContent(email.getBody(), "text/html");
+			msg.setContent(unescapeJava(email.getBody()), "text/html; charset=UTF-8");
 
 			Transport tr = session.getTransport(protocol);
 			tr.connect(host, username, password);
