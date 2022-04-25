@@ -60,7 +60,7 @@ public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 					new ArrayList<>()
 			));
 		} catch (StreamReadException e) {
-			throw new RuntimeException("Failed to authenticate user", e);
+			throw new RuntimeException("Failed to authenticate user (stream)", e);
 		} catch (BadCredentialsException e) {
 			// setting header to be able to identify the error and send a custom response on AuthFailureHandler
 			request.setAttribute("badCredentials", e.getMessage());

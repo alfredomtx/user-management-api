@@ -27,14 +27,9 @@ public class UserController {
 		return ResponseEntity.ok(userService.getAll(pageable));
 	}
 
-	@GetMapping(API_URL)
-	public ResponseEntity<UserResponseDTO> getByEmailOrId(@RequestBody Map<String, String> fields) {
-		return ResponseEntity.ok().body(userService.getByIdOrEmail(fields));
-	}
-
-	@GetMapping(API_URL + ID)
-	public ResponseEntity<UserResponseDTO> getById(@PathVariable("id") Long id) {
-		return ResponseEntity.ok().body(userService.getById(id));
+	@GetMapping(value = {API_URL, API_URL + ID})
+	public ResponseEntity<UserResponseDTO> getByEmailOrIdQuery(@RequestParam Map<String, String> pathVarsMap) {
+		return ResponseEntity.ok().body(userService.getByIdOrEmail(pathVarsMap));
 	}
 
 	@PostMapping(API_URL)

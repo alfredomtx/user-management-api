@@ -36,5 +36,4 @@ public class UserUtil {
 		}
 		return user;
 	}
-
 }
