@@ -5,6 +5,7 @@ import com.user.api.user.model.UserResponseDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -13,8 +14,11 @@ import javax.validation.Valid;
 import java.net.URI;
 import java.util.Map;
 
+@RequestMapping(path = "/api"
+		, produces = MediaType.APPLICATION_JSON_VALUE
+		, consumes = MediaType.APPLICATION_JSON_VALUE
+)
 @RestController
-@RequestMapping("/api")
 public class UserController {
 	public static final String API_URL = "/user";
 	public static final String ID = "/{id}";
