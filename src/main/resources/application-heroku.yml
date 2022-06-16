@@ -2,7 +2,7 @@ project:
   api:
     # Domain which will be appended in the email links URLs, without / at the end
     # Final URL example: http://localhost:8080/api/registration/activateAccount
-    domainUrl: "https://user-api-oldbot.herokuapp.com"
+    domainUrl: ${DOMAIN_URL}
 
 
 spring:
