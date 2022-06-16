@@ -41,7 +41,7 @@ spring:
 
 
 licenseservice:
-  name: "OldBotLicenseService"
+  name: ${LICENSE_SERVICE_NAME}
   api:
-    url: "http://localhost:8080/LicenseService"
-    apiKey: "test"
+    url: ${LICENSE_SERVICE_URL}
+    apiKey: ${LICENSE_SERVICE_API_KEY}
