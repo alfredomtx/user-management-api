@@ -37,7 +37,6 @@ spring:
 
 
 license_service:
-  name: "oldbot_license_service"
   api:
     url: "http://localhost:8080/LicenseService"
     apiKey: "test"
