@@ -1,21 +1,13 @@
 package com.user.api.user;
 
-import com.auth0.jwt.exceptions.TokenExpiredException;
-import com.auth0.jwt.interfaces.DecodedJWT;
-import com.user.api.email.EmailService;
-import com.user.api.email.model.EmailDTO;
-import com.user.api.exceptions.*;
-import com.user.api.registration.RegistrationService;
-import com.user.api.security.util.JWTUtil;
-import com.user.api.user.enums.Role;
-import com.user.api.user.model.User;
-import com.user.api.user.model.UserRequestDTO;
-import com.user.api.user.model.UserResponseDTO;
-import com.user.api.user.util.UserUtil;
-import com.user.api.userProperties.UserPropertiesService;
-import com.user.api.userProperties.model.UserProperties;
-import lombok.RequiredArgsConstructor;
-import lombok.SneakyThrows;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
+import javax.transaction.Transactional;
+
 import org.apache.commons.lang3.RandomStringUtils;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Value;
@@ -27,12 +19,27 @@ import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.Validator;
 
-import javax.transaction.Transactional;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.stream.Collectors;
+import com.auth0.jwt.exceptions.TokenExpiredException;
+import com.auth0.jwt.interfaces.DecodedJWT;
+import com.user.api.email.EmailService;
+import com.user.api.email.model.EmailDTO;
+import com.user.api.exceptions.InvalidUserDataException;
+import com.user.api.exceptions.ObjectFieldsValidationException;
+import com.user.api.exceptions.ResetPasswordTokenException;
+import com.user.api.exceptions.UserAlreadyExistsException;
+import com.user.api.exceptions.UserNotFoundException;
+import com.user.api.registration.RegistrationService;
+import com.user.api.security.util.JWTUtil;
+import com.user.api.user.enums.Role;
+import com.user.api.user.model.User;
+import com.user.api.user.model.UserRequestDTO;
+import com.user.api.user.model.UserResponseDTO;
+import com.user.api.user.util.UserUtil;
+import com.user.api.userProperties.UserPropertiesService;
+import com.user.api.userProperties.model.UserProperties;
+
+import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
 
 
 @Service

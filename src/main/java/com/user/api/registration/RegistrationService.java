@@ -1,7 +1,14 @@
 package com.user.api.registration;
 
+import java.util.Map;
+
+import javax.transaction.Transactional;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+
 import com.auth0.jwt.exceptions.TokenExpiredException;
-import com.auth0.jwt.interfaces.DecodedJWT;
 import com.user.api.email.EmailService;
 import com.user.api.email.model.EmailDTO;
 import com.user.api.exceptions.AccountActivationException;
@@ -13,18 +20,9 @@ import com.user.api.user.model.User;
 import com.user.api.user.util.UserUtil;
 import com.user.api.userProperties.UserPropertiesService;
 import com.user.api.userProperties.model.UserProperties;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
-
-import javax.transaction.Transactional;
-import java.util.Map;
 
 @Service
 public class RegistrationService {
-	private static final Logger logger = LoggerFactory.getLogger(RegistrationService.class);
 
 	@Autowired
 	private UserRepository userRepo;
@@ -68,15 +66,7 @@ public class RegistrationService {
 	public void activateAccount(String token, String email) {
 		User user = userRepo.findByEmail(email).orElseThrow(() -> new UserNotFoundException(email));
 
-		DecodedJWT decodedJWT;
-		try {
-			decodedJWT = JWTUtil.verifyToken(token, tokenPassword);
-		} catch (TokenExpiredException e) {
-			sendActivationEmail(user);
-			throw new AccountActivationException(e.getMessage());
-		} catch (Exception e){
-			throw new AccountActivationException(e.getMessage());
-		}
+		verifyActivateAccountToken(token, user);
 
 		UserProperties userProps = userPropsService.getUserProperties(user);
 
@@ -88,6 +78,17 @@ public class RegistrationService {
 		user.setActive(true);
 		userProps.setActivateAccountToken(null);
 		userPropsService.saveUserProperties(userProps);
+	}
+
+	private void verifyActivateAccountToken(String token, User user){
+		try {
+			JWTUtil.verifyToken(token, tokenPassword);
+		} catch (TokenExpiredException e) {
+			sendActivationEmail(user);
+			throw new AccountActivationException(e.getMessage());
+		} catch (Exception e){
+			throw new AccountActivationException(e.getMessage());
+		}
 	}
 
 	private void checkUserAlreadyActive(User user){

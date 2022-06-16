@@ -40,3 +40,9 @@ spring:
     # Name of the queue
     queue: "EMAIL"
     exchange: "amq.direct"
+
+license-service:
+  name: ${LICENSE_SERVICE_NAME}
+  api:
+    url: ${LICENSE_SERVICE_URL}
+    apiKey: ${LICENSE_SERVICE_API_KEY}

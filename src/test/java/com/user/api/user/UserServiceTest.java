@@ -1,15 +1,26 @@
 package com.user.api.user;
 
-import com.user.api.email.EmailService;
-import com.user.api.exceptions.InvalidUserDataException;
-import com.user.api.exceptions.UserAlreadyExistsException;
-import com.user.api.exceptions.UserNotFoundException;
-import com.user.api.registration.RegistrationService;
-import com.user.api.user.model.User;
-import com.user.api.user.model.UserRequestDTO;
-import com.user.api.user.model.UserResponseDTO;
-import com.user.api.user.util.UserUtil;
-import com.user.api.userProperties.UserPropertiesService;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.fail;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.anyMap;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -23,11 +34,16 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.validation.Validator;
 
-import java.util.*;
-
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.*;
+import com.user.api.email.EmailService;
+import com.user.api.exceptions.InvalidUserDataException;
+import com.user.api.exceptions.UserAlreadyExistsException;
+import com.user.api.exceptions.UserNotFoundException;
+import com.user.api.registration.RegistrationService;
+import com.user.api.user.model.User;
+import com.user.api.user.model.UserRequestDTO;
+import com.user.api.user.model.UserResponseDTO;
+import com.user.api.user.util.UserUtil;
+import com.user.api.userProperties.UserPropertiesService;
 
 
 /*

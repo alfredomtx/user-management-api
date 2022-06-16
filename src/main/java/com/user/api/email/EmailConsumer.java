@@ -1,10 +1,5 @@
 package com.user.api.email;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.user.api.email.model.Email;
-import com.user.api.email.model.EmailDTO;
-import com.user.api.exceptions.ObjectFieldsValidationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
@@ -13,6 +8,12 @@ import org.springframework.stereotype.Component;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.Validator;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.user.api.email.model.Email;
+import com.user.api.email.model.EmailDTO;
+import com.user.api.exceptions.ObjectFieldsValidationException;
 
 @Component
 public class EmailConsumer {

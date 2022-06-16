@@ -1,12 +1,17 @@
 package com.user.api.security;
 
-import com.fasterxml.jackson.core.exc.StreamReadException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.user.api.security.util.JWTUtil;
-import com.user.api.user.UserRepository;
-import com.user.api.user.model.UserRequestDTO;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+import javax.servlet.FilterChain;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -17,19 +22,13 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
-import javax.servlet.FilterChain;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.stream.Collectors;
-
-import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
+import com.fasterxml.jackson.core.exc.StreamReadException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.user.api.security.util.JWTUtil;
+import com.user.api.user.UserRepository;
+import com.user.api.user.model.UserRequestDTO;
 
 public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
-	private static final Logger logger = LoggerFactory.getLogger(JWTAuthenticationFilter.class);
 
 	public final int ACCESS_TOKEN_EXPIRATION_MINUTES = 120;
 

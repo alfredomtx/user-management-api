@@ -1,10 +1,16 @@
 package com.user.api.email;
 
-import com.user.api.email.model.Email;
-import com.user.api.email.model.EmailDTO;
-import com.user.api.security.UserDetailService;
-import com.user.api.user.UserRepository;
-import com.user.api.user.UserService;
+import static org.hamcrest.Matchers.is;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+import java.util.ArrayList;
+import java.util.List;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,16 +22,11 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
 import org.springframework.test.web.servlet.MockMvc;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import static org.hamcrest.Matchers.is;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import com.user.api.email.model.Email;
+import com.user.api.email.model.EmailDTO;
+import com.user.api.security.UserDetailService;
+import com.user.api.user.UserRepository;
+import com.user.api.user.UserService;
 
 @AutoConfigureMockMvc
 @WebMvcTest(EmailControllerTest.class)

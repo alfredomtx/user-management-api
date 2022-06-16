@@ -1,13 +1,17 @@
 package com.user.api.email;
 
-import com.user.api.email.enums.StatusEmail;
-import com.user.api.email.model.Email;
-import com.user.api.email.model.EmailDTO;
-import com.user.api.exceptions.EmailNotFoundException;
-import com.user.api.exceptions.ObjectFieldsValidationException;
-import com.user.api.rabbitmq.RabbitMQService;
-import lombok.SneakyThrows;
-import org.apache.commons.lang3.StringEscapeUtils;
+import static org.apache.commons.text.StringEscapeUtils.unescapeJava;
+
+import java.time.LocalDateTime;
+import java.util.Date;
+import java.util.Properties;
+
+import javax.mail.Message;
+import javax.mail.Session;
+import javax.mail.Transport;
+import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeMessage;
+
 import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,16 +25,14 @@ import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.Validator;
 
-import javax.mail.Message;
-import javax.mail.Session;
-import javax.mail.Transport;
-import javax.mail.internet.InternetAddress;
-import javax.mail.internet.MimeMessage;
-import java.time.LocalDateTime;
-import java.util.Date;
-import java.util.Properties;
+import com.user.api.email.enums.StatusEmail;
+import com.user.api.email.model.Email;
+import com.user.api.email.model.EmailDTO;
+import com.user.api.exceptions.EmailNotFoundException;
+import com.user.api.exceptions.ObjectFieldsValidationException;
+import com.user.api.rabbitmq.RabbitMQService;
 
-import static org.apache.commons.text.StringEscapeUtils.unescapeJava;
+import lombok.SneakyThrows;
 
 @Service
 public class EmailService {

@@ -1,6 +1,5 @@
 package com.user.api.security;
 
-import com.user.api.user.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -15,6 +14,8 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
+import com.user.api.user.UserRepository;
 
 @EnableWebSecurity
 public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
@@ -57,6 +58,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 				.antMatchers(HttpMethod.GET, "/api/token/refresh").permitAll()
 				.antMatchers(HttpMethod.POST, "/api/user/requestResetPassword").permitAll()
 				.antMatchers(HttpMethod.GET, "/api/user/resetPassword/**").permitAll()
+				.antMatchers("/api/user/test").permitAll()
 				.antMatchers(HttpMethod.POST, "/api/registration/requestActivateAccountEmail").permitAll()
 				.antMatchers(HttpMethod.GET, "/api/registration/activateAccount/**").permitAll()
 				.antMatchers("/").permitAll()
