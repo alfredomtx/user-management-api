@@ -41,7 +41,7 @@ spring:
 
 
 licenseservice:
-  name: ${LICENSE_SERVICE_NAME}
+  name: ${LICENSESERVICENAME}
   api:
     url: ${LICENSE_SERVICE_URL}
     apiKey: ${LICENSE_SERVICE_API_KEY}
