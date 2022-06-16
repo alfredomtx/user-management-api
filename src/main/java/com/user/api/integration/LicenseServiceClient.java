@@ -5,7 +5,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 
 
-@FeignClient(name = "${license-service.name}", url = "${license-service.api.url}")
+@FeignClient(name = "${license_service.name}", url = "${license_service.api.url}")
 public interface LicenseServiceClient {
     @GetMapping(value="/ping")
     public String ping();

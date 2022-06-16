@@ -41,7 +41,7 @@ spring:
     queue: "EMAIL"
     exchange: "amq.direct"
 
-license-service:
+license_service:
   name: ${LICENSE_SERVICE_NAME}
   api:
     url: ${LICENSE_SERVICE_URL}
