@@ -36,7 +36,8 @@ spring:
     exchange: "amq.direct"
 
 
-license_service:
+licenseservice:
+  name: "OldBotLicenseService"
   api:
     url: "http://localhost:8080/LicenseService"
     apiKey: "test"
