@@ -8,6 +8,10 @@ project:
 spring:
   jpa:hibernate:ddl-auto: update
 
+  security:
+    jwt:
+      tokenPassword: ${JWT_TOKEN_PASSWORD}
+
   # Mail service configuration
   mail:
     # Use your environment variables
