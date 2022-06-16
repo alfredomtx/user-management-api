@@ -102,10 +102,7 @@ I finish any item or think of new things to add.
 
 <details><summary><b>Email</b></summary>
 
-- *️⃣ Create a microservice for the Email service(detach from the User service application).
-- *️⃣ Create a microservice for the Consumer/Subscriber of the Email queue.
-It's simple to do but for now I'm keeping in the same application to save costs with new Dynos 🙂 (since my application
- has low traffic).
+- *️⃣ Replace the current email service with Amazon Simple Email Service (SES). 
 - *️⃣ Implement unit tests.
 
 </details>
