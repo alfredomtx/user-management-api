@@ -40,8 +40,11 @@ spring:
     exchange: "amq.direct"
 
 
+# Configuration of FeignClient, used in LicenseServiceClient.java
 licenseservice:
+  # Feign client "name" param
   name: ${LICENSE_SERVICE_NAME}
   api:
+    # Feign client "url" param
     url: ${LICENSE_SERVICE_URL}
     apiKey: ${LICENSE_SERVICE_API_KEY}

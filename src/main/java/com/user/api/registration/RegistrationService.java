@@ -14,6 +14,8 @@ import com.user.api.email.model.EmailDTO;
 import com.user.api.exceptions.AccountActivationException;
 import com.user.api.exceptions.ResetPasswordTokenException;
 import com.user.api.exceptions.UserNotFoundException;
+import com.user.api.integration.LicenseRequest;
+import com.user.api.integration.LicenseService;
 import com.user.api.security.util.JWTUtil;
 import com.user.api.user.UserRepository;
 import com.user.api.user.model.User;
@@ -32,11 +34,15 @@ public class RegistrationService {
 	private EmailService emailService;
 	@Autowired
 	private UserUtil userUtil;
+	@Autowired
+	private LicenseService licenseService;
 
 	@Value("${project.api.domainUrl}")
 	private String apiDomainUrl;
 	@Value("${spring.security.jwt.tokenPassword}")
 	private String tokenPassword;
+
+	private final int TRIAL_DAYS = 5;
 
 	public void requestActivateAccountEmail(Map<String, String> fields) {
 		User user = userUtil.getUserObjectByIdOrEmailFromFields(fields);
@@ -78,6 +84,18 @@ public class RegistrationService {
 		user.setActive(true);
 		userProps.setActivateAccountToken(null);
 		userPropsService.saveUserProperties(userProps);
+
+		addTrialDaysToLicense(user);
+	}
+
+	// Automatically add the trial days to the license after the account is activated calling LicenseServiceClient
+	private void addTrialDaysToLicense(User user) {
+		LicenseRequest request = new LicenseRequest();
+		request.setEmail(user.getEmail());
+		request.setType("trial");
+		request.setDaysToAdd(TRIAL_DAYS);
+
+		licenseService.addLicense(request);
 	}
 
 	private void verifyActivateAccountToken(String token, User user){

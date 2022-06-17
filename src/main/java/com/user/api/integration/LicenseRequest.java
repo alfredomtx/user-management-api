@@ -17,9 +17,6 @@ public class LicenseRequest {
 
     @Email
     private String email;
-    
-    @NotBlank
-    private String apiKey;
 
     private int daysToAdd;
 

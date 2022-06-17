@@ -15,7 +15,6 @@ public class LicenseService {
 	}
 
     public String addLicense(LicenseRequest request){
-        
         return client.addLicense(request);
     }    
 }

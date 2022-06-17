@@ -20,8 +20,8 @@ on it as way to learn and improve my Java/Spring knowledge.
 Spring Security is responsible to manage Authentication and Authorization.
 When logging in, the user is authenticated in the database and receives an `access token`.
 
-### 🔴 Auth0 and Json Web Token (JWT)
-It uses `Auth0` for Authorization, generating **Json Web Tokens** to be used in every request by the users.
+### 🔴 Json Web Token (JWT)
+It uses `JWT` for Authorization, generating **Json Web Tokens** to be used in every request by the users.
 
 All requests received are intercepted by Spring Security and validations are performed to check whether
 the `access token` provided in the request is valid.
@@ -102,7 +102,7 @@ I finish any item or think of new things to add.
 
 <details><summary><b>Email</b></summary>
 
-- *️⃣ Replace the current email service with Amazon Simple Email Service (SES). 
+- *️⃣ Replace the current email service with AWS Simple Email Service (Amazon SES). 
 - *️⃣ Implement unit tests.
 
 </details>
