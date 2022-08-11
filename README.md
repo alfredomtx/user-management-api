@@ -74,7 +74,7 @@ MySQL I use in my local machine, and Postgre, since my application is deployed i
 Most of the `User` related Controller and Service methods have unit testing.
 More tests will be implemented as the project goes on.
 
-Another important pending work to do is implement **com.user.api.integration** tests, which I still need to learn how to implement.
+Another important pending work to do is implement **integration** tests, which I still need to learn how to implement.
 
 </details>
 
