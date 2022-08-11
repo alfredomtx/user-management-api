@@ -10,7 +10,7 @@ Currently, I'm using this API in my personal project [OldBot](https://oldbot.com
 
 
 ## Is the project finished?
-The answer is no! Very far from that! There are still much work to do related to this project, and I will keep working 
+The answer is no! Far from that! There are still lots of work to do related to this project, and I will keep working 
 on it as way to learn and improve my Java/Spring knowledge. 
 
 
