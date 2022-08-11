@@ -55,7 +55,7 @@ You can create your own instance of [RabbitMQ](https://www.rabbitmq.com/) using 
 , and it's very easy to use.
 
 - `RabbitMQService.java` is the Publisher which sends the messages to the queue.
-- `EmailConsumer.java` is the Subscriber which receives the queue messages and call **EmailService** to send the emails.
+- `EmailConsumer.java` is the Subscriber which receives the queue messages and calls **EmailService** to send the emails.
 
 </details>
 
