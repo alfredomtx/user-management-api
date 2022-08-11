@@ -86,8 +86,8 @@ I finish any item or think of new things to add.
 
 <details><summary><b>General stuff</b></summary>
 
-- *️⃣ Implement com.user.api.integration tests.
-- *️⃣ Implement API call limitations with Bucket4J.
+- *️⃣ Implement integration tests.
+- *️⃣ Implement API call limitations with `Bucket4J`.
 
 </details>
 
